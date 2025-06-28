@@ -1,213 +1,191 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" data-theme="light">
 <head>
-
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Log In | Silva - Responsive Admin Dashboard Template</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc." />
-    <meta name="author" content="Zoyothemes" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}" sizes="16x16" />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- App favicon -->
-    <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
-
-    <!-- App css -->
-    <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" id="app-style" />
-
-    <!-- Icons -->
-    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <!-- remix icon font css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}" />
+    <!-- BootStrap css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/bootstrap.min.css') }}" />
+    <!-- Apex Chart css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/apexcharts.css') }}" />
+    <!-- Data Table css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/dataTables.min.css') }}" />
+    <!-- Text Editor css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/editor-katex.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/editor.atom-one-dark.min.css') }}" />
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/editor.quill.snow.css') }}" />
+    <!-- Date picker css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/flatpickr.min.css') }}" />
+    <!-- Calendar css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/full-calendar.css') }}" />
+    <!-- Vector Map css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/jquery-jvectormap-2.0.5.css') }}" />
+    <!-- Popup css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/magnific-popup.css') }}" />
+    <!-- Slick Slider css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/slick.css') }}" />
+    <!-- prism css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/prism.css') }}" />
+    <!-- file upload css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/file-upload.css') }}" />
+    <!-- audioplayer css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/audioplayer.css') }}" />
+    <!-- main css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
 </head>
-
-<body class="bg-primary-subtle">
-    <!-- Begin page -->
-    <div class="account-page">
-        <div class="container-fluid p-0">
-            <div class="row align-items-center g-0">
-
-                {{-- <div class="position-absolute top-0 end-0 p-3">
-                        <a href="{{ route('patient.login') }}" class="btn btn-light btn-lg text-dark border shadow-sm">
-                            Login as Patient
-                        </a>
-                    </div> --}}
-
-                <div class="col-xl-5">
-                    <div class="row">
-                        <div class="col-md-8 mx-auto">
-                            <div class="card p-3 mb-0">
-                                <div class="card-body">
-
-                                    <div class="mb-0 border-0 p-md-5 p-lg-0 p-4">
-                                        <div class="mb-4 p-0 text-center">
-                                            <a href="index.html" class="auth-logo">
-                                                <img src="{{ asset('assets/images/logo-dark.png') }}" alt="logo-dark"
-                                                    class="mx-auto" height="28" />
-                                            </a>
-                                        </div>
-
-                                        @if ($errors->any())
-                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                                <ul class="mb-0">
-                                                    @foreach ($errors->all() as $error)
-                                                        <li>{{ $error }}</li>
-                                                    @endforeach
-                                                </ul>
-                                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                        @endif
-
-
-                                        <div class="auth-title-section mb-3 text-center">
-                                            <h3 class="text-dark fs-20 fw-medium mb-2">Welcome back</h3>
-                                            <p class="text-dark text-capitalize fs-14 mb-0">Sign in to continue to
-                                                silve.</p>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-6 mt-2">
-                                                <a href="{{ route('google.login') }}" class="btn text-dark border fw-normal d-flex align-items-center justify-content-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" class="me-2">
-                                                        <path fill="#ffc107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917" />
-                                                        <path fill="#ff3d00" d="m6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691" />
-                                                        <path fill="#4caf50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44" />
-                                                        <path fill="#1976d2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917" />
-                                                    </svg>
-                                                    <span>Google</span>
-                                                </a>
-                                            </div>
-                                            
-
-                                            <div class="col-6 mt-2">
-                                                <a href="{{ route('facebook.login') }}" class="btn text-dark border fw-normal d-flex align-items-center justify-content-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" class="me-2">
-                                                        <path fill="#1877f2"
-                                                              d="M256 128C256 57.308 198.692 0 128 0S0 57.308 0 128c0 63.888 46.808 116.843 108 126.445V165H75.5v-37H108V99.8c0-32.08 19.11-49.8 48.348-49.8C170.352 50 185 52.5 185 52.5V84h-16.14C152.959 84 148 93.867 148 103.99V128h35.5l-5.675 37H148v89.445c61.192-9.602 108-62.556 108-126.445"/>
-                                                        <path fill="#fff"
-                                                              d="m177.825 165l5.675-37H148v-24.01C148 93.866 152.959 84 168.86 84H185V52.5S170.352 50 156.347 50C127.11 50 108 67.72 108 99.8V128H75.5v37H108v89.445A129 129 0 0 0 128 256a129 129 0 0 0 20-1.555V165z"/>
-                                                    </svg>
-                                                    <span>Facebook</span>
-                                                </a>
-                                            </div>
-                                            
-                                        </div>
-
-                                        <div class="saprator my-4"><span>or continue with email</span></div>
-
-                                        <div class="pt-0">
-                                            <form id="loginForm" action="{{ route('login') }}" method="POST">
-                                                @csrf
-                                                <div class="form-group mb-3">
-                                                    <label for="emailaddress" class="form-label">Email address</label>
-                                                    <input class="form-control" type="email" id="emailaddress"
-                                                        name="email" required placeholder="Enter your email"
-                                                        value="{{ old('email') }}">
-                                                </div>
-                                                <div class="form-group mb-3">
-                                                    <label for="password" class="form-label">Password</label>
-                                                    <div class="input-group">
-                                                        <input class="form-control" type="password" name="password"
-                                                            id="password" required placeholder="Enter your password">
-                                                        <button class="btn btn-outline-secondary" type="button"
-                                                            id="togglePassword">
-                                                            <i class="fas fa-eye" id="eyeIcon"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Buttons to autofill email and password -->
-                                                <div class="d-flex flex-wrap gap-2 mb-3">
-                                                    <button type="button" class="btn btn-secondary"
-                                                        onclick="fillLogin('a@a', 'a')">Admin</button>
-                                                    <button type="button" class="btn btn-secondary"
-                                                        onclick="fillLogin('u@u', 'a')">User</button>
-
-                                                </div>
-
-                                                <div class="form-group mb-0 row">
-                                                    <div class="col-12">
-                                                        <div class="d-grid">
-                                                            <button class="btn btn-primary" type="submit">Log
-                                                                In</button>
-                                                        </div>
-
-                                                    </div>
-
-                                                </div>
-
-                                            </form>
-                                            <div class="text-center text-muted mb-4">
-                                                <p class="mb-0">Don't have an account ?<a
-                                                        class='text-primary ms-2 fw-medium'
-                                                        href='{{ route('registerform') }}'>Signup here</a></p>
-                                            </div>
-
-                                        </div>
-
-                                        <!-- JavaScript for autofilling email and password -->
-
-
-                                    </div>
-
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-7">
-                    <div class="account-page-bg p-md-5 p-4">
-                        <div class="text-center">
-                            <div class="auth-image">
-                                <img src="{{ asset('assets/images/auth-images.svg') }}" class="mx-auto img-fluid"
-                                    alt="images">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+<body>
+<section class="auth bg-base d-flex flex-wrap">
+    <div class="auth-left d-lg-block d-none">
+        <div class="d-flex align-items-center flex-column h-100 justify-content-center">
+            <img src="{{ asset('assets/images/auth/auth-img.png') }}" alt="">
         </div>
     </div>
-    <script>
-        function fillLogin(email, password) {
-            document.getElementById('emailaddress').value = email;
-            document.getElementById('password').value = password;
-            document.getElementById('loginForm').submit();
-        }
-    </script>
 
-    <script>
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            var passwordInput = document.getElementById('password');
-            var eyeIcon = document.getElementById('eyeIcon');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            }
-        });
-    </script>
-    <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/node-waves/waves.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/waypoints/lib/jquery.waypoints.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/jquery.counterup/jquery.counterup.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/feather-icons/feather.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js') }}"></script>
-    <script src="https://apexcharts.com/samples/assets/stock-prices.js"></script>
-    <script src="{{ asset('assets/js/pages/crm-dashboard.init.js') }}"></script>
-    <script src="{{ asset('assets/js/app.js') }}"></script>
+    <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
+        <div class="max-w-464-px mx-auto w-100">
+            <div class="text-center mb-40">
+                <a href="{{ url('/') }}" class="max-w-290-px d-inline-block">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="logo">
+                </a>
+            </div>
 
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
+            <h4 class="mb-12">Welcome back</h4>
+            <p class="mb-32 text-secondary-light text-lg">Sign in to continue to Silva.</p>
+
+            <form id="loginForm" action="{{ route('login') }}" method="POST">
+                @csrf
+
+                <div class="row mb-32">
+                    <div class="col-6">
+                        <a href="{{ route('google.login') }}" class="btn text-primary-600 border d-flex align-items-center justify-content-center w-100 gap-2">
+                            <iconify-icon icon="logos:google-icon" class="text-xl"></iconify-icon>
+                            Google
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ route('facebook.login') }}" class="btn text-primary-600 border d-flex align-items-center justify-content-center w-100 gap-2">
+                            <iconify-icon icon="ic:baseline-facebook" class="text-xl"></iconify-icon>
+                            Facebook
+                        </a>
+                    </div>
+                </div>
+
+                <div class="center-border-horizontal text-center mb-32">
+                    <span class="bg-base z-1 px-4">or continue with email</span>
+                </div>
+
+                <div class="icon-field mb-16">
+                    <span class="icon top-50 translate-middle-y">
+                        <iconify-icon icon="mage:email"></iconify-icon>
+                    </span>
+                    <input type="email"
+                           name="email"
+                           id="emailaddress"
+                           class="form-control h-56-px bg-neutral-50 radius-12"
+                           placeholder="Email address"
+                           required
+                           value="{{ old('email') }}">
+                </div>
+
+                <div class="position-relative mb-20">
+                    <div class="icon-field">
+                        <span class="icon top-50 translate-middle-y">
+                            <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
+                        </span>
+                        <input type="password"
+                               name="password"
+                               id="password"
+                               class="form-control h-56-px bg-neutral-50 radius-12"
+                               placeholder="Password"
+                               required>
+                        <button type="button"
+                                id="togglePassword"
+                                class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light"
+                                data-toggle="#password"></button>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mb-32">
+                    <div class="form-check style-check d-flex align-items-center">
+                        <input class="form-check-input border border-neutral-300" type="checkbox" id="remember">
+                        <label class="form-check-label ms-2" for="remember">Remember me</label>
+                    </div>
+                    <a href="javascript:void(0)" class="text-primary-600 fw-medium">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mb-32">
+                    Log In
+                </button>
+
+                <div class="d-flex flex-wrap gap-2 mb-32">
+                    <button type="button" class="btn btn-secondary" onclick="fillLogin('a@a','a')">Admin</button>
+                    {{-- <button type="button" class="btn btn-secondary" onclick="fillLogin('u@u','a')">User</button> --}}
+                </div>
+
+                <p class="text-center text-sm mb-0">
+                    Don’t have an account?
+                    <a href="{{ route('registerform') }}" class="text-primary-600 fw-semibold">Sign Up</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- jQuery -->
+<script src="{{ asset('assets/js/lib/jquery-3.7.1.min.js') }}"></script>
+<!-- Bootstrap -->
+<script src="{{ asset('assets/js/lib/bootstrap.bundle.min.js') }}"></script>
+<!-- Apex Charts -->
+<script src="{{ asset('assets/js/lib/apexcharts.min.js') }}"></script>
+<!-- DataTables -->
+<script src="{{ asset('assets/js/lib/dataTables.min.js') }}"></script>
+<!-- Iconify -->
+<script src="{{ asset('assets/js/lib/iconify-icon.min.js') }}"></script>
+<!-- jQuery UI -->
+<script src="{{ asset('assets/js/lib/jquery-ui.min.js') }}"></script>
+<!-- Vector Map -->
+<script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
+<script src="{{ asset('assets/js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
+<!-- Popup -->
+<script src="{{ asset('assets/js/lib/magnific-popup.min.js') }}"></script>
+<!-- Slick Slider -->
+<script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
+<!-- Prism -->
+<script src="{{ asset('assets/js/lib/prism.js') }}"></script>
+<!-- File Upload -->
+<script src="{{ asset('assets/js/lib/file-upload.js') }}"></script>
+<!-- Audioplayer -->
+<script src="{{ asset('assets/js/lib/audioplayer.js') }}"></script>
+<!-- Main JS -->
+<script src="{{ asset('assets/js/app.js') }}"></script>
+
+<script>
+    function fillLogin(email, password) {
+        document.getElementById('emailaddress').value = email;
+        document.getElementById('password').value = password;
+        document.getElementById('loginForm').submit();
+    }
+
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        this.classList.toggle('ri-eye-off-line');
+        let input = document.querySelector(this.getAttribute('data-toggle'));
+        input.type = input.type === 'password' ? 'text' : 'password';
+    });
+</script>
 </body>
-
 </html>

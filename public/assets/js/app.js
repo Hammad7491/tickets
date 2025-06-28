@@ -1,1 +1,134 @@
-"use strict";function _classCallCheck(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function _defineProperties(e,t){for(var n=0;n<t.length;n++){var a=t[n];a.enumerable=a.enumerable||!1,a.configurable=!0,"value"in a&&(a.writable=!0),Object.defineProperty(e,a.key,a)}}function _createClass(e,t,n){return t&&_defineProperties(e.prototype,t),n&&_defineProperties(e,n),e}function _defineProperty(e,t,n){return t in e?Object.defineProperty(e,t,{value:n,enumerable:!0,configurable:!0,writable:!0}):e[t]=n,e}var App=function(){function e(){_classCallCheck(this,e),_defineProperty(this,"initControls",function(){function e(){document.webkitIsFullScreen||document.mozFullScreen||document.msFullscreenElement||$("body").removeClass("fullscreen-enable")}$('[data-toggle="fullscreen"]').on("click",function(e){e.preventDefault(),$("body").toggleClass("fullscreen-enable"),document.fullscreenElement||document.mozFullScreenElement||document.webkitFullscreenElement?document.cancelFullScreen?document.cancelFullScreen():document.mozCancelFullScreen?document.mozCancelFullScreen():document.webkitCancelFullScreen&&document.webkitCancelFullScreen():document.documentElement.requestFullscreen?document.documentElement.requestFullscreen():document.documentElement.mozRequestFullScreen?document.documentElement.mozRequestFullScreen():document.documentElement.webkitRequestFullscreen&&document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT)}),document.addEventListener("fullscreenchange",e),document.addEventListener("webkitfullscreenchange",e),document.addEventListener("mozfullscreenchange",e)})}return _createClass(e,[{key:"initComponents",value:function(){Waves.init(),feather.replace();[].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]')).map(function(e){return new bootstrap.Popover(e)}),[].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(function(e){return new bootstrap.Tooltip(e)}),[].slice.call(document.querySelectorAll(".toast")).map(function(e){return new bootstrap.Toast(e)});var e=document.getElementById("toastPlacement");e&&document.getElementById("selectToastPlacement").addEventListener("change",function(){e.dataset.originalClass||(e.dataset.originalClass=e.className),e.className=e.dataset.originalClass+" "+this.value});var a=document.getElementById("liveAlertPlaceholder"),t=document.getElementById("liveAlertBtn");t&&t.addEventListener("click",function(){var e,t,n;e="Nice, you triggered this alert message!",t="primary",(n=document.createElement("div")).innerHTML='<div class="alert alert-'+t+' alert-dismissible" role="alert">'+e+'<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>',a.append(n)})}},{key:"initMenu",value:function(){var e=document.body,t=document.querySelector(".button-toggle-menu");t&&t.addEventListener("click",function(){"default"==e.getAttribute("data-sidebar")?e.setAttribute("data-sidebar","hidden"):e.setAttribute("data-sidebar","default")});t=function(){window.innerWidth<1040?e.setAttribute("data-sidebar","hidden"):e.setAttribute("data-sidebar","default")};t(),window.addEventListener("resize",t),$("#side-menu").length&&($("#side-menu li .collapse").on({"show.bs.collapse":function(e){e=$(e.target).parents(".collapse.show");$("#side-menu .collapse.show").not(e).collapse("hide")}}),$("#side-menu a").each(function(){var e=window.location.href.split(/[?#]/)[0];this.href==e&&($(this).addClass("active"),$(this).parent().addClass("menuitem-active"),$(this).parent().parent().parent().addClass("show"),$(this).parent().parent().parent().parent().addClass("menuitem-active"),"sidebar-menu"!==(e=$(this).parent().parent().parent().parent().parent().parent()).attr("id")&&e.addClass("show"),$(this).parent().parent().parent().parent().parent().parent().parent().addClass("menuitem-active"),"wrapper"!==(e=$(this).parent().parent().parent().parent().parent().parent().parent().parent().parent()).attr("id")&&e.addClass("show"),(e=$(this).parent().parent().parent().parent().parent().parent().parent().parent().parent().parent()).is("body")||e.addClass("menuitem-active"))}))}},{key:"init",value:function(){this.initComponents(),this.initMenu(),this.initControls()}}]),e}();(new App).init();
+(function ($) {
+  'use strict';
+
+  // sidebar submenu collapsible js
+  $(".sidebar-menu .dropdown").on("click", function(){
+    var item = $(this);
+    item.siblings(".dropdown").children(".sidebar-submenu").slideUp();
+
+    item.siblings(".dropdown").removeClass("dropdown-open");
+
+    item.siblings(".dropdown").removeClass("open");
+
+    item.children(".sidebar-submenu").slideToggle();
+
+    item.toggleClass("dropdown-open");
+  });
+
+  $(".sidebar-toggle").on("click", function(){
+    $(this).toggleClass("active");
+    $(".sidebar").toggleClass("active");
+    $(".dashboard-main").toggleClass("active");
+  });
+
+  $(".sidebar-mobile-toggle").on("click", function(){
+    $(".sidebar").addClass("sidebar-open");
+    $("body").addClass("overlay-active");
+  });
+
+  $(".sidebar-close-btn").on("click", function(){
+    $(".sidebar").removeClass("sidebar-open");
+    $("body").removeClass("overlay-active");
+  });
+
+  //to keep the current page active
+  $(function () {
+    for (
+      var nk = window.location,
+        o = $("ul#sidebar-menu a")
+          .filter(function () {
+            return this.href == nk;
+          })
+          .addClass("active-page") // anchor
+          .parent()
+          .addClass("active-page");
+      ;
+
+    ) {
+      // li
+      if (!o.is("li")) break;
+      o = o.parent().addClass("show").parent().addClass("open");
+    }
+  });
+
+/**
+* Utility function to calculate the current theme setting based on localStorage.
+*/
+function calculateSettingAsThemeString({ localStorageTheme }) {
+  if (localStorageTheme !== null) {
+    return localStorageTheme;
+  }
+  return "light"; // default to light theme if nothing is stored
+}
+
+/**
+* Utility function to update the button text and aria-label.
+*/
+function updateButton({ buttonEl, isDark }) {
+  const newCta = isDark ? "dark" : "light";
+  buttonEl.setAttribute("aria-label", newCta);
+  buttonEl.innerText = newCta;
+}
+
+/**
+* Utility function to update the theme setting on the html tag.
+*/
+function updateThemeOnHtmlEl({ theme }) {
+  document.querySelector("html").setAttribute("data-theme", theme);
+}
+
+/**
+* 1. Grab what we need from the DOM and system settings on page load.
+*/
+const button = document.querySelector("[data-theme-toggle]");
+const localStorageTheme = localStorage.getItem("theme");
+
+/**
+* 2. Work out the current site settings.
+*/
+let currentThemeSetting = calculateSettingAsThemeString({ localStorageTheme });
+
+/**
+* 3. If the button exists, update the theme setting and button text according to current settings.
+*/
+if (button) {
+  updateButton({ buttonEl: button, isDark: currentThemeSetting === "dark" });
+  updateThemeOnHtmlEl({ theme: currentThemeSetting });
+
+  /**
+  * 4. Add an event listener to toggle the theme.
+  */
+  button.addEventListener("click", (event) => {
+    const newTheme = currentThemeSetting === "dark" ? "light" : "dark";
+
+    localStorage.setItem("theme", newTheme);
+    updateButton({ buttonEl: button, isDark: newTheme === "dark" });
+    updateThemeOnHtmlEl({ theme: newTheme });
+
+    currentThemeSetting = newTheme;
+  });
+} else {
+  // If no button is found, just apply the current theme to the page
+  updateThemeOnHtmlEl({ theme: currentThemeSetting });
+}
+
+
+// =========================== Table Header Checkbox checked all js Start ================================
+$('#selectAll').on('change', function () {
+  $('.form-check .form-check-input').prop('checked', $(this).prop('checked')); 
+}); 
+
+  // Remove Table Tr when click on remove btn start
+  $('.remove-btn').on('click', function () {
+    $(this).closest('tr').remove(); 
+
+    // Check if the table has no rows left
+    if ($('.table tbody tr').length === 0) {
+      $('.table').addClass('bg-danger');
+
+      // Show notification
+      $('.no-items-found').show();
+    }
+  });
+  // Remove Table Tr when click on remove btn end
+})(jQuery);

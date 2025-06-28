@@ -1,6 +1,6 @@
 <?php
-
 // database/seeders/UserSeeder.php
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -11,20 +11,44 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // Create a regular user
-        User::create([
-            'name' => 'John Doe',
-            'email' => 'u@u',
-            'password' => Hash::make('a'),
-            'role' => 'user', 
-        ]);
+        // — Admin User —
+        $admin = User::updateOrCreate(
+            ['name' => 'Admin User'],
+            [
+                'email'    => 'a@a',
+                'password' => Hash::make('a'),
+            ]
+        );
+        $admin->syncRoles('Admin');
 
-        // Create an admin user
-        User::create([
-            'name' => 'Admin User',
-            'email' => 'a@a',
-            'password' => Hash::make('a'),  // Admin password
-            'role' => 'admin',  // Admin role
-        ]);
+        // — Site Manager User —
+        $manager = User::updateOrCreate(
+            ['name' => 'Site Manager User'],
+            [
+                'email'    => 'manager@example.com',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $manager->syncRoles('Site Manager');
+
+        // — Collaborator User —
+        $collaborator = User::updateOrCreate(
+            ['name' => 'Collaborator User'],
+            [
+                'email'    => 'collaborator@example.com',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $collaborator->syncRoles('Collaborator');
+
+        // — Client User —
+        $client = User::updateOrCreate(
+            ['name' => 'Client User'],
+            [
+                'email'    => 'client@example.com',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $client->syncRoles('Client');
     }
 }
