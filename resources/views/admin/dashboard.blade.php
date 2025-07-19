@@ -260,7 +260,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user1.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user1.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Dianne Russell</h6>
@@ -279,7 +279,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user2.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user2.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Wade Warren</h6>
@@ -298,7 +298,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user3.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user3.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Albert Flores</h6>
@@ -317,7 +317,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user4.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user4.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Bessie Cooper </h6>
@@ -336,7 +336,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user5.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user5.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Arlene McCoy</h6>
@@ -372,7 +372,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user1.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user1.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Dianne Russell</h6>
@@ -391,7 +391,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user2.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user2.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Wade Warren</h6>
@@ -410,7 +410,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user3.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user3.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Albert Flores</h6>
@@ -429,7 +429,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user4.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user4.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Bessie Cooper </h6>
@@ -448,7 +448,7 @@
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="assets/images/users/user5.png" alt=""
+                                                        <img src="{{ asset('assets/images/users/user5.png') }}" alt=""
                                                             class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                                         <div class="flex-grow-1">
                                                             <h6 class="text-md mb-0 fw-medium">Arlene McCoy</h6>
@@ -488,7 +488,7 @@
 
                             <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/users/user1.png" alt=""
+                                    <img src="{{ asset('assets/images/users/user1.png') }}" alt=""
                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                     <div class="flex-grow-1">
                                         <h6 class="text-md mb-0 fw-medium">Dianne Russell</h6>
@@ -500,7 +500,7 @@
 
                             <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/users/user2.png" alt=""
+                                    <img src="{{ asset('assets/images/users/user2.png') }}" alt=""
                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                     <div class="flex-grow-1">
                                         <h6 class="text-md mb-0 fw-medium">Wade Warren</h6>
@@ -512,7 +512,7 @@
 
                             <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/users/user3.png" alt=""
+                                    <img src="{{ asset('assets/images/users/user3.png') }}" alt=""
                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                     <div class="flex-grow-1">
                                         <h6 class="text-md mb-0 fw-medium">Albert Flores</h6>
@@ -524,7 +524,7 @@
 
                             <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/users/user4.png" alt=""
+                                    <img src="{{ asset('assets/images/users/user4.png') }}" alt=""
                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                     <div class="flex-grow-1">
                                         <h6 class="text-md mb-0 fw-medium">Bessie Cooper</h6>
@@ -536,7 +536,7 @@
 
                             <div class="d-flex align-items-center justify-content-between gap-3 mb-24">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/users/user5.png" alt=""
+                                    <img src="{{ asset('assets/images/users/user5.png') }}" alt=""
                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                     <div class="flex-grow-1">
                                         <h6 class="text-md mb-0 fw-medium">Arlene McCoy</h6>
@@ -548,7 +548,7 @@
 
                             <div class="d-flex align-items-center justify-content-between gap-3">
                                 <div class="d-flex align-items-center">
-                                    <img src="assets/images/users/user1.png" alt=""
+                                    <img src="{{ asset('assets/images/users/user1.png') }}" alt=""
                                         class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
                                     <div class="flex-grow-1">
                                         <h6 class="text-md mb-0 fw-medium">Arlene McCoy</h6>
@@ -586,7 +586,7 @@
                                     <div class="max-h-266-px overflow-y-auto scroll-sm pe-16">
                                         <div class="d-flex align-items-center justify-content-between gap-3 mb-12 pb-2">
                                             <div class="d-flex align-items-center w-100">
-                                                <img src="assets/images/flags/flag1.png" alt=""
+                                                <img src="{{ asset('assets/images/flags/flag1.png') }}" alt=""
                                                     class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
                                                 <div class="flex-grow-1">
                                                     <h6 class="text-sm mb-0">USA</h6>
@@ -609,7 +609,7 @@
 
                                         <div class="d-flex align-items-center justify-content-between gap-3 mb-12 pb-2">
                                             <div class="d-flex align-items-center w-100">
-                                                <img src="assets/images/flags/flag2.png" alt=""
+                                                <img src="{{ asset('assets/images/flags/flag2.png') }}" alt=""
                                                     class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
                                                 <div class="flex-grow-1">
                                                     <h6 class="text-sm mb-0">Japan</h6>
@@ -632,7 +632,7 @@
 
                                         <div class="d-flex align-items-center justify-content-between gap-3 mb-12 pb-2">
                                             <div class="d-flex align-items-center w-100">
-                                                <img src="assets/images/flags/flag3.png" alt=""
+                                                <img src="{{ asset('assets/images/flags/flag3.png') }}" alt=""
                                                     class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
                                                 <div class="flex-grow-1">
                                                     <h6 class="text-sm mb-0">France</h6>
@@ -655,7 +655,7 @@
 
                                         <div class="d-flex align-items-center justify-content-between gap-3 mb-12 pb-2">
                                             <div class="d-flex align-items-center w-100">
-                                                <img src="assets/images/flags/flag4.png" alt=""
+                                                <img src="{{ asset('assets/images/flags/flag4.png') }}" alt=""
                                                     class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
                                                 <div class="flex-grow-1">
                                                     <h6 class="text-sm mb-0">Germany</h6>
@@ -678,7 +678,7 @@
 
                                         <div class="d-flex align-items-center justify-content-between gap-3 mb-12 pb-2">
                                             <div class="d-flex align-items-center w-100">
-                                                <img src="assets/images/flags/flag5.png" alt=""
+                                                <img src="{{ asset('assets/images/flags/flag5.png') }}" alt=""
                                                     class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
                                                 <div class="flex-grow-1">
                                                     <h6 class="text-sm mb-0">South Korea</h6>
@@ -700,7 +700,7 @@
                                         </div>
                                         <div class="d-flex align-items-center justify-content-between gap-3">
                                             <div class="d-flex align-items-center w-100">
-                                                <img src="assets/images/flags/flag1.png" alt=""
+                                                <img src="{{ asset('assets/images/flags/flag1.png') }}" alt=""
                                                     class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12">
                                                 <div class="flex-grow-1">
                                                     <h6 class="text-sm mb-0">USA</h6>
