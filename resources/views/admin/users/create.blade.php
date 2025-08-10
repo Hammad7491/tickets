@@ -113,7 +113,7 @@
             id="roles"
             name="roles[]"
             class="form-select"
-            
+            multiple
             required
           >
             @foreach($roles as $role)
