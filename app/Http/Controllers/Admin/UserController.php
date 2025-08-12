@@ -1,54 +1,89 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+    private const ALLOWED_ROLES = ['admin','user'];
+
     public function index()
     {
-        $users = User::with('roles')->get();
+        Role::firstOrCreate(['name'=>'admin','guard_name'=>'web']);
+        Role::firstOrCreate(['name'=>'user','guard_name'=>'web']);
+
+        $users = User::select('id','name','email','phone','is_blocked')
+            ->with(['roles' => fn($q) => $q->whereIn('name', self::ALLOWED_ROLES)->select('id','name')])
+            ->orderBy('name')
+            ->get();
+
         return view('admin.users.index', compact('users'));
     }
 
+    /** New page: users list (Name, Email, Phone, Status) with Add/Delete */
+    public function show()
+{
+    $users = User::with('roles') // eager load roles
+        ->select('id', 'name', 'email', 'phone', 'is_blocked')
+        ->orderByDesc('id')
+        ->get();
+
+    return view('admin.users.show', compact('users'));
+}
+
     public function create()
     {
-        $roles = Role::all();
-        return view('admin.users.create', [
-            'roles'     => $roles,
-            'userRoles' => [],
-        ]);
+        $roles = Role::whereIn('name', self::ALLOWED_ROLES)
+            ->orderByRaw("FIELD(name,'admin','user')")
+            ->get(['name']);
+
+        return view('admin.users.create', ['roles'=>$roles, 'userRoles'=>[]]);
     }
 
+
+    class UserDashboardController extends Controller
+{
+    public function index()
+    {
+        return view('users.dashboard');
+    }
+}
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|confirmed|min:6',
-            'roles'    => 'required|array',
+            'name'     => ['required','string','max:255'],
+            'email'    => ['required','email','max:255','unique:users,email'],
+            'password' => ['required','confirmed','min:8'],
+            'phone'    => ['nullable','string','max:30'],
         ]);
 
         $user = User::create([
-            'name'     => $data['name'],
-            'email'    => $data['email'],
+            'name'     => trim($data['name']),
+            'email'    => strtolower(trim($data['email'])),
             'password' => Hash::make($data['password']),
+            'phone'    => $data['phone'] ?? null,
         ]);
 
-        $user->syncRoles($data['roles']);
+        Role::firstOrCreate(['name'=>'admin','guard_name'=>'web']);
+        Role::firstOrCreate(['name'=>'user','guard_name'=>'web']);
+        $user->syncRoles(['admin']); // admin-created user => admin
 
-        return redirect()->route('admin.users.index')
-                         ->with('success','User created.');
+        return redirect()->route('admin.users.index')->with('success','Admin user created.');
     }
 
     public function edit(User $user)
     {
-        $roles     = Role::all();
-        $userRoles = $user->roles->pluck('name')->toArray();
+        $roles = Role::whereIn('name', self::ALLOWED_ROLES)
+            ->orderByRaw("FIELD(name,'admin','user')")
+            ->get(['name']);
+        $userRoles = $user->roles()->pluck('name')->toArray();
 
         return view('admin.users.create', compact('user','roles','userRoles'));
     }
@@ -56,29 +91,61 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $data = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email,'.$user->id,
-            'password' => 'nullable|confirmed|min:6',
-            'roles'    => 'required|array',
+            'name'     => ['required','string','max:255'],
+            'email'    => ['required','email','max:255','unique:users,email,'.$user->id],
+            'password' => ['nullable','confirmed','min:8'],
+            'phone'    => ['nullable','string','max:30'],
+            'roles'    => ['sometimes','array'],
         ]);
 
-        $user->name  = $data['name'];
-        $user->email = $data['email'];
-        if (! empty($data['password'])) {
+        $user->name  = trim($data['name']);
+        $user->email = strtolower(trim($data['email']));
+        $user->phone = $data['phone'] ?? null;
+
+        if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
         $user->save();
 
-        $user->syncRoles($data['roles']);
+        if ($request->has('roles')) {
+            $picked = array_values(array_intersect((array)$request->roles, self::ALLOWED_ROLES));
+            if (empty($picked)) {
+                $picked = $user->roles()->pluck('name')->toArray();
+                if (empty($picked)) $picked = ['admin'];
+            }
+            $user->syncRoles($picked);
+        }
 
-        return redirect()->route('admin.users.index')
-                         ->with('success','User updated.');
+        return redirect()->route('admin.users.index')->with('success','User updated.');
     }
 
     public function destroy(User $user)
     {
+        if (auth()->id() === $user->id) {
+            return back()->with('success','You cannot delete your own account.');
+        }
         $user->delete();
-        return redirect()->route('admin.users.index')
-                         ->with('success','User deleted.');
+        return redirect()->route('admin.users.index')->with('success','User deleted.');
+    }
+
+    public function block(User $user)
+    {
+        if (auth()->id() === $user->id) {
+            return back()->with('success','You cannot block yourself.');
+        }
+        $user->is_blocked = true;
+        $user->save();
+
+        if (config('session.driver') === 'database' && Schema::hasTable('sessions')) {
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+        }
+        return back()->with('success','User blocked.');
+    }
+
+    public function unblock(User $user)
+    {
+        $user->is_blocked = false;
+        $user->save();
+        return back()->with('success','User unblocked.');
     }
 }

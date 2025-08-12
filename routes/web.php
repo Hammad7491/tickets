@@ -7,10 +7,12 @@ use App\Http\Controllers\Admin\SiteController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Chatbot\ChatbotController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Chatbot\UserNameController;
+use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 
 // Public
@@ -67,3 +69,32 @@ Route::middleware('auth')->group(function () {
                     ->middleware('can:view permissions');
           });
 });
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+
+    Route::post('users/{user}/block',  [\App\Http\Controllers\Admin\UserController::class, 'block'])->name('users.block');
+    Route::post('users/{user}/unblock',[\App\Http\Controllers\Admin\UserController::class, 'unblock'])->name('users.unblock');
+});
+
+
+// routes/web.php
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::resource('tickets', \App\Http\Controllers\Admin\TicketController::class);
+});
+
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    // List page (no user param)
+    Route::get('users/list', [UserController::class, 'listPage'])->name('users.list');
+
+    // Resource routes WITHOUT 'show'
+    Route::resource('users', UserController::class)->except(['show']);
+
+    // Block / Unblock
+    Route::post('users/{user}/block',   [UserController::class, 'block'])->name('users.block');
+    Route::post('users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
+});
+
+Route::get('/user/dashboard', [UserDashboardController::class, 'index'])
+    ->middleware('auth')
+    ->name('users.dashboard');   // or ->name('user.dashboard') if you prefer

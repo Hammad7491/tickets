@@ -6,24 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+
+            $table->string('name');                        // Not unique
             $table->string('email')->unique();
+            $table->string('phone', 20)->nullable()->unique(); // Phone number
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password')->nullable();  ;
-            $table->string('role')->default('user');  
-            $table->string('google_id')->nullable();  
-            $table->string('facebook_id')->nullable();  
-            $table->string('avatar')->nullable(); 
+
+            $table->string('password')->nullable();        // Nullable for social login only accounts
+
+            // Role column (default: user)
+            $table->string('role')->default('user')->index();
+
+            // Admin block/unblock feature
+            $table->boolean('is_blocked')->default(false)->index();
+
+            // Social login IDs
+            $table->string('google_id', 191)->nullable()->unique();
+            $table->string('facebook_id', 191)->nullable()->unique();
+
+            // Profile image path or URL
+            $table->string('avatar')->nullable();
 
             $table->rememberToken();
             $table->timestamps();
+            // $table->softDeletes(); // Uncomment if you want soft deletes
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -42,13 +52,10 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

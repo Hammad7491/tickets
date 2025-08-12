@@ -71,19 +71,19 @@
     </div>
   </div>
 
-  {{-- TICKETS (CODES) - realtime filter --}}
+  {{-- TICKETS (CODES) --}}
   <div class="card h-100 mt-4">
     <div class="card-body p-24">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
         <h6 class="mb-0 fw-bold text-lg">Tickets (Codes)</h6>
 
         <div class="d-flex align-items-center gap-2 ms-auto">
-          <div class="input-group input-group-sm" style="max-width: 260px;">
+          <div class="input-group input-group-sm" style="max-width: 240px;">
             <span class="input-group-text">
               <iconify-icon icon="solar:magnifer-linear" class="text-muted"></iconify-icon>
             </span>
             <input id="ticketSearch" type="text" class="form-control"
-                   placeholder="Type code (e.g., 2238)" autocomplete="off">
+                   placeholder="Filter by code (e.g., 1536)" autocomplete="off">
             <button class="btn btn-outline-secondary" type="button" id="clearTicketSearch" style="display:none;">
               Clear
             </button>
@@ -128,7 +128,8 @@
   .ticket-card:hover{
     transform:translateY(-1px);
     box-shadow:0 6px 18px rgba(15,23,42,.10);
-    border-color:#c7d2fe; background:#f8fafc;
+    border-color:#c7d2fe;
+    background:#f8fafc;
   }
   .ticket-card::before,
   .ticket-card::after{
@@ -154,7 +155,7 @@
   }
 </style>
 
-{{-- Copy + Realtime filter + notch bg sync --}}
+{{-- Copy + Filter --}}
 <script>
   // Copy ticket code to clipboard
   document.querySelectorAll('.ticket-card').forEach(el=>{
@@ -169,41 +170,44 @@
     });
   });
 
-  // Sync notch fill with page background
+  // Page background -> notch fill
   (function(){
     const bg = getComputedStyle(document.body).backgroundColor || '#f5f7fb';
     document.documentElement.style.setProperty('--dash-bg', bg);
   })();
 
-  // Real-time filter by code
+  // Filter by code (client-side)
   (function(){
-    const input  = document.getElementById('ticketSearch');
-    const clear  = document.getElementById('clearTicketSearch');
-    const count  = document.getElementById('ticketsCount');
-    const noMatch= document.getElementById('noTicketMatch');
-    const cols   = Array.from(document.querySelectorAll('#ticketsGrid .ticket-col'));
+    const input = document.getElementById('ticketSearch');
+    const clear = document.getElementById('clearTicketSearch');
+    const count = document.getElementById('ticketsCount');
+    const noMatch = document.getElementById('noTicketMatch');
+    const cards = Array.from(document.querySelectorAll('.ticket-card'));
 
-    function applyFilter(q){
-      q = (q || '').trim().toLowerCase();
+    function applyFilter(){
+      const q = (input.value || '').trim().toLowerCase();
       let shown = 0;
-      cols.forEach(col=>{
-        const card = col.querySelector('.ticket-card');
-        const code = (card?.dataset.code || '').toLowerCase();
+
+      cards.forEach(card=>{
+        const code = (card.dataset.code || '').toLowerCase();
         const match = code.includes(q);
+        const col = card.closest('.ticket-col') || card.parentElement;
         col.style.display = match ? '' : 'none';
         if (match) shown++;
       });
+
       count.textContent = `${shown} shown`;
       clear.style.display = q ? '' : 'none';
       if (noMatch) noMatch.style.display = shown ? 'none' : '';
     }
 
-    let t; const deb = fn => (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), 100); };
-    input?.addEventListener('input', deb(()=>applyFilter(input.value)));
-    clear?.addEventListener('click', ()=>{ input.value=''; applyFilter(''); input.focus(); });
+    function debounce(fn, ms){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), ms); }; }
+
+    input?.addEventListener('input', debounce(applyFilter, 120));
+    clear?.addEventListener('click', ()=>{ input.value=''; applyFilter(); input.focus(); });
 
     // initial
-    applyFilter('');
+    applyFilter();
   })();
 </script>
 
