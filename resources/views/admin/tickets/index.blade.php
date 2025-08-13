@@ -1,82 +1,179 @@
+{{-- resources/views/admin/tickets/index.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
 <div class="container my-5">
-  <div class="card shadow border-0 rounded-3">
-    <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
-      <h4 class="mb-0">
-        <i class="bi bi-ticket-perforated-fill me-2"></i>
-        Tickets
-      </h4>
-      <a href="{{ route('admin.tickets.create') }}" class="btn btn-light-primary btn-sm d-flex align-items-center">
-        <i class="bi bi-plus-circle me-1"></i>
-        Add Ticket
+  <div class="card border-0 shadow rounded-3">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="bi bi-ticket-perforated me-2"></i>Tickets
+      </h5>
+      <a href="{{ route('admin.tickets.create') }}" class="btn btn-light btn-sm">
+        <i class="bi bi-plus-circle me-1"></i> Add Ticket
       </a>
     </div>
 
-    <div class="card-body p-4">
+    <div class="card-body">
       @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
-          <i class="bi bi-check-circle-fill me-2 fs-4"></i>
-          <div>{{ session('success') }}</div>
-          <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          {{ session('success') }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       @endif
 
-      <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle mb-0">
+      {{-- TABLE (md and up) --}}
+      <div class="table-responsive d-none d-md-block">
+        <table class="table align-middle table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th><i class="bi bi-tag-fill me-1"></i>Name</th>
-              <th><i class="bi bi-123 me-1"></i>Code</th>
-              <th><i class="bi bi-cash-coin me-1"></i>Price (PKR)</th>
-              <th><i class="bi bi-stack me-1"></i>Qty</th>
-              <th><i class="bi bi-card-text me-1"></i>Notes</th>
-              <th><i class="bi bi-clock-history me-1"></i>Created</th>
-              <th class="text-center"><i class="bi bi-gear-fill me-1"></i>Actions</th>
+              <th>Name</th>
+              <th>Serial</th>
+              <th>Image</th>
+              <th>Created</th>
+              <th class="text-center" style="width:120px;">Actions</th>
             </tr>
           </thead>
           <tbody>
-            @forelse($tickets as $ticket)
+            @forelse($tickets as $t)
               <tr>
-                <td class="fw-semibold">{{ $ticket->name }}</td>
-                <td>
-                  <span class="badge text-bg-primary">{{ $ticket->code }}</span>
+                <td class="fw-semibold text-truncate" style="max-width: 280px;" title="{{ $t->name }}">
+                  {{ $t->name }}
                 </td>
-                <td>PKR {{ number_format($ticket->price, 2) }}</td>
-                <td>1</td>
-                <td class="text-muted">
-                  {{ \Illuminate\Support\Str::limit($ticket->notes ?? '—', 50) }}
-                </td>
-                <td>{{ $ticket->created_at->format('d M Y') }}</td>
-                <td class="text-center">
-                  <a href="{{ route('admin.tickets.edit', $ticket) }}"
-                     class="btn btn-sm btn-outline-primary me-1" title="Edit">
-                    <i class="bi bi-pencil-fill"></i>
-                  </a>
 
-                  <form action="{{ route('admin.tickets.destroy', $ticket) }}"
-                        method="POST" class="d-inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                            class="btn btn-sm btn-outline-danger"
-                            onclick="return confirm('Delete this ticket?')"
-                            title="Delete">
-                      <i class="bi bi-trash-fill"></i>
-                    </button>
-                  </form>
+                <td class="font-monospace">{{ $t->serial }}</td>
+
+                <td>
+                  @if($t->image_path)
+                    <div class="d-flex align-items-center gap-2">
+                      {{-- Preview in new tab --}}
+                      <a href="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}"
+                         target="_blank" rel="noopener" class="d-inline-block" title="Open image">
+                        <img
+                          src="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}"
+                          alt="Ticket image"
+                          class="rounded border"
+                          style="width:60px;height:40px;object-fit:cover"
+                        >
+                      </a>
+
+                      {{-- Download (only if image exists) --}}
+                      <a href="{{ route('admin.tickets.download', ['path' => $t->image_path]) }}"
+                         class="btn btn-sm btn-outline-secondary" title="Download image">
+                        <i class="bi bi-download"></i>
+                      </a>
+                    </div>
+                  @else
+                    <span class="text-muted">—</span>
+                  @endif
+                </td>
+
+                <td>{{ optional($t->created_at)->format('d M Y') }}</td>
+
+                <td class="text-center">
+                  <div class="d-inline-flex gap-1">
+                    {{-- Edit --}}
+                    <a href="{{ route('admin.tickets.edit', $t->id) }}"
+                       class="btn btn-sm btn-outline-primary"
+                       title="Edit Ticket">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+
+                    {{-- Delete --}}
+                    <form action="{{ route('admin.tickets.destroy', $t->id) }}"
+                          method="POST"
+                          onsubmit="return confirm('Are you sure you want to delete this ticket?');">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit"
+                              class="btn btn-sm btn-outline-danger"
+                              title="Delete Ticket">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </form>
+                  </div>
                 </td>
               </tr>
             @empty
               <tr>
-                <td colspan="7" class="text-center text-muted py-4">
-                  No tickets found. <a href="{{ route('admin.tickets.create') }}">Create one</a>.
-                </td>
+                <td colspan="5" class="text-center text-muted py-4">No tickets yet.</td>
               </tr>
             @endforelse
           </tbody>
         </table>
+      </div>
+
+      {{-- MOBILE CARDS (below md) --}}
+      <div class="d-md-none">
+        @forelse($tickets as $t)
+          <div class="border rounded-3 p-3 mb-3 shadow-sm">
+            <div class="d-flex align-items-start justify-content-between gap-3">
+              <div class="flex-grow-1">
+                <div class="fw-semibold mb-1 text-truncate" title="{{ $t->name }}">{{ $t->name }}</div>
+                <div class="small text-muted mb-2">
+                  <span class="fw-semibold">Serial:</span>
+                  <span class="font-monospace">{{ $t->serial }}</span>
+                </div>
+              </div>
+
+              <div class="flex-shrink-0">
+                @if($t->image_path)
+                  <a href="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}"
+                     target="_blank" rel="noopener" title="Open image">
+                    <img
+                      src="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}"
+                      alt="Ticket image"
+                      class="rounded border d-block"
+                      style="width:84px;height:56px;object-fit:cover"
+                    >
+                  </a>
+                @else
+                  <div class="rounded border d-flex align-items-center justify-content-center"
+                       style="width:84px;height:56px;background:#f8f9fa;">
+                    <span class="text-muted small">No Image</span>
+                  </div>
+                @endif
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mt-3">
+              <div class="small text-muted">{{ optional($t->created_at)->format('d M Y') }}</div>
+
+              <div class="d-inline-flex gap-2">
+                <a href="{{ route('admin.tickets.edit', $t->id) }}"
+                   class="btn btn-sm btn-outline-primary"
+                   title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+
+                {{-- Download (conditionally rendered so route param is always present) --}}
+                @if($t->image_path)
+                  <a href="{{ route('admin.tickets.download', ['path' => $t->image_path]) }}"
+                     class="btn btn-sm btn-outline-secondary"
+                     title="Download">
+                    <i class="bi bi-download"></i>
+                  </a>
+                @else
+                  <button type="button"
+                          class="btn btn-sm btn-outline-secondary disabled"
+                          aria-disabled="true" title="No image to download">
+                    <i class="bi bi-download"></i>
+                  </button>
+                @endif
+
+                <form action="{{ route('admin.tickets.destroy', $t->id) }}"
+                      method="POST"
+                      onsubmit="return confirm('Delete this ticket?');">
+                  @csrf @method('DELETE')
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        @empty
+          <div class="text-center text-muted py-4">No tickets yet.</div>
+        @endforelse
       </div>
 
       <div class="mt-3">
@@ -85,19 +182,19 @@
     </div>
   </div>
 </div>
-@endsection
 
 <style>
-  /* Header gradient & custom accents (matching your users list) */
-  .bg-gradient-primary {
-    background: linear-gradient(45deg, #0d6efd, #6610f2) !important;
+  /* Monospace for serial clarity */
+  .font-monospace{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+
+  /* Prevent tiny screens from squashing the header buttons */
+  @media (max-width: 575.98px){
+    .card-header .btn{padding:.3rem .5rem}
   }
-  .btn-light-primary {
-    color: #0d6efd;
-    background-color: #f0f5ff;
-    border: 1px solid #0d6efd;
+
+  /* Tweak table cells a bit on md+ */
+  @media (min-width: 768px){
+    .table td,.table th{vertical-align:middle}
   }
-  .btn-light-primary:hover { background-color: #e2ecff; }
-  .table-striped > tbody > tr:nth-of-type(odd) { background-color: rgba(102,16,242,0.05); }
-  .table thead th { border-bottom-width: 2px; }
 </style>
+@endsection

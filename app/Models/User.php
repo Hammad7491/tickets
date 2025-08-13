@@ -23,7 +23,7 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
-        // removed 'role' from fillable – we use Spatie roles only
+        // we rely on Spatie roles instead of a single 'role' column
         'avatar',
         'google_id',
         'facebook_id',
@@ -53,6 +53,17 @@ class User extends Authenticatable
         'is_blocked' => false,
     ];
 
+    /* -----------------------------------------------------------------
+     |  Relationships
+     | -----------------------------------------------------------------*/
+    public function ticketPurchases()
+    {
+        return $this->hasMany(TicketPurchase::class);
+    }
+
+    /* -----------------------------------------------------------------
+     |  Mutators
+     | -----------------------------------------------------------------*/
     /**
      * Automatically hash password if plain text is assigned.
      * Allows blank (keep existing hash) and avoids double-hashing.
@@ -69,6 +80,9 @@ class User extends Authenticatable
             : $value;
     }
 
+    /* -----------------------------------------------------------------
+     |  Helpers
+     | -----------------------------------------------------------------*/
     /**
      * Convenience accessor: is admin?
      * Prefer Spatie role; fall back to legacy 'role' column if present.

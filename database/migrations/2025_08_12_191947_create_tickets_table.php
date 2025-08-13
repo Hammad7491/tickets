@@ -1,3 +1,4 @@
+// database/migrations/xxxx_xx_xx_xxxxxx_create_tickets_table.php
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -10,10 +11,10 @@ return new class extends Migration {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
             $table->string('name', 120);
-            $table->string('code', 4)->unique();            // unique 4-digit
-            $table->decimal('price', 10, 2)->default(0);     // PKR
-            $table->unsignedTinyInteger('quantity')->default(1); // fixed 1
-            $table->text('notes')->nullable();
+            // e.g. PK0000401  => 2 letters + up to 8 digits  (total max 10 chars)
+            $table->string('serial', 10)->unique();
+            $table->string('image_path')->nullable();
+            $table->unsignedInteger('quantity')->default(1); // fixed default = 1
             $table->timestamps();
         });
     }

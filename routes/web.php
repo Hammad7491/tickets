@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Chatbot\ChatbotController;
+use App\Http\Controllers\User\UserTicketController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Chatbot\UserNameController;
 use App\Http\Controllers\User\UserDashboardController;
@@ -79,9 +80,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 // routes/web.php
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
-    Route::resource('tickets', \App\Http\Controllers\Admin\TicketController::class);
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('tickets', TicketController::class)->except(['show']);
+    // image + download
+    Route::get('tickets/image/{path}', [TicketController::class, 'image'])
+        ->where('path', '.*')
+        ->name('tickets.image');
+    Route::get('tickets/download/{path}', [TicketController::class, 'download'])
+        ->where('path', '.*')
+        ->name('tickets.download');
 });
+
 
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // List page (no user param)
@@ -95,6 +104,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
 });
 
-Route::get('/user/dashboard', [UserDashboardController::class, 'index'])
-    ->middleware('auth')
-    ->name('users.dashboard');   // or ->name('user.dashboard') if you prefer
+Route::middleware(['auth', 'role:user'])
+    ->prefix('user')
+    ->name('user.')
+    ->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\User\UserDashboardController::class, 'index'])
+            ->name('dashboard');
+    });
+
+
+
+    Route::middleware(['auth', 'verified'])->group(function () {
+    // user dashboard
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])
+        ->name('users.dashboard');
+
+    // buy ticket (modal form posts here)
+    Route::post('/tickets/{ticket}/buy', [UserTicketController::class, 'buy'])
+        ->name('users.tickets.buy');
+});

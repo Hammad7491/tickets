@@ -1,214 +1,135 @@
+{{-- resources/views/admin/tickets/create.blade.php (used for both create & edit) --}}
 @extends('layouts.app')
+
 @section('content')
+@php
+  /** @var \App\Models\Ticket|null $ticket */
+  $isEdit = isset($ticket);
+  $title  = $isEdit ? 'Edit Ticket' : 'Create Ticket';
+@endphp
 
-<div class="dashboard-main-body">
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-    <h6 class="fw-semibold mb-0">Dashboard</h6>
-    <ul class="d-flex align-items-center gap-2">
-      <li class="fw-medium d-flex align-items-center gap-1">
-        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-        Dashboard
-      </li>
-      <li>-</li>
-      <li class="fw-medium">AI</li>
-    </ul>
-  </div>
-
-  {{-- KPI ROW (3 cards only) --}}
-  <div class="row row-cols-lg-3 row-cols-sm-2 row-cols-1 gy-4">
-    {{-- Total Users --}}
-    <div class="col">
-      <div class="card shadow-none border bg-gradient-start-1 h-100">
-        <div class="card-body p-20">
-          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div>
-              <p class="fw-medium text-primary-light mb-1">Total Users</p>
-              <h6 class="mb-0">{{ number_format($totalUsers) }}</h6>
-            </div>
-            <div class="w-50-px h-50-px bg-cyan rounded-circle d-flex justify-content-center align-items-center">
-              <iconify-icon icon="gridicons:multiple-users" class="text-white text-2xl mb-0"></iconify-icon>
-            </div>
-          </div>
-          <p class="fw-medium text-sm text-primary-light mt-12 mb-0">Users registered</p>
-        </div>
-      </div>
+<div class="container my-5">
+  <div class="card border-0 shadow rounded-3">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="bi bi-ticket-perforated me-2"></i>{{ $title }}
+      </h5>
+      <a href="{{ route('admin.tickets.index') }}" class="btn btn-light btn-sm">
+        <i class="bi bi-list-ul me-1"></i> Tickets
+      </a>
     </div>
 
-    {{-- Logged-in Users --}}
-    <div class="col">
-      <div class="card shadow-none border bg-gradient-start-2 h-100">
-        <div class="card-body p-20">
-          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div>
-              <p class="fw-medium text-primary-light mb-1">Logged-in Users (Now)</p>
-              <h6 class="mb-0">{{ number_format($onlineUsers) }}</h6>
-            </div>
-            <div class="w-50-px h-50-px bg-purple rounded-circle d-flex justify-content-center align-items-center">
-              <iconify-icon icon="mdi:account-check" class="text-white text-2xl mb-0"></iconify-icon>
-            </div>
-          </div>
-          <p class="fw-medium text-sm text-primary-light mt-12 mb-0">Active sessions</p>
+    <div class="card-body">
+      @if ($errors->any())
+        <div class="alert alert-danger">
+          <strong>Please fix the following:</strong>
+          <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $e)
+              <li>{{ $e }}</li>
+            @endforeach
+          </ul>
         </div>
-      </div>
-    </div>
-
-    {{-- Total Tickets --}}
-    <div class="col">
-      <div class="card shadow-none border bg-gradient-start-3 h-100">
-        <div class="card-body p-20">
-          <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-            <div>
-              <p class="fw-medium text-primary-light mb-1">Total Tickets</p>
-              <h6 class="mb-0">{{ number_format($totalTickets) }}</h6>
-            </div>
-            <div class="w-50-px h-50-px bg-info rounded-circle d-flex justify-content-center align-items-center">
-              <iconify-icon icon="solar:ticket-outline" class="text-white text-2xl mb-0"></iconify-icon>
-            </div>
-          </div>
-          <p class="fw-medium text-sm text-primary-light mt-12 mb-0">4-digit unique codes</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {{-- TICKETS (CODES) --}}
-  <div class="card h-100 mt-4">
-    <div class="card-body p-24">
-      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <h6 class="mb-0 fw-bold text-lg">Tickets (Codes)</h6>
-
-        <div class="d-flex align-items-center gap-2 ms-auto">
-          <div class="input-group input-group-sm" style="max-width: 240px;">
-            <span class="input-group-text">
-              <iconify-icon icon="solar:magnifer-linear" class="text-muted"></iconify-icon>
-            </span>
-            <input id="ticketSearch" type="text" class="form-control"
-                   placeholder="Filter by code (e.g., 1536)" autocomplete="off">
-            <button class="btn btn-outline-secondary" type="button" id="clearTicketSearch" style="display:none;">
-              Clear
-            </button>
-          </div>
-          <span id="ticketsCount" class="text-secondary-light text-sm">
-            {{ isset($tickets) ? $tickets->count() : 0 }} shown
-          </span>
-        </div>
-      </div>
-
-      @if(isset($tickets) && $tickets->count())
-        <div id="ticketsGrid" class="row row-cols-xxl-6 row-cols-lg-5 row-cols-md-4 row-cols-3 row-cols-2 gy-3 gx-3 mt-3">
-          @foreach($tickets as $t)
-            <div class="col ticket-col">
-              <button type="button" class="ticket-card w-100" data-code="{{ $t->code }}" title="Click to copy">
-                <span class="ticket-code">{{ $t->code }}</span>
-                <span class="ticket-perf"></span>
-              </button>
-            </div>
-          @endforeach
-        </div>
-        <div id="noTicketMatch" class="text-secondary-light mt-3" style="display:none;">No matching codes.</div>
-      @else
-        <p class="text-secondary-light mt-3 mb-0">No tickets found.</p>
       @endif
+
+      <form
+        action="{{ $isEdit ? route('admin.tickets.update', $ticket->id) : route('admin.tickets.store') }}"
+        method="POST"
+        enctype="multipart/form-data"
+        class="row g-4"
+        autocomplete="off"
+      >
+        @csrf
+        @if($isEdit)
+          @method('PUT')
+        @endif
+
+        {{-- Ticket Name --}}
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Ticket Name <span class="text-danger">*</span></label>
+          <input
+            type="text"
+            name="name"
+            class="form-control @error('name') is-invalid @enderror"
+            value="{{ old('name', $isEdit ? $ticket->name : '') }}"
+            required
+            maxlength="120"
+            placeholder="e.g., Concert Pass"
+          >
+          @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+
+        {{-- Ticket Serial --}}
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">
+            Ticket Serial <span class="text-danger">*</span>
+            <i class="bi bi-question-circle ms-1 text-muted"
+               data-bs-toggle="tooltip"
+               title="Format: PK + up to 6 digits (max length 8). Example: PK123456"></i>
+          </label>
+          <input
+            type="text"
+            name="serial"
+            class="form-control text-uppercase @error('serial') is-invalid @enderror"
+            value="{{ old('serial', $isEdit ? $ticket->serial : '') }}"
+            required
+            maxlength="8"
+            placeholder="PK123456"
+          >
+          <div class="form-text">Must match: <code>PK</code> followed by up to 6 digits (max 8 characters total).</div>
+          @error('serial') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+
+        {{-- Picture --}}
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Picture (optional)</label>
+          <input
+            type="file"
+            name="image"
+            class="form-control @error('image') is-invalid @enderror"
+            accept=".jpg,.jpeg,.png"
+          >
+          <div class="form-text">JPG/PNG up to 2MB.</div>
+          @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+
+        {{-- Existing image preview (edit mode) --}}
+        @if($isEdit && !empty($ticket->image_path))
+          <div class="col-md-6">
+            <label class="form-label fw-semibold d-block">Current Image</label>
+            <div class="d-flex align-items-center gap-2">
+              <a href="{{ route('admin.tickets.image', ['path' => $ticket->image_path]) }}"
+                 target="_blank" rel="noopener" class="d-inline-block" title="Open image in new tab">
+                <img
+                  src="{{ route('admin.tickets.image', ['path' => $ticket->image_path]) }}"
+                  alt="Ticket image"
+                  class="rounded border"
+                  style="width:120px;height:80px;object-fit:cover"
+                >
+              </a>
+              <a href="{{ route('admin.tickets.download', ['path' => $ticket->image_path]) }}"
+                 class="btn btn-outline-secondary btn-sm" title="Download image">
+                <i class="bi bi-download me-1"></i> Download
+              </a>
+            </div>
+            <div class="form-text">Uploading a new file will replace this image.</div>
+          </div>
+        @endif
+
+        <div class="col-12 d-flex justify-content-end gap-2">
+          <a href="{{ route('admin.tickets.index') }}" class="btn btn-light">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i> {{ $isEdit ? 'Update Ticket' : 'Save Ticket' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
 
-{{-- TICKET CARD STYLES --}}
-<style>
-  .ticket-card{
-    position:relative;
-    display:flex; align-items:center; justify-content:center;
-    height:78px; padding:0 28px;
-    border:1px solid #e5e7eb; border-radius:16px;
-    background:#ffffff; cursor:pointer;
-    box-shadow:0 2px 8px rgba(15,23,42,.06);
-    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
-    overflow:hidden;
-  }
-  .ticket-card:hover{
-    transform:translateY(-1px);
-    box-shadow:0 6px 18px rgba(15,23,42,.10);
-    border-color:#c7d2fe;
-    background:#f8fafc;
-  }
-  .ticket-card::before,
-  .ticket-card::after{
-    content:"";
-    position:absolute; top:50%; transform:translateY(-50%);
-    width:22px; height:22px; border-radius:50%;
-    background: var(--dash-bg, #f5f7fb);
-    border:1px solid #e5e7eb;
-    z-index:2;
-  }
-  .ticket-card::before{ left:-11px; }
-  .ticket-card::after{ right:-11px; }
-  .ticket-perf{
-    position:absolute; top:10px; bottom:10px; left:50%; width:2px; transform:translateX(-50%);
-    background-image: repeating-linear-gradient(to bottom,#d1d5db 0,#d1d5db 6px,transparent 6px,transparent 12px);
-    opacity:.9;
-  }
-  .ticket-code{ font-weight:800; letter-spacing:3px; font-size:22px; color:#111827; }
-  .ticket-card.copied{ background:#dcfce7; border-color:#86efac; }
-  @media (max-width: 576px){
-    .ticket-card{ height:70px; }
-    .ticket-code{ font-size:20px; letter-spacing:2px; }
-  }
-</style>
-
-{{-- Copy + Filter --}}
 <script>
-  // Copy ticket code to clipboard
-  document.querySelectorAll('.ticket-card').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      const code = el.dataset.code || el.textContent.trim();
-      try { navigator.clipboard?.writeText(code); } catch(e) {}
-      el.classList.add('copied');
-      const span = el.querySelector('.ticket-code');
-      const old = span.textContent;
-      span.textContent = old + ' ✓';
-      setTimeout(()=>{ el.classList.remove('copied'); span.textContent = old; }, 900);
-    });
-  });
-
-  // Page background -> notch fill
-  (function(){
-    const bg = getComputedStyle(document.body).backgroundColor || '#f5f7fb';
-    document.documentElement.style.setProperty('--dash-bg', bg);
-  })();
-
-  // Filter by code (client-side)
-  (function(){
-    const input = document.getElementById('ticketSearch');
-    const clear = document.getElementById('clearTicketSearch');
-    const count = document.getElementById('ticketsCount');
-    const noMatch = document.getElementById('noTicketMatch');
-    const cards = Array.from(document.querySelectorAll('.ticket-card'));
-
-    function applyFilter(){
-      const q = (input.value || '').trim().toLowerCase();
-      let shown = 0;
-
-      cards.forEach(card=>{
-        const code = (card.dataset.code || '').toLowerCase();
-        const match = code.includes(q);
-        const col = card.closest('.ticket-col') || card.parentElement;
-        col.style.display = match ? '' : 'none';
-        if (match) shown++;
-      });
-
-      count.textContent = `${shown} shown`;
-      clear.style.display = q ? '' : 'none';
-      if (noMatch) noMatch.style.display = shown ? 'none' : '';
-    }
-
-    function debounce(fn, ms){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), ms); }; }
-
-    input?.addEventListener('input', debounce(applyFilter, 120));
-    clear?.addEventListener('click', ()=>{ input.value=''; applyFilter(); input.focus(); });
-
-    // initial
-    applyFilter();
-  })();
+  // enable tooltips (if Bootstrap JS loaded)
+  if (window.bootstrap && bootstrap.Tooltip) {
+    [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].forEach(el => new bootstrap.Tooltip(el));
+  }
 </script>
-
 @endsection

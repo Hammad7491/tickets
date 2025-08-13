@@ -20,23 +20,25 @@ class UserController extends Controller
         Role::firstOrCreate(['name'=>'user','guard_name'=>'web']);
 
         $users = User::select('id','name','email','phone','is_blocked')
-            ->with(['roles' => fn($q) => $q->whereIn('name', self::ALLOWED_ROLES)->select('id','name')])
+            ->with(['roles' => fn($q) =>
+                $q->whereIn('name', self::ALLOWED_ROLES)->select('id','name')
+            ])
             ->orderBy('name')
             ->get();
 
         return view('admin.users.index', compact('users'));
     }
 
-    /** New page: users list (Name, Email, Phone, Status) with Add/Delete */
+    /** Users list page (Name, Email, Phone, Status, Roles) */
     public function show()
-{
-    $users = User::with('roles') // eager load roles
-        ->select('id', 'name', 'email', 'phone', 'is_blocked')
-        ->orderByDesc('id')
-        ->get();
+    {
+        $users = User::with('roles:id,name')
+            ->select('id','name','email','phone','is_blocked')
+            ->orderByDesc('id')
+            ->get();
 
-    return view('admin.users.show', compact('users'));
-}
+        return view('admin.users.show', compact('users'));
+    }
 
     public function create()
     {
@@ -47,14 +49,6 @@ class UserController extends Controller
         return view('admin.users.create', ['roles'=>$roles, 'userRoles'=>[]]);
     }
 
-
-    class UserDashboardController extends Controller
-{
-    public function index()
-    {
-        return view('users.dashboard');
-    }
-}
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -73,7 +67,9 @@ class UserController extends Controller
 
         Role::firstOrCreate(['name'=>'admin','guard_name'=>'web']);
         Role::firstOrCreate(['name'=>'user','guard_name'=>'web']);
-        $user->syncRoles(['admin']); // admin-created user => admin
+
+        // Admin-created users become admin
+        $user->syncRoles(['admin']);
 
         return redirect()->route('admin.users.index')->with('success','Admin user created.');
     }
@@ -83,6 +79,7 @@ class UserController extends Controller
         $roles = Role::whereIn('name', self::ALLOWED_ROLES)
             ->orderByRaw("FIELD(name,'admin','user')")
             ->get(['name']);
+
         $userRoles = $user->roles()->pluck('name')->toArray();
 
         return view('admin.users.create', compact('user','roles','userRoles'));
@@ -108,7 +105,7 @@ class UserController extends Controller
         $user->save();
 
         if ($request->has('roles')) {
-            $picked = array_values(array_intersect((array)$request->roles, self::ALLOWED_ROLES));
+            $picked = array_values(array_intersect((array) $request->roles, self::ALLOWED_ROLES));
             if (empty($picked)) {
                 $picked = $user->roles()->pluck('name')->toArray();
                 if (empty($picked)) $picked = ['admin'];
@@ -139,6 +136,7 @@ class UserController extends Controller
         if (config('session.driver') === 'database' && Schema::hasTable('sessions')) {
             DB::table('sessions')->where('user_id', $user->id)->delete();
         }
+
         return back()->with('success','User blocked.');
     }
 
@@ -146,6 +144,7 @@ class UserController extends Controller
     {
         $user->is_blocked = false;
         $user->save();
+
         return back()->with('success','User unblocked.');
     }
 }

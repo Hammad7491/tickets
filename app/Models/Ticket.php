@@ -11,29 +11,55 @@ class Ticket extends Model
 
     protected $fillable = [
         'name',
-        'code',
-        'price',
-        'quantity',
-        'notes',
+        'serial',
+        'image_path',
     ];
 
-    protected $casts = [
-        'price' => 'decimal:2',
+    protected $appends = [
+        'image_url',
     ];
 
-    protected $attributes = [
-        'quantity' => 1,
-    ];
-
-    // Generate unique 4-digit code (1000–9999)
-    public static function generateUniqueCode(int $tries = 10): string
+    /* -----------------------------------------------------------------
+     |  Relationships
+     | -----------------------------------------------------------------*/
+    public function purchases()
     {
-        for ($i = 0; $i < $tries; $i++) {
-            $code = (string) random_int(1000, 9999);
-            if (! static::where('code', $code)->exists()) {
-                return $code;
-            }
-        }
-        return substr((string) time(), -4);
+        return $this->hasMany(TicketPurchase::class);
+    }
+
+    public function activePurchases()
+    {
+        // Considered "held" when pending or accepted
+        return $this->purchases()->whereIn('status', ['pending', 'accepted']);
+    }
+
+    /* -----------------------------------------------------------------
+     |  Accessors
+     | -----------------------------------------------------------------*/
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image_path ? asset('storage/' . $this->image_path) : null;
+    }
+
+    /* -----------------------------------------------------------------
+     |  Mutators
+     | -----------------------------------------------------------------*/
+    public function setSerialAttribute($value): void
+    {
+        // keep consistent formatting
+        $this->attributes['serial'] = strtoupper(trim((string) $value));
+    }
+
+    /* -----------------------------------------------------------------
+     |  Scopes
+     | -----------------------------------------------------------------*/
+    /**
+     * Tickets that are not currently held by anyone (no pending/accepted).
+     */
+    public function scopeAvailable($query)
+    {
+        return $query->whereDoesntHave('purchases', function ($q) {
+            $q->whereIn('status', ['pending', 'accepted']);
+        });
     }
 }

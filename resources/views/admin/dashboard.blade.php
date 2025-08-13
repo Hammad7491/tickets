@@ -1,32 +1,34 @@
+{{-- resources/views/admin/dashboard.blade.php --}}
 @extends('layouts.app')
 @section('content')
 
-<div class="dashboard-main-body">
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-    <h6 class="fw-semibold mb-0">Dashboard</h6>
-    <ul class="d-flex align-items-center gap-2">
-      <li class="fw-medium d-flex align-items-center gap-1">
-        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-        Dashboard
+<div class="dashboard-main-body container-fluid px-3 px-sm-4 px-lg-5">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 gap-sm-3 mb-16 mb-sm-24">
+    <h6 class="fw-semibold mb-0" style="font-size:clamp(14px, 2vw, 18px)">Dashboard</h6>
+    <ul class="d-flex align-items-center gap-2 flex-wrap text-truncate" style="max-width:100%">
+      <li class="fw-medium d-flex align-items-center gap-1 text-truncate">
+        <iconify-icon icon="solar:home-smile-angle-outline" class="icon" style="font-size:clamp(16px,2.6vw,20px)"></iconify-icon>
+        <span class="text-truncate">Dashboard</span>
       </li>
-      <li>-</li>
-      <li class="fw-medium">AI</li>
+      <li class="d-none d-sm-inline">-</li>
+      <li class="fw-medium d-none d-sm-inline">AI</li>
     </ul>
   </div>
 
-  {{-- KPI ROW (3 cards only) --}}
-  <div class="row row-cols-lg-3 row-cols-sm-2 row-cols-1 gy-4">
+  {{-- KPI ROW (3 cards) --}}
+  <div class="row gy-3 gx-3 gx-md-4">
     {{-- Total Users --}}
-    <div class="col">
+    <div class="col-12 col-sm-6 col-lg-4">
       <div class="card shadow-none border bg-gradient-start-1 h-100">
-        <div class="card-body p-20">
+        <div class="card-body p-16 p-md-20">
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-              <p class="fw-medium text-primary-light mb-1">Total Users</p>
-              <h6 class="mb-0">{{ number_format($totalUsers) }}</h6>
+              <p class="fw-medium text-primary-light mb-1" style="font-size:clamp(12px,1.6vw,14px)">Total Users</p>
+              <h6 class="mb-0" style="font-size:clamp(18px,3vw,22px)">{{ number_format($totalUsers) }}</h6>
             </div>
-            <div class="w-50-px h-50-px bg-cyan rounded-circle d-flex justify-content-center align-items-center">
-              <iconify-icon icon="gridicons:multiple-users" class="text-white text-2xl mb-0"></iconify-icon>
+            <div class="rounded-circle d-flex justify-content-center align-items-center"
+                 style="width:48px;height:48px;background:#06b6d4">
+              <iconify-icon icon="gridicons:multiple-users" class="text-white" style="font-size:clamp(18px,3.2vw,24px)"></iconify-icon>
             </div>
           </div>
           <p class="fw-medium text-sm text-primary-light mt-12 mb-0">Users registered</p>
@@ -35,16 +37,17 @@
     </div>
 
     {{-- Logged-in Users --}}
-    <div class="col">
+    <div class="col-12 col-sm-6 col-lg-4">
       <div class="card shadow-none border bg-gradient-start-2 h-100">
-        <div class="card-body p-20">
+        <div class="card-body p-16 p-md-20">
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-              <p class="fw-medium text-primary-light mb-1">Logged-in Users (Now)</p>
-              <h6 class="mb-0">{{ number_format($onlineUsers) }}</h6>
+              <p class="fw-medium text-primary-light mb-1" style="font-size:clamp(12px,1.6vw,14px)">Logged-in Users (Now)</p>
+              <h6 class="mb-0" style="font-size:clamp(18px,3vw,22px)">{{ number_format($onlineUsers) }}</h6>
             </div>
-            <div class="w-50-px h-50-px bg-purple rounded-circle d-flex justify-content-center align-items-center">
-              <iconify-icon icon="mdi:account-check" class="text-white text-2xl mb-0"></iconify-icon>
+            <div class="rounded-circle d-flex justify-content-center align-items-center"
+                 style="width:48px;height:48px;background:#7c3aed">
+              <iconify-icon icon="mdi:account-check" class="text-white" style="font-size:clamp(18px,3.2vw,24px)"></iconify-icon>
             </div>
           </div>
           <p class="fw-medium text-sm text-primary-light mt-12 mb-0">Active sessions</p>
@@ -53,16 +56,17 @@
     </div>
 
     {{-- Total Tickets --}}
-    <div class="col">
+    <div class="col-12 col-sm-6 col-lg-4">
       <div class="card shadow-none border bg-gradient-start-3 h-100">
-        <div class="card-body p-20">
+        <div class="card-body p-16 p-md-20">
           <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
             <div>
-              <p class="fw-medium text-primary-light mb-1">Total Tickets</p>
-              <h6 class="mb-0">{{ number_format($totalTickets) }}</h6>
+              <p class="fw-medium text-primary-light mb-1" style="font-size:clamp(12px,1.6vw,14px)">Total Tickets</p>
+              <h6 class="mb-0" style="font-size:clamp(18px,3vw,22px)">{{ number_format($totalTickets) }}</h6>
             </div>
-            <div class="w-50-px h-50-px bg-info rounded-circle d-flex justify-content-center align-items-center">
-              <iconify-icon icon="solar:ticket-outline" class="text-white text-2xl mb-0"></iconify-icon>
+            <div class="rounded-circle d-flex justify-content-center align-items-center"
+                 style="width:48px;height:48px;background:#0ea5e9">
+              <iconify-icon icon="solar:ticket-outline" class="text-white" style="font-size:clamp(18px,3.2vw,24px)"></iconify-icon>
             </div>
           </div>
           <p class="fw-medium text-sm text-primary-light mt-12 mb-0">4-digit unique codes</p>
@@ -71,41 +75,53 @@
     </div>
   </div>
 
-  {{-- TICKETS (CODES) - realtime filter --}}
+  {{-- TICKETS (SERIAL + IMAGE) --}}
   <div class="card h-100 mt-4">
-    <div class="card-body p-24">
+    <div class="card-body p-16 p-md-24">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <h6 class="mb-0 fw-bold text-lg">Tickets (Codes)</h6>
+        <h6 class="mb-0 fw-bold" style="font-size:clamp(16px,2.6vw,20px)">Tickets</h6>
 
-        <div class="d-flex align-items-center gap-2 ms-auto">
-          <div class="input-group input-group-sm" style="max-width: 260px;">
+        <div class="d-flex align-items-center gap-2 ms-auto w-100 w-sm-auto">
+          <div class="input-group input-group-sm" style="max-width:320px; width:100%;">
             <span class="input-group-text">
               <iconify-icon icon="solar:magnifer-linear" class="text-muted"></iconify-icon>
             </span>
             <input id="ticketSearch" type="text" class="form-control"
-                   placeholder="Type code (e.g., 2238)" autocomplete="off">
+                   placeholder="Type serial (e.g., PK123456)" autocomplete="off" inputmode="latin-prose">
             <button class="btn btn-outline-secondary" type="button" id="clearTicketSearch" style="display:none;">
               Clear
             </button>
           </div>
-          <span id="ticketsCount" class="text-secondary-light text-sm">
+          <span id="ticketsCount" class="text-secondary-light text-sm ms-sm-2">
             {{ isset($tickets) ? $tickets->count() : 0 }} shown
           </span>
         </div>
       </div>
 
       @if(isset($tickets) && $tickets->count())
-        <div id="ticketsGrid" class="row row-cols-xxl-6 row-cols-lg-5 row-cols-md-4 row-cols-3 row-cols-2 gy-3 gx-3 mt-3">
+        {{-- CSS Grid for fully fluid responsive columns --}}
+        <div id="ticketsGrid" class="tickets-grid mt-3">
           @foreach($tickets as $t)
-            <div class="col ticket-col">
-              <button type="button" class="ticket-card w-100" data-code="{{ $t->code }}" title="Click to copy">
-                <span class="ticket-code">{{ $t->code }}</span>
-                <span class="ticket-perf"></span>
+            <div class="ticket-col">
+              <button type="button" class="ticket-card w-100 text-start" title="Tap to copy" data-serial="{{ $t->serial }}">
+                <div class="ticket-serial">{{ $t->serial }}</div>
+
+                @if($t->image_path)
+                  <img
+                    src="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}"
+                    alt="Ticket Image for {{ $t->serial }}"
+                    class="ticket-img"
+                    loading="lazy"
+                    decoding="async"
+                  >
+                @else
+                  <div class="ticket-placeholder">No Image</div>
+                @endif
               </button>
             </div>
           @endforeach
         </div>
-        <div id="noTicketMatch" class="text-secondary-light mt-3" style="display:none;">No matching codes.</div>
+        <div id="noTicketMatch" class="text-secondary-light mt-3" style="display:none;">No matching serials.</div>
       @else
         <p class="text-secondary-light mt-3 mb-0">No tickets found.</p>
       @endif
@@ -115,21 +131,43 @@
 
 {{-- TICKET CARD STYLES --}}
 <style>
+  /* Fluid grid: auto-fit cards based on available width */
+  .tickets-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+    gap:12px;
+  }
+  @media (min-width: 576px){ .tickets-grid{ gap:14px; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); } }
+  @media (min-width: 992px){ .tickets-grid{ gap:16px; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); } }
+
   .ticket-card{
+    appearance:none;
+    border:none;
+    background:#fff;
     position:relative;
-    display:flex; align-items:center; justify-content:center;
-    height:78px; padding:0 28px;
-    border:1px solid #e5e7eb; border-radius:16px;
-    background:#ffffff; cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding:10px;
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    cursor:pointer;
     box-shadow:0 2px 8px rgba(15,23,42,.06);
     transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
     overflow:hidden;
+    min-height:clamp(130px, 28vw, 180px);
+    touch-action:manipulation;
   }
-  .ticket-card:hover{
-    transform:translateY(-1px);
-    box-shadow:0 6px 18px rgba(15,23,42,.10);
-    border-color:#c7d2fe; background:#f8fafc;
+  @media (hover:hover){
+    .ticket-card:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 18px rgba(15,23,42,.10);
+      border-color:#c7d2fe; background:#f8fafc;
+    }
   }
+
+  /* Side notches (ticket look) */
   .ticket-card::before,
   .ticket-card::after{
     content:"";
@@ -137,36 +175,72 @@
     width:22px; height:22px; border-radius:50%;
     background: var(--dash-bg, #f5f7fb);
     border:1px solid #e5e7eb;
-    z-index:2;
+    z-index:1;
   }
   .ticket-card::before{ left:-11px; }
   .ticket-card::after{ right:-11px; }
-  .ticket-perf{
-    position:absolute; top:10px; bottom:10px; left:50%; width:2px; transform:translateX(-50%);
-    background-image: repeating-linear-gradient(to bottom,#d1d5db 0,#d1d5db 6px,transparent 6px,transparent 12px);
-    opacity:.9;
+
+  .ticket-serial{
+    font-weight:800;
+    letter-spacing:.5px;
+    font-size:clamp(14px, 3.4vw, 16px);
+    color:#111827;
+    margin-bottom:8px;
+    width:100%;
+    text-align:center;
+    word-break:break-word;
   }
-  .ticket-code{ font-weight:800; letter-spacing:3px; font-size:22px; color:#111827; }
-  .ticket-card.copied{ background:#dcfce7; border-color:#86efac; }
-  @media (max-width: 576px){
-    .ticket-card{ height:70px; }
-    .ticket-code{ font-size:20px; letter-spacing:2px; }
+  .ticket-img{
+    width:100%;
+    height:clamp(80px, 22vw, 140px);
+    object-fit:cover;
+    border-radius:10px;
+    border:1px solid #e5e7eb;
+    display:block;
+    -webkit-user-drag:none;
+  }
+  .ticket-placeholder{
+    width:100%;
+    height:clamp(80px, 22vw, 140px);
+    display:flex; align-items:center; justify-content:center;
+    color:#6b7280;
+    border:1px dashed #cfd4dc;
+    border-radius:10px;
+    font-size:clamp(12px,2.8vw,14px);
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce){
+    .ticket-card{ transition:none; }
+  }
+
+  /* Tighten vertical rhythm on very small screens */
+  @media (max-width: 375px){
+    .card-body{ padding:12px !important; }
   }
 </style>
 
-{{-- Copy + Realtime filter + notch bg sync --}}
+{{-- Copy + Realtime filter + notch bg sync (mobile-friendly) --}}
 <script>
-  // Copy ticket code to clipboard
-  document.querySelectorAll('.ticket-card').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      const code = el.dataset.code || el.textContent.trim();
-      try { navigator.clipboard?.writeText(code); } catch(e) {}
-      el.classList.add('copied');
-      const span = el.querySelector('.ticket-code');
-      const old = span.textContent;
-      span.textContent = old + ' ✓';
-      setTimeout(()=>{ el.classList.remove('copied'); span.textContent = old; }, 900);
-    });
+  // Copy serial to clipboard (with graceful fallback)
+  document.querySelectorAll('.ticket-card').forEach(card=>{
+    card.addEventListener('click', async ()=>{
+      const serial = card.dataset.serial || '';
+      if (!serial) return;
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(serial);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = serial; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+        }
+      } catch(e) {}
+      card.classList.add('copied');
+      const label = card.querySelector('.ticket-serial');
+      const old = label?.textContent || '';
+      if (label) label.textContent = serial + ' ✓';
+      setTimeout(()=>{ card.classList.remove('copied'); if (label) label.textContent = old; }, 900);
+    }, { passive:true });
   });
 
   // Sync notch fill with page background
@@ -175,34 +249,36 @@
     document.documentElement.style.setProperty('--dash-bg', bg);
   })();
 
-  // Real-time filter by code
+  // Real-time filter by serial (debounced)
   (function(){
     const input  = document.getElementById('ticketSearch');
     const clear  = document.getElementById('clearTicketSearch');
     const count  = document.getElementById('ticketsCount');
+    const grid   = document.getElementById('ticketsGrid');
     const noMatch= document.getElementById('noTicketMatch');
-    const cols   = Array.from(document.querySelectorAll('#ticketsGrid .ticket-col'));
+
+    if(!grid) return;
+    const cols   = Array.from(grid.querySelectorAll('.ticket-col'));
 
     function applyFilter(q){
       q = (q || '').trim().toLowerCase();
       let shown = 0;
       cols.forEach(col=>{
         const card = col.querySelector('.ticket-card');
-        const code = (card?.dataset.code || '').toLowerCase();
-        const match = code.includes(q);
+        const serial = (card?.dataset.serial || '').toLowerCase();
+        const match = !q || serial.includes(q);
         col.style.display = match ? '' : 'none';
         if (match) shown++;
       });
-      count.textContent = `${shown} shown`;
-      clear.style.display = q ? '' : 'none';
+      if (count) count.textContent = `${shown} shown`;
+      if (clear) clear.style.display = q ? '' : 'none';
       if (noMatch) noMatch.style.display = shown ? 'none' : '';
     }
 
-    let t; const deb = fn => (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), 100); };
+    let t; const deb = fn => (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), 120); };
     input?.addEventListener('input', deb(()=>applyFilter(input.value)));
     clear?.addEventListener('click', ()=>{ input.value=''; applyFilter(''); input.focus(); });
 
-    // initial
     applyFilter('');
   })();
 </script>

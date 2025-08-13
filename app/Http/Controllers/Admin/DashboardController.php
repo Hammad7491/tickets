@@ -16,7 +16,7 @@ class DashboardController extends Controller
         $totalUsers   = User::count();
         $totalTickets = Ticket::count();
 
-        // Logged-in users (requires SESSION_DRIVER=database)
+        // Logged-in users (requires SESSION_DRIVER=database + sessions table)
         $onlineUsers = 0;
         if (config('session.driver') === 'database' && Schema::hasTable('sessions')) {
             $onlineUsers = DB::table('sessions')
@@ -25,8 +25,11 @@ class DashboardController extends Controller
                 ->count('user_id');
         }
 
-        // Show latest 200 codes (client-side search will filter)
-        $tickets = Ticket::select('code')->latest()->take(200)->get();
+        // Latest 200 tickets with image + serial for the dashboard blocks
+        $tickets = Ticket::select('id','name','serial','image_path')
+            ->latest('id')
+            ->take(200)
+            ->get();
 
         return view('admin.dashboard', compact(
             'totalUsers',
