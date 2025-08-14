@@ -83,7 +83,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $user->assignRole('Client');
+        $user->assignRole('user');
 
         return redirect()->route('loginform')->with('success', 'Registration successful');
     }
@@ -91,33 +91,24 @@ class AuthController extends Controller
     /**
      * Handle login and redirect based on dynamic roles.
      */
-    public function login(Request $request)
-    {
-        // validate credentials
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
-        ]);
+ public function login(Request $request)
+{
+    $credentials = $request->only('email', 'password');
 
-        if (! Auth::attempt($credentials, $request->filled('remember'))) {
-            return back()
-                ->withErrors(['email' => 'Invalid credentials.'])
-                ->withInput();
-        }
-
+    if (Auth::attempt($credentials)) {
         $user = Auth::user();
 
-        // dynamic redirection based on role
-        if ($user->hasRole('Admin')) {
+        if ($user->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
+        } elseif ($user->hasRole('user')) {
+            return redirect()->route('user.dashboard');
         }
 
-        // you can add more granular redirects here:
-        // if ($user->hasRole('Site Manager')) { ... }
-        // if ($user->hasRole('Collaborator')) { ... }
-        // if ($user->hasRole('Client')) { ... }
-
-        // default logged-in landing
-        return redirect()->route('user.dashboard');
+        Auth::logout();
+        return redirect()->route('login')->withErrors(['role' => 'No valid role assigned.']);
     }
+
+    return back()->withErrors(['email' => 'Invalid credentials.']);
+}
+
 }

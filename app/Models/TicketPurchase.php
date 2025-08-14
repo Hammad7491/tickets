@@ -12,22 +12,17 @@ class TicketPurchase extends Model
     protected $fillable = [
         'ticket_id',
         'user_id',
+        'account_number',
         'phone',
         'proof_image_path',
         'status',
     ];
 
-    /**
-     * A purchase belongs to a ticket.
-     */
     public function ticket()
     {
         return $this->belongsTo(Ticket::class);
     }
 
-    /**
-     * A purchase belongs to a user.
-     */
     public function user()
     {
         return $this->belongsTo(User::class);

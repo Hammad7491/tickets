@@ -64,16 +64,19 @@
 
         <div class="col">
           <div class="ticket-card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+            {{-- Media --}}
             <div class="ticket-media">
-              @if($t->image_path)
-                <img src="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}"
-                     alt="{{ $t->name }}" class="w-100 h-100 object-cover">
-              @else
-                <div class="no-image w-100 h-100 d-flex align-items-center justify-content-center">
-                  <i class="bi bi-image text-muted fs-1"></i>
-                </div>
-              @endif
-              <div class="ticket-serial badge bg-dark text-white">{{ $t->serial }}</div>
+              <div class="ticket-media-box">
+                @if($t->image_path)
+                  <img src="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}" alt="{{ $t->name }}">
+                @else
+                  <div class="no-image">
+                    <i class="bi bi-image text-muted fs-1"></i>
+                    <div class="small text-muted">No Image</div>
+                  </div>
+                @endif
+              </div>
+              {{-- Serial hidden (removed from UI) --}}
             </div>
 
             <div class="p-3">
@@ -91,13 +94,11 @@
                 </div>
               @endif
 
-              {{-- Use data attributes so Bootstrap opens the modal automatically --}}
               <button type="button"
                       class="btn btn-primary w-100 open-buy-modal"
                       data-bs-toggle="modal"
                       data-bs-target="#buyModal"
                       data-ticket-id="{{ $t->id }}"
-                      data-ticket-serial="{{ $t->serial }}"
                       data-ticket-name="{{ $t->name }}"
                       {{ $btnDisabled ? 'disabled' : '' }}>
                 {{ $btnText }}
@@ -117,14 +118,48 @@
 </div>
 
 <style>
+  /* Serial is hidden everywhere */
+  .ticket-serial{ display:none !important; }
+
   .ticket-card{background:#fff}
-  .ticket-media{position:relative;height:180px;background:#f8f9fa}
-  .object-cover{object-fit:cover}
-  .ticket-serial{
-    position:absolute;top:10px;left:10px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;letter-spacing:1px
+
+  /* Media container */
+  .ticket-media{
+    position:relative;
+    padding:12px;
+    background:#f8f9fa;
   }
-  .no-image{background:#f1f3f5}
+  .ticket-media-box{
+    height:180px;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .ticket-media-box img{
+    max-width:100%;
+    max-height:100%;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    object-position:center;
+    display:block;
+  }
+  .no-image{
+    height:100%;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:.25rem;
+    border:1px dashed #cbd5e1;
+    border-radius:16px;
+    background:#fff;
+  }
 </style>
 
 {{-- BUY MODAL --}}
@@ -141,13 +176,21 @@
         <input type="hidden" name="ticket_id" id="buy_ticket_id">
 
         <div class="mb-3">
-          <label class="form-label fw-semibold">Ticket Serial</label>
-          <input type="text" class="form-control" id="buy_ticket_serial" readonly>
+          <label class="form-label fw-semibold">Your Name</label>
+          <input type="text" class="form-control" value="{{ $user->name }}" readonly>
         </div>
 
         <div class="mb-3">
-          <label class="form-label fw-semibold">Your Name</label>
-          <input type="text" class="form-control" value="{{ $user->name }}" readonly>
+          <label class="form-label fw-semibold">Account Number <span class="text-danger">*</span></label>
+          <input type="text"
+                 name="account_number"
+                 id="buy_account_number"
+                 class="form-control"
+                 value="{{ old('account_number') }}"
+                 maxlength="40"
+                 placeholder="e.g., 123456789012 / IBAN"
+                 required>
+          <div class="form-text">Enter your account number (IBAN or numeric). Max 40 chars.</div>
         </div>
 
         <div class="mb-3">
@@ -161,18 +204,20 @@
                  pattern="^\+?[0-9\s\-()]{7,20}$">
           <div class="form-text">Enter a reachable number (e.g., +92 300 1234567)</div>
         </div>
-{{-- Upload proof (REQUIRED) --}}
-<div class="mb-3">
-  <label class="form-label fw-semibold">Upload Proof of Payment <span class="text-danger">*</span></label>
-  <input type="file"
-         name="proof"
-         id="buy_proof"
-         class="form-control"
-         accept=".jpg,.jpeg,.png,.webp"
-         required>
-  <div class="form-text">Required. JPG/PNG/WEBP, max 2MB.</div>
-  <img id="buy_preview" alt="" class="mt-2 d-none rounded border" style="max-height: 140px;">
-</div>
+
+        {{-- Required proof --}}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Upload Proof of Payment <span class="text-danger">*</span></label>
+          <input type="file"
+                 name="proof"
+                 id="buy_proof"
+                 class="form-control"
+                 accept=".jpg,.jpeg,.png,.webp"
+                 required>
+          <div class="form-text">Required. JPG/PNG/WEBP, max 2MB.</div>
+          <img id="buy_preview" alt="" class="mt-2 d-none rounded border" style="max-height: 140px;">
+        </div>
+      </div>
 
       <div class="modal-footer">
         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
@@ -187,21 +232,17 @@
     const modalEl     = document.getElementById('buyModal');
     const form        = document.getElementById('buyForm');
     const idInput     = document.getElementById('buy_ticket_id');
-    const serialInput = document.getElementById('buy_ticket_serial');
     const proofInput  = document.getElementById('buy_proof');
     const previewImg  = document.getElementById('buy_preview');
 
-    // Populate fields when Bootstrap is about to show the modal
     modalEl.addEventListener('show.bs.modal', function (event) {
       const button = event.relatedTarget;
       if (!button) return;
 
-      const id     = button.getAttribute('data-ticket-id');
-      const serial = button.getAttribute('data-ticket-serial');
+      const id = button.getAttribute('data-ticket-id');
 
-      form.action       = "{{ route('users.tickets.buy', ['ticket' => '__ID__']) }}".replace('__ID__', id);
-      idInput.value     = id;
-      serialInput.value = serial;
+      form.action   = "{{ route('users.tickets.buy', ['ticket' => '__ID__']) }}".replace('__ID__', id);
+      idInput.value = id;
 
       // reset preview each time
       proofInput.value = '';
@@ -209,7 +250,6 @@
       previewImg.removeAttribute('src');
     });
 
-    // Live image preview
     proofInput.addEventListener('change', ()=>{
       const f = proofInput.files && proofInput.files[0];
       if(!f){ previewImg.classList.add('d-none'); return; }
@@ -218,7 +258,6 @@
       reader.readAsDataURL(f);
     });
 
-    // If server set a ticket id to reopen modal (after validation error)
     @if(session('buy_ticket_id'))
       const autoBtn = document.querySelector('[data-ticket-id="{{ session('buy_ticket_id') }}"]');
       if (autoBtn) autoBtn.click();

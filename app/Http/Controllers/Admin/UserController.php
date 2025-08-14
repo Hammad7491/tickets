@@ -16,6 +16,7 @@ class UserController extends Controller
 
     public function index()
     {
+        // Ensure roles exist (lowercase, guard web)
         Role::firstOrCreate(['name'=>'admin','guard_name'=>'web']);
         Role::firstOrCreate(['name'=>'user','guard_name'=>'web']);
 
@@ -56,7 +57,26 @@ class UserController extends Controller
             'email'    => ['required','email','max:255','unique:users,email'],
             'password' => ['required','confirmed','min:8'],
             'phone'    => ['nullable','string','max:30'],
+            'roles'    => ['required','array', 'min:1'],
+            'roles.*'  => ['string'],
         ]);
+
+        // Normalize and whitelist roles
+        $picked = collect($data['roles'] ?? [])
+            ->map(fn($r) => strtolower(trim($r)))
+            ->intersect(self::ALLOWED_ROLES)
+            ->values()
+            ->all();
+
+        // Fallback if nothing valid came through (shouldn't happen due to 'required')
+        if (empty($picked)) {
+            $picked = ['admin']; // default when creating via Admin panel
+        }
+
+        // Ensure the roles exist in the DB with guard web
+        foreach ($picked as $r) {
+            Role::firstOrCreate(['name'=>$r,'guard_name'=>'web']);
+        }
 
         $user = User::create([
             'name'     => trim($data['name']),
@@ -65,13 +85,10 @@ class UserController extends Controller
             'phone'    => $data['phone'] ?? null,
         ]);
 
-        Role::firstOrCreate(['name'=>'admin','guard_name'=>'web']);
-        Role::firstOrCreate(['name'=>'user','guard_name'=>'web']);
+        // Apply selected roles
+        $user->syncRoles($picked);
 
-        // Admin-created users become admin
-        $user->syncRoles(['admin']);
-
-        return redirect()->route('admin.users.index')->with('success','Admin user created.');
+        return redirect()->route('admin.users.index')->with('success','User created.');
     }
 
     public function edit(User $user)
@@ -80,7 +97,7 @@ class UserController extends Controller
             ->orderByRaw("FIELD(name,'admin','user')")
             ->get(['name']);
 
-        $userRoles = $user->roles()->pluck('name')->toArray();
+        $userRoles = $user->roles()->pluck('name')->map(fn($r)=>strtolower($r))->toArray();
 
         return view('admin.users.create', compact('user','roles','userRoles'));
     }
@@ -92,7 +109,8 @@ class UserController extends Controller
             'email'    => ['required','email','max:255','unique:users,email,'.$user->id],
             'password' => ['nullable','confirmed','min:8'],
             'phone'    => ['nullable','string','max:30'],
-            'roles'    => ['sometimes','array'],
+            'roles'    => ['required','array','min:1'],
+            'roles.*'  => ['string'],
         ]);
 
         $user->name  = trim($data['name']);
@@ -104,14 +122,24 @@ class UserController extends Controller
         }
         $user->save();
 
-        if ($request->has('roles')) {
-            $picked = array_values(array_intersect((array) $request->roles, self::ALLOWED_ROLES));
-            if (empty($picked)) {
-                $picked = $user->roles()->pluck('name')->toArray();
-                if (empty($picked)) $picked = ['admin'];
-            }
-            $user->syncRoles($picked);
+        // Normalize + whitelist
+        $picked = collect($data['roles'] ?? [])
+            ->map(fn($r) => strtolower(trim($r)))
+            ->intersect(self::ALLOWED_ROLES)
+            ->values()
+            ->all();
+
+        if (empty($picked)) {
+            // Keep at least one role (fallback to existing or 'admin')
+            $existing = $user->roles()->pluck('name')->map(fn($r)=>strtolower($r))->toArray();
+            $picked = !empty($existing) ? $existing : ['admin'];
         }
+
+        foreach ($picked as $r) {
+            Role::firstOrCreate(['name'=>$r,'guard_name'=>'web']);
+        }
+
+        $user->syncRoles($picked);
 
         return redirect()->route('admin.users.index')->with('success','User updated.');
     }

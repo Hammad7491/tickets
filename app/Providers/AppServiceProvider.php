@@ -2,23 +2,27 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 
-class AppServiceProvider extends ServiceProvider
+class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
+    protected $policies = [
+        // Model => Policy::class
+    ];
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        $this->registerPolicies();
+
+        Gate::define('review purchases', function (User $user) {
+            // TODO: adapt to your dynamic role logic
+            // e.g. bool column:
+            // return (bool) $user->is_admin;
+            // or custom relation:
+            // return $user->roles()->where('name', 'reviewer')->exists();
+            return (bool) ($user->is_admin ?? false);
+        });
     }
 }

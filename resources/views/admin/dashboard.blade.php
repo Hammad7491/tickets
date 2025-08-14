@@ -4,7 +4,7 @@
 
 <div class="dashboard-main-body container-fluid px-3 px-sm-4 px-lg-5">
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 gap-sm-3 mb-16 mb-sm-24">
-    <h6 class="fw-semibold mb-0" style="font-size:clamp(14px, 2vw, 18px)">Dashboard</h6>
+    <h6 class="fw-semibold mb-0" style="font-size:clamp(14px, 2vw, 18px)">Dashboard</h6> 
     <ul class="d-flex align-items-center gap-2 flex-wrap text-truncate" style="max-width:100%">
       <li class="fw-medium d-flex align-items-center gap-1 text-truncate">
         <iconify-icon icon="solar:home-smile-angle-outline" class="icon" style="font-size:clamp(16px,2.6vw,20px)"></iconify-icon>
@@ -131,94 +131,110 @@
 
 {{-- TICKET CARD STYLES --}}
 <style>
-  /* Fluid grid: auto-fit cards based on available width */
-  .tickets-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
-    gap:12px;
-  }
-  @media (min-width: 576px){ .tickets-grid{ gap:14px; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); } }
-  @media (min-width: 992px){ .tickets-grid{ gap:16px; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); } }
+/* ===== Tickets layout: left-aligned, wider cards ===== */
+.tickets-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  justify-content:flex-start;   /* ⬅ left align */
+  align-items:flex-start;
+}
 
-  .ticket-card{
-    appearance:none;
-    border:none;
-    background:#fff;
-    position:relative;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-    padding:10px;
-    border:1px solid #e5e7eb;
-    border-radius:16px;
-    cursor:pointer;
-    box-shadow:0 2px 8px rgba(15,23,42,.06);
-    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
-    overflow:hidden;
-    min-height:clamp(130px, 28vw, 180px);
-    touch-action:manipulation;
-  }
-  @media (hover:hover){
-    .ticket-card:hover{
-      transform:translateY(-1px);
-      box-shadow:0 6px 18px rgba(15,23,42,.10);
-      border-color:#c7d2fe; background:#f8fafc;
-    }
-  }
+.ticket-col{
+  flex:0 0 auto;
+  width: 320px;                 /* base width so image fits fully */
+}
+@media (min-width:576px){ .ticket-col{ width:360px; } }
+@media (min-width:768px){ .ticket-col{ width:420px; } }
+@media (min-width:1200px){ .ticket-col{ width:520px; } }
 
-  /* Side notches (ticket look) */
-  .ticket-card::before,
-  .ticket-card::after{
-    content:"";
-    position:absolute; top:50%; transform:translateY(-50%);
-    width:22px; height:22px; border-radius:50%;
-    background: var(--dash-bg, #f5f7fb);
-    border:1px solid #e5e7eb;
-    z-index:1;
+/* ===== Ticket card (compact but wide) ===== */
+.ticket-card{
+  appearance:none;
+  border:none;
+  background:#fff;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:10px;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  cursor:pointer;
+  box-shadow:0 2px 8px rgba(15,23,42,.06);
+  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+  overflow:hidden;
+  min-height:110px;             /* short, since image height is capped */
+  touch-action:manipulation;
+}
+@media (hover:hover){
+  .ticket-card:hover{
+    transform:translateY(-1px);
+    box-shadow:0 6px 18px rgba(15,23,42,.10);
+    border-color:#c7d2fe; background:#f8fafc;
   }
-  .ticket-card::before{ left:-11px; }
-  .ticket-card::after{ right:-11px; }
+}
 
-  .ticket-serial{
-    font-weight:800;
-    letter-spacing:.5px;
-    font-size:clamp(14px, 3.4vw, 16px);
-    color:#111827;
-    margin-bottom:8px;
-    width:100%;
-    text-align:center;
-    word-break:break-word;
-  }
-  .ticket-img{
-    width:100%;
-    height:clamp(80px, 22vw, 140px);
-    object-fit:cover;
-    border-radius:10px;
-    border:1px solid #e5e7eb;
-    display:block;
-    -webkit-user-drag:none;
-  }
-  .ticket-placeholder{
-    width:100%;
-    height:clamp(80px, 22vw, 140px);
-    display:flex; align-items:center; justify-content:center;
-    color:#6b7280;
-    border:1px dashed #cfd4dc;
-    border-radius:10px;
-    font-size:clamp(12px,2.8vw,14px);
-  }
+/* Side notches (kept smaller) */
+.ticket-card::before,
+.ticket-card::after{
+  content:"";
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:16px; height:16px;
+  border-radius:50%;
+  background: var(--dash-bg, #f5f7fb);
+  border:1px solid #e5e7eb;
+  z-index:1;
+}
+.ticket-card::before{ left:-8px; }
+.ticket-card::after{ right:-8px; }
 
-  /* Reduce motion for users who prefer it */
-  @media (prefers-reduced-motion: reduce){
-    .ticket-card{ transition:none; }
-  }
+.ticket-serial{
+  font-weight:800;
+  letter-spacing:.4px;
+  font-size:14px;
+  color:#111827;
+  margin-bottom:6px;
+  width:100%;
+  text-align:center;
+  line-height:1.1;
+}
 
-  /* Tighten vertical rhythm on very small screens */
-  @media (max-width: 375px){
-    .card-body{ padding:12px !important; }
-  }
+/* ===== Image: show full ticket (no crop), scale to width ===== */
+.ticket-img{
+  width:100%;
+  max-height:120px;            /* increase so full ticket is visible */
+  height:auto;                 /* keep aspect ratio */
+  object-fit:contain;          /* no cropping */
+  background:#fff;             /* avoid gray around contain */
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  display:block;
+  -webkit-user-drag:none;
+}
+.ticket-placeholder{
+  width:100%;
+  height:120px;
+  display:flex; align-items:center; justify-content:center;
+  color:#6b7280;
+  border:1px dashed #cfd4dc;
+  border-radius:10px;
+  font-size:13px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce){
+  .ticket-card{ transition:none; }
+}
+
+/* Tighten vertical rhythm on very small screens */
+@media (max-width:375px){
+  .card-body{ padding:12px !important; }
+}
+
 </style>
+
 
 {{-- Copy + Realtime filter + notch bg sync (mobile-friendly) --}}
 <script>

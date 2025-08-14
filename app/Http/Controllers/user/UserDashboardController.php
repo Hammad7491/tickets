@@ -10,44 +10,57 @@ use Illuminate\Support\Facades\Auth;
 
 class UserDashboardController extends Controller
 {
-    public function index(Request $request)
-    {
-        $user = $request->user();
+ public function index(Request $request)
+{
+    $user = $request->user();
 
-        // Blocked users cannot access
-        if (($user->is_blocked ?? false) === true) {
-            Auth::logout();
-            return redirect()->route('login')
-                ->withErrors(['email' => 'Your account is blocked.']);
-        }
-
-        // User’s active purchases (pending + accepted)
-        $myActivePurchases = TicketPurchase::where('user_id', $user->id)
-            ->whereIn('status', ['pending', 'accepted'])
-            ->count();
-
-        // Tickets with availability info + my last purchase (if any)
-        $tickets = Ticket::select('id', 'name', 'serial', 'image_path', 'created_at')
-            ->withCount([
-                'purchases as active_purchase_count' => function ($q) {
-                    $q->whereIn('status', ['pending', 'accepted']);
-                }
-            ])
-            ->with([
-                'purchases' => function ($q) use ($user) {
-                    $q->where('user_id', $user->id)->latest();
-                }
-            ])
-            ->latest()
-            ->paginate(24);
-
-        return view('users.dashboard', [
-            'user'              => $user,
-            'tickets'           => $tickets,
-            'myActivePurchases' => $myActivePurchases,
-            'maxAllowed'        => 5,
-        ]);
+    // Blocked users cannot access
+    if (($user->is_blocked ?? false) === true) {
+        Auth::logout();
+        return redirect()->route('login')
+            ->withErrors(['email' => 'Your account is blocked.']);
     }
+
+    // My active (pending + accepted) count
+    $myActivePurchases = TicketPurchase::where('user_id', $user->id)
+        ->whereIn('status', ['pending', 'accepted'])
+        ->count();
+
+    $tickets = Ticket::select('id', 'name', 'serial', 'image_path', 'created_at')
+
+        // Count ANY active purchase for the card (so you can still show "Unavailable" when someone else has it)
+        ->withCount([
+            'purchases as active_purchase_count' => function ($q) {
+                $q->whereIn('status', ['pending', 'accepted']);
+            },
+        ])
+
+        // Load *my* latest purchase (if any) for button text like “Buy Again” when last was rejected
+        ->with([
+            'purchases' => function ($q) use ($user) {
+                $q->where('user_id', $user->id)->latest()->limit(1);
+            },
+        ])
+
+        // HIDE ONLY tickets where *I* have an active (pending/accepted) purchase.
+        // If mine was rejected, it will show again.
+        ->whereDoesntHave('purchases', function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+              ->whereIn('status', ['pending', 'accepted']);
+        })
+
+        ->latest()
+        ->paginate(24);
+
+    return view('users.dashboard', [
+        'user'              => $user,
+        'tickets'           => $tickets,
+        'myActivePurchases' => $myActivePurchases,
+        'maxAllowed'        => 5,
+    ]);
+}
+
+
 
     public function buy(Request $request, Ticket $ticket)
     {
