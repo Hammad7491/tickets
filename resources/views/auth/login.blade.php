@@ -70,24 +70,7 @@
             <form id="loginForm" action="{{ route('login') }}" method="POST">
                 @csrf
 
-                <div class="row mb-32">
-                    <div class="col-6">
-                        <a href="{{ route('google.login') }}" class="btn text-primary-600 border d-flex align-items-center justify-content-center w-100 gap-2">
-                            <iconify-icon icon="logos:google-icon" class="text-xl"></iconify-icon>
-                            Google
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ route('facebook.login') }}" class="btn text-primary-600 border d-flex align-items-center justify-content-center w-100 gap-2">
-                            <iconify-icon icon="ic:baseline-facebook" class="text-xl"></iconify-icon>
-                            Facebook
-                        </a>
-                    </div>
-                </div>
-
-                <div class="center-border-horizontal text-center mb-32">
-                    <span class="bg-base z-1 px-4">or continue with email</span>
-                </div>
+                <!-- Social buttons & divider removed -->
 
                 <div class="icon-field mb-16">
                     <span class="icon top-50 translate-middle-y">
@@ -125,7 +108,7 @@
                         <input class="form-check-input border border-neutral-300" type="checkbox" id="remember">
                         <label class="form-check-label ms-2" for="remember">Remember me</label>
                     </div>
-                    <a href="javascript:void(0)" class="text-primary-600 fw-medium">Forgot Password?</a>
+                    <!-- Forgot Password removed -->
                 </div>
 
                 <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mb-32">
@@ -137,6 +120,7 @@
                     {{-- <button type="button" class="btn btn-secondary" onclick="fillLogin('u@u','a')">User</button> --}}
                 </div>
 
+                <!-- Signup link restored -->
                 <p class="text-center text-sm mb-0">
                     Don’t have an account?
                     <a href="{{ route('registerform') }}" class="text-primary-600 fw-semibold">Sign Up</a>

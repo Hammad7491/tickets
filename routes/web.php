@@ -22,7 +22,9 @@ use App\Http\Controllers\Chatbot\UserNameController;    // if you use it
 // ==========================================================================
 // Public
 // ==========================================================================
-Route::view('/', 'welcome');
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
 Route::get('/login',     [AuthController::class, 'loginform'])->name('loginform');
 Route::post('/login',    [AuthController::class, 'login'])->name('login');

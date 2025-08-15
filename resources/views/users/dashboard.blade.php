@@ -35,10 +35,11 @@
   @endif
 
   @if($tickets->count())
-    <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-2 g-4">
+    {{-- Responsive grid: 1 / 2 / 3 / 4 columns --}}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
       @foreach($tickets as $t)
         @php
-          // Controller provided: withCount(['purchases as held_count' => fn($q)=>$q->whereIn('status',['pending','accepted'])])
+          // Controller: withCount(['purchases as held_count' => fn($q)=>$q->whereIn('status',['pending','accepted'])])
           $held = (int)($t->held_count ?? 0);
           $qty  = (int)$t->quantity;
           $remaining = max(0, $qty - $held);
@@ -50,7 +51,10 @@
             <div class="ticket-media">
               <div class="ticket-media-box">
                 @if($t->image_path)
-                  <img src="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}" alt="{{ $t->name }}">
+                  <img
+                    src="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}"
+                    alt="{{ $t->name }}"
+                    loading="lazy">
                 @else
                   <div class="no-image">
                     <i class="bi bi-image text-muted fs-1"></i>
@@ -61,17 +65,18 @@
             </div>
 
             <div class="p-3 d-flex flex-column gap-2">
-              <div class="fw-semibold">{{ $t->name }}</div>
+              <div class="fw-semibold ticket-title">{{ $t->name }}</div>
 
-              <div class="d-flex align-items-center justify-content-between">
+              {{-- Wrap on small screens so badge & button don’t squish --}}
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 @if($remaining > 0)
-                  <span class="badge bg-success-subtle text-success fw-bold">Remaining: {{ number_format($remaining) }}</span>
+                  <span class="badge bg-success-subtle text-success fw-bold order-1">Remaining: {{ number_format($remaining) }}</span>
                 @else
-                  <span class="badge bg-danger-subtle text-danger fw-bold">Out of stock</span>
+                  <span class="badge bg-danger-subtle text-danger fw-bold order-1">Out of stock</span>
                 @endif
 
                 <button type="button"
-                        class="btn btn-primary btn-sm open-buy-modal"
+                        class="btn btn-primary btn-sm open-buy-modal order-2 ms-auto"
                         data-bs-toggle="modal"
                         data-bs-target="#buyModal"
                         data-ticket-id="{{ $t->id }}"
@@ -95,17 +100,23 @@
 </div>
 
 <style>
-  /* Serial is hidden everywhere (if any old markup leaks it) */
+  /* Hide any stray serials */
   .ticket-serial{ display:none !important; }
 
   .ticket-card{ background:#fff; }
 
-  /* Media container */
+  /* Media wrapper */
   .ticket-media{
     position:relative;
     padding:12px;
     background:#f8f9fa;
   }
+
+  /* Responsive media box:
+     - Default height for desktop
+     - Slightly shorter on tablets
+     - Shortest on phones
+  */
   .ticket-media-box{
     height:180px;
     border-radius:16px;
@@ -116,6 +127,9 @@
     align-items:center;
     justify-content:center;
   }
+  @media (max-width: 991.98px){ .ticket-media-box{ height:160px; } }
+  @media (max-width: 575.98px){ .ticket-media{ padding:8px; } .ticket-media-box{ height:140px; border-radius:12px; } }
+
   .ticket-media-box img{
     max-width:100%;
     max-height:100%;
@@ -125,6 +139,7 @@
     object-position:center;
     display:block;
   }
+
   .no-image{
     height:100%;
     width:100%;
@@ -138,9 +153,21 @@
     background:#fff;
   }
 
-  /* soft badges */
+  /* Title wrapping for very long names */
+  .ticket-title{ word-break: break-word; }
+
+  /* Soft badges (theme-preserving) */
   .badge.bg-success-subtle{ background:#e9f9ef!important; color:#057a55!important; }
   .badge.bg-danger-subtle{  background:#fdebec!important; color:#b42318!important; }
+
+  /* Tighten paddings/buttons on very small screens */
+  @media (max-width: 360px){
+    .ticket-card .p-3{ padding:.75rem !important; }
+    .ticket-card .btn{ padding:.375rem .625rem; }
+  }
+
+  /* Modal preview behaves on mobile */
+  #buy_preview{ max-width:100%; height:auto; }
 </style>
 
 {{-- BUY MODAL --}}
@@ -186,7 +213,7 @@
           <div class="form-text">Enter a reachable number (e.g., +92 300 1234567)</div>
         </div>
 
-        {{-- Proof (required on UI; controller tolerates nullable if you change your mind) --}}
+        {{-- Proof --}}
         <div class="mb-3">
           <label class="form-label fw-semibold">Upload Proof of Payment <span class="text-danger">*</span></label>
           <input type="file"

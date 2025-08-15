@@ -54,29 +54,8 @@
             <h4 class="mb-12">Create your account</h4>
             <p class="mb-32 text-secondary-light text-lg">Sign up to continue to {{ config('app.name','Silva') }}.</p>
 
-            {{-- Social buttons (optional) --}}
-            <div class="row mb-32">
-                @if(Route::has('google.login'))
-                <div class="col-6">
-                    <a href="{{ route('google.login') }}" class="btn text-primary-600 border d-flex align-items-center justify-content-center w-100 gap-2">
-                        <iconify-icon icon="logos:google-icon" class="text-xl"></iconify-icon>
-                        Google
-                    </a>
-                </div>
-                @endif
-                @if(Route::has('facebook.login'))
-                <div class="col-6">
-                    <a href="{{ route('facebook.login') }}" class="btn text-primary-600 border d-flex align-items-center justify-content-center w-100 gap-2">
-                        <iconify-icon icon="ic:baseline-facebook" class="text-xl"></iconify-icon>
-                        Facebook
-                    </a>
-                </div>
-                @endif
-            </div>
-
-            <div class="center-border-horizontal text-center mb-32">
-                <span class="bg-base z-1 px-4">or continue with email</span>
-            </div>
+            <!-- Social buttons removed -->
+            <!-- Divider removed -->
 
             <form action="{{ route('register') }}" method="POST" autocomplete="off" id="registerForm">
                 @csrf
