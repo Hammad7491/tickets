@@ -104,6 +104,23 @@ class UserTicketController extends Controller
         return back()->with('success', 'Your ticket request was submitted and is pending review.');
     }
 
+
+
+    public function destroy(TicketPurchase $purchase)
+{
+    $user = request()->user();
+    abort_unless($purchase->user_id === $user->id, 403);
+
+    // Prevent deleting accepted tickets
+    if ($purchase->status === 'accepted') {
+        return back()->with('error', 'You cannot delete an accepted ticket.');
+    }
+
+    $purchase->delete();
+
+    return back()->with('success', 'Ticket request deleted successfully.');
+}
+
     /** Generate PK + 6 digits (e.g., PK123456) and ensure uniqueness. */
     private function makeSerial(): string
     {

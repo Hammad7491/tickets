@@ -111,3 +111,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/ticketstatus/{purchase}/proof/download', [UserTicketController::class, 'proofDownload'])->name('users.ticketstatus.proof.download');
     Route::post('/tickets/{ticket}/buy', [UserTicketController::class, 'buy'])->name('users.tickets.buy');
 });
+
+
+
+Route::delete('ticketstatus/{purchase}', [UserTicketController::class, 'destroy'])
+    ->name('users.ticketstatus.destroy');
+

@@ -33,6 +33,7 @@
           <th>Serial</th>
           <th>Status</th>
           <th>Requested</th>
+          <th style="width: 80px;">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -76,10 +77,27 @@
             </td>
 
             <td>{{ $p->created_at?->format('d M Y') }}</td>
+
+            <td>
+              @if($p->status !== 'accepted')
+                <form action="{{ route('users.ticketstatus.destroy', $p) }}" method="POST"
+                      onsubmit="return confirm('Delete this request?');" class="d-inline">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              @else
+                <button class="btn btn-sm btn-outline-secondary" disabled title="Accepted purchases cannot be deleted">
+                  <i class="bi bi-lock"></i>
+                </button>
+              @endif
+            </td>
           </tr>
         @empty
           <tr>
-            <td colspan="7" class="text-center text-muted py-4">No requests yet.</td>
+            <td colspan="8" class="text-center text-muted py-4">No requests yet.</td>
           </tr>
         @endforelse
       </tbody>
@@ -134,13 +152,24 @@
           </div>
         </div>
 
-        @if($downloadUrl)
-          <div class="mt-2">
-            <a href="{{ $downloadUrl }}" class="btn btn-sm btn-outline-secondary w-100">
+        <div class="mt-2 d-grid gap-2">
+          @if($downloadUrl)
+            <a href="{{ $downloadUrl }}" class="btn btn-sm btn-outline-secondary">
               <i class="bi bi-download me-1"></i> Download Proof
             </a>
-          </div>
-        @endif
+          @endif
+
+          @if($p->status !== 'accepted')
+            <form action="{{ route('users.ticketstatus.destroy', $p) }}" method="POST"
+                  onsubmit="return confirm('Delete this request?');">
+              @csrf
+              @method('DELETE')
+              <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                <i class="bi bi-trash me-1"></i> Delete
+              </button>
+            </form>
+          @endif
+        </div>
       </div>
     @empty
       <div class="text-center text-muted py-4">No requests yet.</div>
