@@ -16,6 +16,7 @@ class TicketPurchase extends Model
         'phone',
         'proof_image_path',
         'status',
+        'serial',        // ← serial stored on the purchase
     ];
 
     public function ticket()

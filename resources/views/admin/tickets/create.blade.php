@@ -43,7 +43,7 @@
           @method('PUT')
         @endif
 
-        {{-- Ticket Name --}}
+        {{-- Ticket Name (required) --}}
         <div class="col-md-6">
           <label class="form-label fw-semibold">Ticket Name <span class="text-danger">*</span></label>
           <input
@@ -58,35 +58,31 @@
           @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
 
-        {{-- Ticket Serial --}}
+        {{-- Total Tickets (required) --}}
         <div class="col-md-6">
-          <label class="form-label fw-semibold">
-            Ticket Serial <span class="text-danger">*</span>
-            <i class="bi bi-question-circle ms-1 text-muted"
-               data-bs-toggle="tooltip"
-               title="Format: PK + up to 6 digits (max length 8). Example: PK123456"></i>
-          </label>
+          <label class="form-label fw-semibold">Total Tickets <span class="text-danger">*</span></label>
           <input
-            type="text"
-            name="serial"
-            class="form-control text-uppercase @error('serial') is-invalid @enderror"
-            value="{{ old('serial', $isEdit ? $ticket->serial : '') }}"
+            type="number"
+            name="quantity"
+            class="form-control @error('quantity') is-invalid @enderror"
+            value="{{ old('quantity', $isEdit ? $ticket->quantity : '') }}"
             required
-            maxlength="8"
-            placeholder="PK123456"
+            min="1"
+            step="1"
+            placeholder="e.g., 100"
           >
-          <div class="form-text">Must match: <code>PK</code> followed by up to 6 digits (max 8 characters total).</div>
-          @error('serial') <div class="invalid-feedback">{{ $message }}</div> @enderror
+          @error('quantity') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
 
-        {{-- Picture --}}
+        {{-- Picture (required) --}}
         <div class="col-md-6">
-          <label class="form-label fw-semibold">Picture (optional)</label>
+          <label class="form-label fw-semibold">Picture <span class="text-danger">*</span></label>
           <input
             type="file"
             name="image"
             class="form-control @error('image') is-invalid @enderror"
             accept=".jpg,.jpeg,.png"
+            required
           >
           <div class="form-text">JPG/PNG up to 2MB.</div>
           @error('image') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -127,7 +123,6 @@
 </div>
 
 <script>
-  // enable tooltips (if Bootstrap JS loaded)
   if (window.bootstrap && bootstrap.Tooltip) {
     [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].forEach(el => new bootstrap.Tooltip(el));
   }

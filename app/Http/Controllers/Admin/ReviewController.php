@@ -4,20 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TicketPurchase;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ReviewController extends Controller
 {
-    /**
-     * Show all pending purchases for admin review.
-     */
     public function pending()
     {
         $purchases = TicketPurchase::with([
                 'user:id,name,email,phone',
-                'ticket:id,name,serial',
+                'ticket:id,name,image_path,quantity',
             ])
             ->where('status', 'pending')
             ->latest()
@@ -26,14 +22,11 @@ class ReviewController extends Controller
         return view('admin.reviews.pending', compact('purchases'));
     }
 
-    /**
-     * Show all accepted purchases.
-     */
     public function accepted()
     {
         $purchases = TicketPurchase::with([
                 'user:id,name,email,phone',
-                'ticket:id,name,serial',
+                'ticket:id,name,image_path,quantity',
             ])
             ->where('status', 'accepted')
             ->latest()
@@ -43,12 +36,12 @@ class ReviewController extends Controller
     }
 
     /**
-     * Accept a pending purchase and auto-reject other pending ones
-     * for the same ticket, then go to the Accepted page.
+     * Accept a purchase respecting ticket quantity.
+     * If stock is already full, return with a friendly error.
+     * Serial is already on the purchase; if ever missing, we backfill once.
      */
     public function accept(TicketPurchase $purchase)
     {
-        
         if ($purchase->status === 'accepted') {
             return redirect()
                 ->route('admin.reviews.accepted')
@@ -61,36 +54,46 @@ class ReviewController extends Controller
                 ->with('error', 'This purchase was already rejected.');
         }
 
-        DB::transaction(function () use ($purchase) {
-            // prevent double-accept for same ticket
-            $alreadyAccepted = TicketPurchase::where('ticket_id', $purchase->ticket_id)
-                ->where('status', 'accepted')
-                ->where('id', '!=', $purchase->id)
-                ->exists();
+        try {
+            DB::transaction(function () use ($purchase) {
+                $acceptedCount = TicketPurchase::where('ticket_id', $purchase->ticket_id)
+                    ->where('status', 'accepted')
+                    ->lockForUpdate()
+                    ->count();
 
-            if ($alreadyAccepted) {
-                abort(409, 'Another purchase for this ticket is already accepted.');
-            }
+                $qty = (int) optional($purchase->ticket)->quantity ?: 1;
 
-            // accept current
-            $purchase->update(['status' => 'accepted']);
+                if ($acceptedCount >= $qty) {
+                    throw new \RuntimeException('This ticket is already sold out (another request is accepted).');
+                }
 
-            // auto-reject other pendings on same ticket
-            TicketPurchase::where('ticket_id', $purchase->ticket_id)
-                ->where('status', 'pending')
-                ->where('id', '!=', $purchase->id)
-                ->update(['status' => 'rejected']);
-        });
+                // Backfill serial only if somehow missing
+                if (empty($purchase->serial)) {
+                    $purchase->serial = $this->makeSerial();
+                }
 
-        // redirect to Accepted list
+                $purchase->status = 'accepted';
+                $purchase->save();
+
+                // If stock now full, reject all remaining pendings
+                if ($acceptedCount + 1 >= $qty) {
+                    TicketPurchase::where('ticket_id', $purchase->ticket_id)
+                        ->where('status', 'pending')
+                        ->where('id', '!=', $purchase->id)
+                        ->update(['status' => 'rejected']);
+                }
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Unable to accept this purchase. Please try again.');
+        }
+
         return redirect()
             ->route('admin.reviews.accepted')
             ->with('success', 'Purchase accepted.');
     }
 
-    /**
-     * Reject a purchase (shows as Rejected on user side, no serial; disappears from Pending).
-     */
     public function reject(TicketPurchase $purchase)
     {
         if ($purchase->status === 'rejected') {
@@ -99,9 +102,9 @@ class ReviewController extends Controller
                 ->with('success', 'This purchase is already rejected.');
         }
 
-        // If you want to forbid rejecting after accepted, uncomment:
+        // If you never want to reject after accept, block here:
         // if ($purchase->status === 'accepted') {
-        //     abort(409, 'Cannot reject an already accepted purchase.');
+        //     return back()->with('error', 'Cannot reject an already accepted purchase.');
         // }
 
         $purchase->update(['status' => 'rejected']);
@@ -111,27 +114,27 @@ class ReviewController extends Controller
             ->with('success', 'Purchase rejected.');
     }
 
-    /**
-     * Admin preview of proof (opens in new tab).
-     */
     public function proofShow(TicketPurchase $purchase)
     {
         $path = $purchase->proof_image_path;
-
         abort_unless($path && Storage::disk('public')->exists($path), 404);
-
         return Storage::disk('public')->response($path);
     }
 
-    /**
-     * Admin download of proof.
-     */
     public function proofDownload(TicketPurchase $purchase)
     {
         $path = $purchase->proof_image_path;
-
         abort_unless($path && Storage::disk('public')->exists($path), 404);
-
         return Storage::disk('public')->download($path);
+    }
+
+    /** Same generator used here as a fallback */
+    private function makeSerial(): string
+    {
+        do {
+            $serial = 'PK' . str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        } while (TicketPurchase::where('serial', $serial)->exists());
+
+        return $serial;
     }
 }

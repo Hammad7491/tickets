@@ -69,7 +69,8 @@
                   <div class="small text-muted">ID: {{ $ticket?->id ?? '—' }}</div>
                 </td>
 
-                <td class="font-monospace">{{ $ticket?->serial ?? '—' }}</td>
+                {{-- SERIAL NOW FROM PURCHASE --}}
+                <td class="font-monospace">{{ $p->serial ?? '—' }}</td>
 
                 <td class="text-monospace">{{ $p->account_number ?? '—' }}</td>
 

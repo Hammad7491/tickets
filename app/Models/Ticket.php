@@ -11,8 +11,12 @@ class Ticket extends Model
 
     protected $fillable = [
         'name',
-        'serial',
         'image_path',
+        'quantity',
+    ];
+
+    protected $casts = [
+        'quantity' => 'integer',
     ];
 
     protected $appends = [
@@ -27,9 +31,11 @@ class Ticket extends Model
         return $this->hasMany(TicketPurchase::class);
     }
 
+    /**
+     * Purchases that hold the ticket (pending or accepted).
+     */
     public function activePurchases()
     {
-        // Considered "held" when pending or accepted
         return $this->purchases()->whereIn('status', ['pending', 'accepted']);
     }
 
@@ -38,16 +44,7 @@ class Ticket extends Model
      | -----------------------------------------------------------------*/
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image_path ? asset('storage/' . $this->image_path) : null;
-    }
-
-    /* -----------------------------------------------------------------
-     |  Mutators
-     | -----------------------------------------------------------------*/
-    public function setSerialAttribute($value): void
-    {
-        // keep consistent formatting
-        $this->attributes['serial'] = strtoupper(trim((string) $value));
+        return $this->image_path ? asset('storage/'.$this->image_path) : null;
     }
 
     /* -----------------------------------------------------------------
@@ -62,4 +59,21 @@ class Ticket extends Model
             $q->whereIn('status', ['pending', 'accepted']);
         });
     }
+
+    /**
+     * Tickets that still have stock remaining.
+     * (Uses withCount on pending/accepted and compares to quantity.)
+     */
+    public function scopeInStock($query)
+{
+    // Tickets where held (pending/accepted) count is less than quantity
+    return $query->whereRaw(
+        "COALESCE((
+            SELECT COUNT(*)
+            FROM ticket_purchases
+            WHERE ticket_purchases.ticket_id = tickets.id
+              AND status IN ('pending','accepted')
+        ), 0) < tickets.quantity"
+    );
+}
 }

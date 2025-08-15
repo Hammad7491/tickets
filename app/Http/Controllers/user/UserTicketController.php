@@ -11,17 +11,13 @@ use Illuminate\Support\Facades\Storage;
 
 class UserTicketController extends Controller
 {
-    /** Max active purchases per user */
-    private int $maxAllowed = 5;
-
-    /**
-     * Show the logged-in user's ticket purchase requests (with ticket info).
-     */
     public function index(Request $request)
     {
         $user = $request->user();
 
-        $purchases = TicketPurchase::with(['ticket:id,name,serial,image_path'])
+        $purchases = TicketPurchase::with([
+                'ticket:id,name,image_path',
+            ])
             ->where('user_id', $user->id)
             ->latest()
             ->paginate(12);
@@ -29,10 +25,6 @@ class UserTicketController extends Controller
         return view('users.ticketstatus.index', compact('purchases'));
     }
 
-    /**
-     * Inline preview of the uploaded proof (opens in browser).
-     * Serves the file from storage so you don't need the /storage symlink.
-     */
     public function proofShow(TicketPurchase $purchase)
     {
         $user = request()->user();
@@ -41,13 +33,9 @@ class UserTicketController extends Controller
         $path = $purchase->proof_image_path;
         abort_unless($path && Storage::disk('public')->exists($path), 404);
 
-        $absolute = storage_path('app/public/' . $path);
-        return response()->file($absolute); // show inline
+        return response()->file(storage_path('app/public/'.$path));
     }
 
-    /**
-     * Force download of the uploaded proof.
-     */
     public function proofDownload(TicketPurchase $purchase)
     {
         $user = request()->user();
@@ -60,7 +48,9 @@ class UserTicketController extends Controller
     }
 
     /**
-     * Handle "Buy Now" — create a TicketPurchase in pending status.
+     * Users can submit unlimited requests for the same ticket.
+     * We only block when active (pending+accepted) >= ticket quantity.
+     * A serial is generated now (admin can see instantly); user will see it only after acceptance.
      */
     public function buy(Request $request, Ticket $ticket)
     {
@@ -80,23 +70,12 @@ class UserTicketController extends Controller
             'proof'          => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        // Enforce per-user active limit
-        $activeCount = TicketPurchase::where('user_id', $user->id)
+        // ✅ Stock check: allow while active < quantity
+        $activeCount = TicketPurchase::where('ticket_id', $ticket->id)
             ->whereIn('status', ['pending', 'accepted'])
             ->count();
 
-        if ($activeCount >= $this->maxAllowed) {
-            return back()
-                ->with('error', "You’ve reached the {$this->maxAllowed} ticket limit.")
-                ->with('buy_ticket_id', $ticket->id);
-        }
-
-        // Prevent buying a ticket that already has an active purchase
-        $hasActive = TicketPurchase::where('ticket_id', $ticket->id)
-            ->whereIn('status', ['pending', 'accepted'])
-            ->exists();
-
-        if ($hasActive) {
+        if ($activeCount >= (int) $ticket->quantity) {
             return back()
                 ->with('error', 'This ticket is unavailable right now.')
                 ->with('buy_ticket_id', $ticket->id);
@@ -105,13 +84,13 @@ class UserTicketController extends Controller
         // Save required proof
         $proofPath = $request->file('proof')->store('purchases', 'public');
 
-        // Remember phone for next time (optional)
+        // Remember phone (optional)
         if (!empty($validated['phone'])) {
             $user->phone = $validated['phone'];
             $user->save();
         }
 
-        // Create purchase
+        // Create purchase (pending) with a generated serial.
         TicketPurchase::create([
             'ticket_id'        => $ticket->id,
             'user_id'          => $user->id,
@@ -119,8 +98,19 @@ class UserTicketController extends Controller
             'phone'            => $validated['phone'] ?? $user->phone,
             'proof_image_path' => $proofPath,
             'status'           => 'pending',
+            'serial'           => $this->makeSerial(), // ← generate now
         ]);
 
         return back()->with('success', 'Your ticket request was submitted and is pending review.');
+    }
+
+    /** Generate PK + 6 digits (e.g., PK123456) and ensure uniqueness. */
+    private function makeSerial(): string
+    {
+        do {
+            $serial = 'PK' . str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        } while (TicketPurchase::where('serial', $serial)->exists());
+
+        return $serial;
     }
 }

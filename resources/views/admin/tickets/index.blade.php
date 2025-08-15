@@ -27,7 +27,7 @@
           <thead class="table-light">
             <tr>
               <th>Name</th>
-              <th>Serial</th>
+              <th>Total Tickets</th>
               <th>Image</th>
               <th>Created</th>
               <th class="text-center" style="width:120px;">Actions</th>
@@ -40,7 +40,9 @@
                   {{ $t->name }}
                 </td>
 
-                <td class="font-monospace">{{ $t->serial }}</td>
+                <td class="text-nowrap">
+                  {{ number_format((int) $t->quantity) }}
+                </td>
 
                 <td>
                   @if($t->image_path)
@@ -56,7 +58,7 @@
                         >
                       </a>
 
-                      {{-- Download (only if image exists) --}}
+                      {{-- Download --}}
                       <a href="{{ route('admin.tickets.download', ['path' => $t->image_path]) }}"
                          class="btn btn-sm btn-outline-secondary" title="Download image">
                         <i class="bi bi-download"></i>
@@ -110,8 +112,8 @@
               <div class="flex-grow-1">
                 <div class="fw-semibold mb-1 text-truncate" title="{{ $t->name }}">{{ $t->name }}</div>
                 <div class="small text-muted mb-2">
-                  <span class="fw-semibold">Serial:</span>
-                  <span class="font-monospace">{{ $t->serial }}</span>
+                  <span class="fw-semibold">Total Tickets:</span>
+                  {{ number_format((int) $t->quantity) }}
                 </div>
               </div>
 
@@ -145,7 +147,6 @@
                   <i class="bi bi-pencil"></i>
                 </a>
 
-                {{-- Download (conditionally rendered so route param is always present) --}}
                 @if($t->image_path)
                   <a href="{{ route('admin.tickets.download', ['path' => $t->image_path]) }}"
                      class="btn btn-sm btn-outline-secondary"
@@ -184,14 +185,10 @@
 </div>
 
 <style>
-  /* Monospace for serial clarity */
-  .font-monospace{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-
   /* Prevent tiny screens from squashing the header buttons */
   @media (max-width: 575.98px){
     .card-header .btn{padding:.3rem .5rem}
   }
-
   /* Tweak table cells a bit on md+ */
   @media (min-width: 768px){
     .table td,.table th{vertical-align:middle}

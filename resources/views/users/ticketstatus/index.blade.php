@@ -8,7 +8,6 @@
     <span class="text-muted">Only your own submissions are shown here.</span>
   </div>
 
-  {{-- Flash messages --}}
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       {{ session('success') }}
@@ -22,7 +21,7 @@
     </div>
   @endif
 
-  {{-- DESKTOP/TABLET TABLE --}}
+  {{-- DESKTOP/TABLET --}}
   <div class="table-responsive d-none d-md-block">
     <table class="table align-middle table-hover mb-0">
       <thead class="table-light">
@@ -39,31 +38,22 @@
       <tbody>
         @forelse($purchases as $p)
           @php
-            $serial      = $p->status === 'accepted' ? ($p->ticket->serial ?? '—') : '—';
-            $showUrl     = route('users.ticketstatus.proof.show', $p);      // inline preview
-            $downloadUrl = route('users.ticketstatus.proof.download', $p);  // force download
+            $serial      = $p->status === 'accepted' ? ($p->serial ?? '—') : '—';
+            $showUrl     = route('users.ticketstatus.proof.show', $p);
+            $downloadUrl = route('users.ticketstatus.proof.download', $p);
           @endphp
           <tr>
-            <td class="fw-semibold">
-              {{ $p->ticket->name ?? 'Ticket' }}
-            </td>
+            <td class="fw-semibold">{{ $p->ticket->name ?? 'Ticket' }}</td>
 
-            <td class="text-monospace">{{ $p->account_number }}</td>
+            <td class="font-monospace">{{ $p->account_number }}</td>
             <td>{{ $p->phone ?? '—' }}</td>
 
             <td>
               @if($p->proof_image_path)
                 <div class="d-flex align-items-center gap-2">
-                  {{-- Open inline in new tab via controller --}}
                   <a href="{{ $showUrl }}" target="_blank" rel="noopener" class="d-inline-block" title="Open proof">
-                    <img
-                      src="{{ $showUrl }}"
-                      alt="Proof"
-                      class="rounded border"
-                      style="width:60px;height:40px;object-fit:cover"
-                    >
+                    <img src="{{ $showUrl }}" alt="Proof" class="rounded border" style="width:60px;height:40px;object-fit:cover">
                   </a>
-                  {{-- Force download --}}
                   <a href="{{ $downloadUrl }}" class="btn btn-sm btn-outline-secondary" title="Download proof">
                     <i class="bi bi-download"></i>
                   </a>
@@ -100,7 +90,7 @@
   <div class="d-md-none">
     @forelse($purchases as $p)
       @php
-        $serial      = $p->status === 'accepted' ? ($p->ticket->serial ?? '—') : '—';
+        $serial      = $p->status === 'accepted' ? ($p->serial ?? '—') : '—';
         $showUrl     = $p->proof_image_path ? route('users.ticketstatus.proof.show', $p) : null;
         $downloadUrl = $p->proof_image_path ? route('users.ticketstatus.proof.download', $p) : null;
       @endphp
@@ -111,7 +101,7 @@
               {{ $p->ticket->name ?? 'Ticket' }}
             </div>
             <div class="small text-muted mt-1">
-              <div><span class="fw-semibold">Account:</span> <span class="text-monospace">{{ $p->account_number }}</span></div>
+              <div><span class="fw-semibold">Account:</span> <span class="font-monospace">{{ $p->account_number }}</span></div>
               <div><span class="fw-semibold">Phone:</span> {{ $p->phone ?? '—' }}</div>
               <div><span class="fw-semibold">Serial:</span> <span class="font-monospace">{{ $serial }}</span></div>
             </div>
@@ -119,12 +109,8 @@
           <div class="flex-shrink-0">
             @if($showUrl)
               <a href="{{ $showUrl }}" target="_blank" rel="noopener" title="Open proof">
-                <img
-                  src="{{ $showUrl }}"
-                  alt="Proof"
-                  class="rounded border d-block"
-                  style="width:84px;height:56px;object-fit:cover"
-                >
+                <img src="{{ $showUrl }}" alt="Proof"
+                     class="rounded border d-block" style="width:84px;height:56px;object-fit:cover">
               </a>
             @else
               <div class="rounded border d-flex align-items-center justify-content-center"
@@ -165,7 +151,8 @@
 </div>
 
 <style>
-  .text-monospace,
-  .font-monospace{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+  .font-monospace{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace
+  }
 </style>
 @endsection

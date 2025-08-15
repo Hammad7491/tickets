@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 
 class TicketController extends Controller
 {
@@ -25,22 +24,18 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'   => ['required', 'string', 'max:255'],
-            // PK + up to 6 digits (total max 8 chars), e.g. PK000040
-            'serial' => ['required', 'string', 'max:8', 'regex:/^PK\d{0,6}$/', 'unique:tickets,serial'],
-            'image'  => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'name'     => ['required', 'string', 'max:255'],
+            'quantity' => ['required', 'integer', 'min:1'],
+            'image'    => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
         $ticket = new Ticket();
-        $ticket->name   = $validated['name'];
-        $ticket->serial = $validated['serial'];
+        $ticket->name     = $validated['name'];
+        $ticket->quantity = (int) $validated['quantity'];
 
-        if ($request->hasFile('image')) {
-            // stores to storage/app/public/tickets/xxxxx.jpg
-            $path = $request->file('image')->store('tickets', 'public');
-            // Save relative path only
-            $ticket->image_path = $path;
-        }
+        // stores to storage/app/public/tickets/xxxxx.jpg
+        $path = $request->file('image')->store('tickets', 'public');
+        $ticket->image_path = $path;
 
         $ticket->save();
 
@@ -58,25 +53,20 @@ class TicketController extends Controller
     public function update(Request $request, Ticket $ticket)
     {
         $validated = $request->validate([
-            'name'   => ['required', 'string', 'max:255'],
-            'serial' => [
-                'required', 'string', 'max:8', 'regex:/^PK\d{0,6}$/',
-                Rule::unique('tickets', 'serial')->ignore($ticket->id),
-            ],
-            'image'  => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'name'     => ['required', 'string', 'max:255'],
+            'quantity' => ['required', 'integer', 'min:1'],
+            'image'    => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:2048'], // you asked all fields required
         ]);
 
-        $ticket->name   = $validated['name'];
-        $ticket->serial = $validated['serial'];
+        $ticket->name     = $validated['name'];
+        $ticket->quantity = (int) $validated['quantity'];
 
-        // If a new image is uploaded, delete the old one and save the new path
-        if ($request->hasFile('image')) {
-            if (!empty($ticket->image_path) && Storage::disk('public')->exists($ticket->image_path)) {
-                Storage::disk('public')->delete($ticket->image_path);
-            }
-            $path = $request->file('image')->store('tickets', 'public');
-            $ticket->image_path = $path;
+        // Replace image (delete old then save new)
+        if (!empty($ticket->image_path) && Storage::disk('public')->exists($ticket->image_path)) {
+            Storage::disk('public')->delete($ticket->image_path);
         }
+        $path = $request->file('image')->store('tickets', 'public');
+        $ticket->image_path = $path;
 
         $ticket->save();
 
@@ -87,7 +77,6 @@ class TicketController extends Controller
 
     public function destroy(Ticket $ticket)
     {
-        // delete stored image if exists
         if (!empty($ticket->image_path) && Storage::disk('public')->exists($ticket->image_path)) {
             Storage::disk('public')->delete($ticket->image_path);
         }
@@ -105,7 +94,6 @@ class TicketController extends Controller
     {
         $path = urldecode($path);
 
-        // basic safety
         if (! str_starts_with($path, 'tickets/') || str_contains($path, '..')) {
             abort(404);
         }

@@ -5,16 +5,7 @@
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
     <div>
       <h3 class="mb-1">Welcome, {{ $user->name }}</h3>
-      <div class="text-muted">Browse tickets and reserve up to {{ $maxAllowed }}.</div>
-    </div>
-
-    <div class="d-flex align-items-center gap-3">
-      <div class="card shadow-sm border-0">
-        <div class="card-body py-2 px-3">
-          <div class="small text-muted">My Active Purchases</div>
-          <div class="fw-bold">{{ $myActivePurchases }} / {{ $maxAllowed }}</div>
-        </div>
-      </div>
+      <div class="text-muted">Browse tickets and reserve while stock lasts.</div>
     </div>
   </div>
 
@@ -47,19 +38,10 @@
     <div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-2 g-4">
       @foreach($tickets as $t)
         @php
-          $mine = $t->purchases->first(); // latest purchase by me (if any)
-          $hasActiveByAnyone = $t->active_purchase_count > 0;
-
-          $iReachedLimit     = $myActivePurchases >= $maxAllowed;
-          $ticketUnavailable = $hasActiveByAnyone && (! $mine || $mine->status !== 'rejected');
-
-          $btnDisabled = $iReachedLimit || $ticketUnavailable;
-          $btnText =
-            $iReachedLimit ? 'Limit Reached' :
-            ($mine?->status === 'pending' ? 'Pending' :
-            ($mine?->status === 'accepted' ? 'Purchased' :
-            ($mine?->status === 'rejected' ? 'Buy Again' :
-            ($ticketUnavailable ? 'Unavailable' : 'Buy Now'))));
+          // Controller provided: withCount(['purchases as held_count' => fn($q)=>$q->whereIn('status',['pending','accepted'])])
+          $held = (int)($t->held_count ?? 0);
+          $qty  = (int)$t->quantity;
+          $remaining = max(0, $qty - $held);
         @endphp
 
         <div class="col">
@@ -76,33 +58,28 @@
                   </div>
                 @endif
               </div>
-              {{-- Serial hidden (removed from UI) --}}
             </div>
 
-            <div class="p-3">
-              <div class="fw-semibold mb-2">{{ $t->name }}</div>
+            <div class="p-3 d-flex flex-column gap-2">
+              <div class="fw-semibold">{{ $t->name }}</div>
 
-              @if($mine)
-                <div class="mb-2">
-                  @if($mine->status === 'pending')
-                    <span class="badge text-bg-warning">Pending</span>
-                  @elseif($mine->status === 'accepted')
-                    <span class="badge text-bg-success">Accepted</span>
-                  @elseif($mine->status === 'rejected')
-                    <span class="badge text-bg-danger">Rejected</span>
-                  @endif
-                </div>
-              @endif
+              <div class="d-flex align-items-center justify-content-between">
+                @if($remaining > 0)
+                  <span class="badge bg-success-subtle text-success fw-bold">Remaining: {{ number_format($remaining) }}</span>
+                @else
+                  <span class="badge bg-danger-subtle text-danger fw-bold">Out of stock</span>
+                @endif
 
-              <button type="button"
-                      class="btn btn-primary w-100 open-buy-modal"
-                      data-bs-toggle="modal"
-                      data-bs-target="#buyModal"
-                      data-ticket-id="{{ $t->id }}"
-                      data-ticket-name="{{ $t->name }}"
-                      {{ $btnDisabled ? 'disabled' : '' }}>
-                {{ $btnText }}
-              </button>
+                <button type="button"
+                        class="btn btn-primary btn-sm open-buy-modal"
+                        data-bs-toggle="modal"
+                        data-bs-target="#buyModal"
+                        data-ticket-id="{{ $t->id }}"
+                        data-ticket-name="{{ $t->name }}"
+                        {{ $remaining > 0 ? '' : 'disabled' }}>
+                  Buy
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -113,15 +90,15 @@
       {{ $tickets->links() }}
     </div>
   @else
-    <div class="text-muted">No tickets available yet.</div>
+    <div class="text-muted">No tickets available right now.</div>
   @endif
 </div>
 
 <style>
-  /* Serial is hidden everywhere */
+  /* Serial is hidden everywhere (if any old markup leaks it) */
   .ticket-serial{ display:none !important; }
 
-  .ticket-card{background:#fff}
+  .ticket-card{ background:#fff; }
 
   /* Media container */
   .ticket-media{
@@ -160,6 +137,10 @@
     border-radius:16px;
     background:#fff;
   }
+
+  /* soft badges */
+  .badge.bg-success-subtle{ background:#e9f9ef!important; color:#057a55!important; }
+  .badge.bg-danger-subtle{  background:#fdebec!important; color:#b42318!important; }
 </style>
 
 {{-- BUY MODAL --}}
@@ -205,7 +186,7 @@
           <div class="form-text">Enter a reachable number (e.g., +92 300 1234567)</div>
         </div>
 
-        {{-- Required proof --}}
+        {{-- Proof (required on UI; controller tolerates nullable if you change your mind) --}}
         <div class="mb-3">
           <label class="form-label fw-semibold">Upload Proof of Payment <span class="text-danger">*</span></label>
           <input type="file"
@@ -214,7 +195,7 @@
                  class="form-control"
                  accept=".jpg,.jpeg,.png,.webp"
                  required>
-          <div class="form-text">Required. JPG/PNG/WEBP, max 2MB.</div>
+          <div class="form-text">JPG/PNG/WEBP, max 2MB.</div>
           <img id="buy_preview" alt="" class="mt-2 d-none rounded border" style="max-height: 140px;">
         </div>
       </div>

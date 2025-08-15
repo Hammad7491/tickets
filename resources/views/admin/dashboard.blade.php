@@ -4,7 +4,7 @@
 
 <div class="dashboard-main-body container-fluid px-3 px-sm-4 px-lg-5">
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 gap-sm-3 mb-16 mb-sm-24">
-    <h6 class="fw-semibold mb-0" style="font-size:clamp(14px, 2vw, 18px)">Dashboard</h6> 
+    <h6 class="fw-semibold mb-0" style="font-size:clamp(14px, 2vw, 18px)">Dashboard</h6>
     <ul class="d-flex align-items-center gap-2 flex-wrap text-truncate" style="max-width:100%">
       <li class="fw-medium d-flex align-items-center gap-1 text-truncate">
         <iconify-icon icon="solar:home-smile-angle-outline" class="icon" style="font-size:clamp(16px,2.6vw,20px)"></iconify-icon>
@@ -17,7 +17,6 @@
 
   {{-- KPI ROW (3 cards) --}}
   <div class="row gy-3 gx-3 gx-md-4">
-    {{-- Total Users --}}
     <div class="col-12 col-sm-6 col-lg-4">
       <div class="card shadow-none border bg-gradient-start-1 h-100">
         <div class="card-body p-16 p-md-20">
@@ -36,7 +35,6 @@
       </div>
     </div>
 
-    {{-- Logged-in Users --}}
     <div class="col-12 col-sm-6 col-lg-4">
       <div class="card shadow-none border bg-gradient-start-2 h-100">
         <div class="card-body p-16 p-md-20">
@@ -55,7 +53,6 @@
       </div>
     </div>
 
-    {{-- Total Tickets --}}
     <div class="col-12 col-sm-6 col-lg-4">
       <div class="card shadow-none border bg-gradient-start-3 h-100">
         <div class="card-body p-16 p-md-20">
@@ -69,13 +66,13 @@
               <iconify-icon icon="solar:ticket-outline" class="text-white" style="font-size:clamp(18px,3.2vw,24px)"></iconify-icon>
             </div>
           </div>
-          <p class="fw-medium text-sm text-primary-light mt-12 mb-0">4-digit unique codes</p>
+          <p class="fw-medium text-sm text-primary-light mt-12 mb-0">Ticket items</p>
         </div>
       </div>
     </div>
   </div>
 
-  {{-- TICKETS (SERIAL + IMAGE) --}}
+  {{-- TICKETS --}}
   <div class="card h-100 mt-4">
     <div class="card-body p-16 p-md-24">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -87,7 +84,7 @@
               <iconify-icon icon="solar:magnifer-linear" class="text-muted"></iconify-icon>
             </span>
             <input id="ticketSearch" type="text" class="form-control"
-                   placeholder="Type serial (e.g., PK123456)" autocomplete="off" inputmode="latin-prose">
+                   placeholder="Type ticket name" autocomplete="off" inputmode="latin-prose">
             <button class="btn btn-outline-secondary" type="button" id="clearTicketSearch" style="display:none;">
               Clear
             </button>
@@ -99,29 +96,44 @@
       </div>
 
       @if(isset($tickets) && $tickets->count())
-        {{-- CSS Grid for fully fluid responsive columns --}}
-        <div id="ticketsGrid" class="tickets-grid mt-3">
-          @foreach($tickets as $t)
-            <div class="ticket-col">
-              <button type="button" class="ticket-card w-100 text-start" title="Tap to copy" data-serial="{{ $t->serial }}">
-                <div class="ticket-serial">{{ $t->serial }}</div>
+        <div class="tickets-wrap">
+          <div id="ticketsGrid" class="tickets-grid mt-3">
+            @foreach($tickets as $t)
+              @php
+                $held = (int) ($t->held_count ?? 0);      // pending + accepted
+                $remaining = max(0, (int)$t->quantity - $held);
+              @endphp
+              <div class="ticket-col">
+                <div class="ticket-card w-100">
+                  <div class="ticket-name" title="{{ $t->name }}">{{ $t->name }}</div>
 
-                @if($t->image_path)
-                  <img
-                    src="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}"
-                    alt="Ticket Image for {{ $t->serial }}"
-                    class="ticket-img"
-                    loading="lazy"
-                    decoding="async"
-                  >
-                @else
-                  <div class="ticket-placeholder">No Image</div>
-                @endif
-              </button>
-            </div>
-          @endforeach
+                  @if($t->image_path)
+                    <img
+                      src="{{ route('admin.tickets.image', ['path' => $t->image_path]) }}"
+                      alt="Ticket Image for {{ $t->name }}"
+                      class="ticket-img"
+                      loading="lazy"
+                      decoding="async"
+                    >
+                  @else
+                    <div class="ticket-placeholder">No Image</div>
+                  @endif
+
+                  <div class="d-flex justify-content-end align-items-center w-100 mt-2">
+                    @if($remaining > 0)
+                      <span class="badge remaining-badge">
+                        Remaining: <strong>{{ number_format($remaining) }}</strong>
+                      </span>
+                    @else
+                      <span class="badge out-badge"><strong>Out of stock</strong></span>
+                    @endif
+                  </div>
+                </div>
+              </div>
+            @endforeach
+          </div>
+          <div id="noTicketMatch" class="text-secondary-light mt-3" style="display:none;">No matching names.</div>
         </div>
-        <div id="noTicketMatch" class="text-secondary-light mt-3" style="display:none;">No matching serials.</div>
       @else
         <p class="text-secondary-light mt-3 mb-0">No tickets found.</p>
       @endif
@@ -129,85 +141,61 @@
   </div>
 </div>
 
-{{-- TICKET CARD STYLES --}}
+{{-- STYLES --}}
 <style>
-/* ===== Tickets layout: left-aligned, wider cards ===== */
+/* ✅ Keep compact width but LEFT align the block inside the card */
+.tickets-wrap{
+  max-width: 740px;
+  margin: 0;                   /* was auto; ensures left alignment */
+}
+
+/* ✅ Left-align the items in the row */
 .tickets-grid{
   display:flex;
   flex-wrap:wrap;
   gap:14px;
-  justify-content:flex-start;   /* ⬅ left align */
+  justify-content:flex-start;  /* was center */
   align-items:flex-start;
 }
 
-.ticket-col{
-  flex:0 0 auto;
-  width: 320px;                 /* base width so image fits fully */
-}
-@media (min-width:576px){ .ticket-col{ width:360px; } }
-@media (min-width:768px){ .ticket-col{ width:420px; } }
-@media (min-width:1200px){ .ticket-col{ width:520px; } }
+/* Slimmer card width across breakpoints */
+.ticket-col{ flex:0 0 auto; width: 280px; }
+@media (min-width:576px){ .ticket-col{ width:300px; } }
+@media (min-width:768px){ .ticket-col{ width:340px; } }
+@media (min-width:1200px){ .ticket-col{ width:360px; } }
 
-/* ===== Ticket card (compact but wide) ===== */
+/* Card visuals */
 .ticket-card{
-  appearance:none;
-  border:none;
   background:#fff;
   position:relative;
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:flex-start;
-  padding:10px;
+  padding:12px;
   border:1px solid #e5e7eb;
   border-radius:14px;
-  cursor:pointer;
   box-shadow:0 2px 8px rgba(15,23,42,.06);
-  transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
-  overflow:hidden;
-  min-height:110px;             /* short, since image height is capped */
-  touch-action:manipulation;
-}
-@media (hover:hover){
-  .ticket-card:hover{
-    transform:translateY(-1px);
-    box-shadow:0 6px 18px rgba(15,23,42,.10);
-    border-color:#c7d2fe; background:#f8fafc;
-  }
 }
 
-/* Side notches (kept smaller) */
-.ticket-card::before,
-.ticket-card::after{
-  content:"";
-  position:absolute; top:50%; transform:translateY(-50%);
-  width:16px; height:16px;
-  border-radius:50%;
-  background: var(--dash-bg, #f5f7fb);
-  border:1px solid #e5e7eb;
-  z-index:1;
-}
-.ticket-card::before{ left:-8px; }
-.ticket-card::after{ right:-8px; }
-
-.ticket-serial{
+.ticket-name{
   font-weight:800;
-  letter-spacing:.4px;
-  font-size:14px;
+  letter-spacing:.3px;
+  font-size:clamp(14px, 2.4vw, 16px);
   color:#111827;
   margin-bottom:6px;
   width:100%;
   text-align:center;
-  line-height:1.1;
+  line-height:1.2;
+  word-break:break-word;
 }
 
-/* ===== Image: show full ticket (no crop), scale to width ===== */
+/* Image */
 .ticket-img{
   width:100%;
-  max-height:120px;            /* increase so full ticket is visible */
-  height:auto;                 /* keep aspect ratio */
-  object-fit:contain;          /* no cropping */
-  background:#fff;             /* avoid gray around contain */
+  max-height:120px;
+  height:auto;
+  object-fit:contain;
+  background:#fff;
   border-radius:10px;
   border:1px solid #e5e7eb;
   display:block;
@@ -223,49 +211,17 @@
   font-size:13px;
 }
 
-/* Reduce motion for users who prefer it */
-@media (prefers-reduced-motion: reduce){
-  .ticket-card{ transition:none; }
-}
+/* Badges */
+.badge.remaining-badge{ background:#e9f9ef !important; color:#057a55; font-weight:700; }
+.badge.out-badge{ background:#fdebec !important; color:#b42318; font-weight:800; }
 
-/* Tighten vertical rhythm on very small screens */
-@media (max-width:375px){
-  .card-body{ padding:12px !important; }
-}
-
+/* Misc */
+@media (prefers-reduced-motion: reduce){ .ticket-card{ transition:none; } }
+@media (max-width:375px){ .card-body{ padding:12px !important; } }
 </style>
 
-
-{{-- Copy + Realtime filter + notch bg sync (mobile-friendly) --}}
+{{-- JS: filter by name --}}
 <script>
-  // Copy serial to clipboard (with graceful fallback)
-  document.querySelectorAll('.ticket-card').forEach(card=>{
-    card.addEventListener('click', async ()=>{
-      const serial = card.dataset.serial || '';
-      if (!serial) return;
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(serial);
-        } else {
-          const ta = document.createElement('textarea');
-          ta.value = serial; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
-        }
-      } catch(e) {}
-      card.classList.add('copied');
-      const label = card.querySelector('.ticket-serial');
-      const old = label?.textContent || '';
-      if (label) label.textContent = serial + ' ✓';
-      setTimeout(()=>{ card.classList.remove('copied'); if (label) label.textContent = old; }, 900);
-    }, { passive:true });
-  });
-
-  // Sync notch fill with page background
-  (function(){
-    const bg = getComputedStyle(document.body).backgroundColor || '#f5f7fb';
-    document.documentElement.style.setProperty('--dash-bg', bg);
-  })();
-
-  // Real-time filter by serial (debounced)
   (function(){
     const input  = document.getElementById('ticketSearch');
     const clear  = document.getElementById('clearTicketSearch');
@@ -280,9 +236,9 @@
       q = (q || '').trim().toLowerCase();
       let shown = 0;
       cols.forEach(col=>{
-        const card = col.querySelector('.ticket-card');
-        const serial = (card?.dataset.serial || '').toLowerCase();
-        const match = !q || serial.includes(q);
+        const nameEl = col.querySelector('.ticket-name');
+        const name = (nameEl?.textContent || '').toLowerCase();
+        const match = !q || name.includes(q);
         col.style.display = match ? '' : 'none';
         if (match) shown++;
       });
