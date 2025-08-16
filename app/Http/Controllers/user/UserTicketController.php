@@ -25,6 +25,22 @@ class UserTicketController extends Controller
         return view('users.ticketstatus.index', compact('purchases'));
     }
 
+
+    public function create(Request $request, Ticket $ticket)
+{
+    $user = $request->user();
+
+    // Count active purchases to show remaining stock
+    $held = TicketPurchase::where('ticket_id', $ticket->id)
+        ->whereIn('status', ['pending', 'accepted'])
+        ->count();
+
+    $remaining = max(0, ((int) $ticket->quantity) - $held);
+
+    return view('users.buy.create', compact('ticket', 'user', 'remaining'));
+}
+
+
     public function proofShow(TicketPurchase $purchase)
     {
         $user = request()->user();

@@ -119,3 +119,11 @@ Route::middleware(['auth'])->group(function () {
 Route::delete('ticketstatus/{purchase}', [UserTicketController::class, 'destroy'])
     ->name('users.ticketstatus.destroy');
 
+Route::get('/users/buy/create/{ticket}', [UserTicketController::class, 'create'])
+    ->name('users.buy.create')
+    ->middleware('auth');
+
+// Handle buy submit (uses existing buy() method)
+Route::post('/users/buy/{ticket}', [UserTicketController::class, 'buy'])
+    ->name('users.buy.store')
+    ->middleware('auth');
