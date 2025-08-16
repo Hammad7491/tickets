@@ -41,6 +41,15 @@
       : (Route::has('users.dashboard') ? 'users.dashboard' : null);
   $statusUrl  = $statusRoute ? route($statusRoute) : url('/dashboard');
   $isStatus   = request()->routeIs('users.ticketstatus.*') || request()->routeIs('users.dashboard');
+
+  // --- Winners: routes & actives
+  $hasAdminWinnersCreate = Route::has('admin.winners.create');
+  $hasAdminWinnersIndex  = Route::has('admin.winners.index');
+  $hasPublicWinnersIndex = Route::has('winners.index');
+
+  $isWinnersAdmin  = request()->routeIs('admin.winners.*');
+  $isWinnersPublic = request()->routeIs('winners.index');
+  $isWinners       = $isWinnersAdmin || $isWinnersPublic;
 @endphp
 
 <aside class="sidebar">
@@ -158,6 +167,47 @@
         </li>
       @endif
 
+      {{-- WINNERS: Admin (Add+List) / Users (List only) --}}
+      @if($isAdmin || $hasPublicWinnersIndex)
+        <li class="sidebar-menu-group-title">Winners</li>
+        <li class="dropdown {{ $isWinners ? 'open' : '' }}">
+          <a href="javascript:void(0)">
+            <iconify-icon icon="mdi:trophy-outline" class="menu-icon"></iconify-icon>
+            <span>Winner Announce</span>
+            <iconify-icon icon="mdi:chevron-down" class="chev"></iconify-icon>
+          </a>
+          <ul class="sidebar-submenu {{ $isWinners ? 'show' : '' }}">
+            @if($isAdmin)
+              @if($hasAdminWinnersCreate)
+                <li>
+                  <a href="{{ route('admin.winners.create') }}"
+                     class="{{ request()->routeIs('admin.winners.create') ? 'is-active' : '' }}">
+                    <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Add Winner
+                  </a>
+                </li>
+              @endif
+              @if($hasAdminWinnersIndex)
+                <li>
+                  <a href="{{ route('admin.winners.index') }}"
+                     class="{{ request()->routeIs('admin.winners.index') ? 'is-active' : '' }}">
+                    <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Winners List
+                  </a>
+                </li>
+              @endif
+            @else
+              @if($hasPublicWinnersIndex)
+                <li>
+                  <a href="{{ route('winners.index') }}"
+                     class="{{ request()->routeIs('winners.index') ? 'is-active' : '' }}">
+                    <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Winners List
+                  </a>
+                </li>
+              @endif
+            @endif
+          </ul>
+        </li>
+      @endif
+
       {{-- USER-ONLY: Ticket Status --}}
       @unless($isAdmin)
         <li class="sidebar-menu-group-title">Check tickets</li>
@@ -182,7 +232,7 @@
 </aside>
 
 <style>
-  /* === Sidebar (theme preserved) === */
+/* === Sidebar (theme preserved) === */
 .sidebar { width:270px; background:#fff; border-right:1px solid #eef0f4; }
 .sidebar-menu { list-style:none; margin:0; padding:0; }
 .sidebar-menu-group-title { padding:12px 18px; color:#6b7280; font-weight:600; font-size:.95rem; }
@@ -198,23 +248,20 @@
 .dropdown .chev { margin-left:auto; transition:transform .2s ease; }
 .dropdown.open .chev { transform:rotate(180deg); }
 
-/* === Animated submenu ===
-   We use max-height + padding transitions for smooth slide.
-   No display toggling, so animation stays consistent.
-*/
+/* Animated submenu */
 .sidebar-submenu{
   max-height:0;
   overflow:hidden;
-  padding:0 10px; /* collapsed padding */
+  padding:0 10px;
   transition:max-height .28s ease, padding .28s ease;
   will-change:max-height, padding;
 }
 .sidebar-submenu.show{
-  max-height:500px; /* big enough for your largest submenu */
-  padding:8px 10px 12px 10px; /* expanded padding */
+  max-height:500px;
+  padding:8px 10px 12px 10px;
 }
 
-/* Submenu links (theme preserved) */
+/* Submenu links */
 .sidebar-submenu a {
   display:block; padding:10px 14px; border-radius:10px; color:#0f172a; font-weight:500; margin:6px 8px; text-decoration:none;
   transition:background-color .18s ease, color .18s ease;
@@ -223,18 +270,17 @@
 .sidebar-submenu a.is-active { background:#eaf1ff; color:#1d4ed8; font-weight:600; }
 .circle-icon { font-size:.55rem; margin-right:.35rem; }
 
-/* Optional: nicer focus for keyboard users (keeps theme) */
+/* Focus styles */
 .dropdown > a:focus-visible,
 .sidebar-submenu a:focus-visible{
   outline:2px solid #4f7cff; outline-offset:2px; border-radius:10px;
 }
 
-/* Respect users who prefer reduced motion */
+/* Reduced motion respect */
 @media (prefers-reduced-motion: reduce){
   .dropdown .chev{ transition:none; }
   .sidebar-submenu{ transition:none; }
 }
-
 </style>
 
 <script>
@@ -242,7 +288,6 @@
     const menu = document.getElementById('sidebar-menu');
     if (!menu) return;
 
-    // Helper: toggle a dropdown's open state
     const setOpen = (li, open) => {
       const sub = li.querySelector(':scope > .sidebar-submenu');
       if (open) {
@@ -254,17 +299,14 @@
       }
     };
 
-    // Close all siblings of the given dropdown
     const closeSiblings = (current) => {
       menu.querySelectorAll(':scope > .dropdown').forEach(other => {
         if (other !== current) setOpen(other, false);
       });
     };
 
-    // Ensure first click opens immediately and closes others
     menu.querySelectorAll(':scope > .dropdown > a').forEach(trigger => {
       trigger.addEventListener('click', (e) => {
-        // Prevent any default or bubbling that could cause a second click need
         e.preventDefault();
         e.stopPropagation();
 
@@ -273,13 +315,12 @@
 
         if (!isOpen) {
           closeSiblings(li);
-          setOpen(li, true);   // open on first click
+          setOpen(li, true);
         } else {
-          setOpen(li, false);  // close on second click
+          setOpen(li, false);
         }
       });
 
-      // Also support Enter/Space for accessibility
       trigger.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
@@ -288,7 +329,7 @@
       });
     });
 
-    // On load, normalize any server-rendered open states (keeps your route-based actives)
+    // Normalize any server-rendered open states
     menu.querySelectorAll(':scope > .dropdown').forEach(li => {
       const open = li.classList.contains('open');
       setOpen(li, open);

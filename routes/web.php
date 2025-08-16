@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Admin\WinnerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\User\UserTicketController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -51,9 +52,7 @@ Route::middleware('auth')
         // Dashboard
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Clients
-        Route::resource('clients', ClientController::class)
-            ->middleware('can:view clients');
+     
 
         // Users
         Route::resource('users', UserController::class)->except(['show'])
@@ -78,7 +77,7 @@ Route::middleware('auth')
         // ==================================================================
         // Reviews (requires role:admin — change to permission:... if needed)
         // ==================================================================
-        Route::middleware('role:admin')->group(function () {
+        // Route::middleware('role:admin')->group(function () {
             Route::get('reviews/pending', [ReviewController::class, 'pending'])->name('reviews.pending');
             Route::get('reviews/accepted', [ReviewController::class, 'accepted'])->name('reviews.accepted');
             Route::get('reviews/{purchase}/proof', [ReviewController::class, 'proofShow'])->name('reviews.proof.show');
@@ -86,7 +85,7 @@ Route::middleware('auth')
             Route::put('reviews/{purchase}/accept', [ReviewController::class, 'accept'])->name('reviews.accept');
             Route::put('reviews/{purchase}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
         });
-    });
+    // });
 
 // ==========================================================================
 // User portal (role:user)
@@ -127,3 +126,14 @@ Route::get('/users/buy/create/{ticket}', [UserTicketController::class, 'create']
 Route::post('/users/buy/{ticket}', [UserTicketController::class, 'buy'])
     ->name('users.buy.store')
     ->middleware('auth');
+
+// ADMIN routes (manage)
+Route::middleware(['auth']) // add your admin middleware if you have one
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('winners', WinnerController::class)->except(['show']);
+    });
+
+// USER / PUBLIC list (read-only)
+Route::get('/winners', [WinnerController::class, 'index'])->name('winners.index');

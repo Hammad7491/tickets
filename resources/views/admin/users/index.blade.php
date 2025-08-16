@@ -23,16 +23,18 @@
 
       <div class="table-responsive">
         <table class="table table-striped table-hover align-middle mb-0 responsive-table">
-          <thead class="table-light d-none d-md-table-header-group">
+          {{-- ✅ Show headers normally; CSS will hide on small screens --}}
+          <thead class="table-light">
             <tr>
-              <th><i class="bi bi-person-fill me-1"></i> Name</th>
-              <th><i class="bi bi-envelope-fill me-1"></i> Email</th>
-              <th><i class="bi bi-telephone-fill me-1"></i> Phone</th>
-              <th><i class="bi bi-shield-lock-fill me-1"></i> Roles</th>
-              <th><i class="bi bi-activity me-1"></i> Status</th>
-              <th class="text-center"><i class="bi bi-gear-fill me-1"></i> Actions</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone Number</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th class="text-center">Action</th>
             </tr>
           </thead>
+
           <tbody>
             @foreach($users as $user)
               <tr class="bg-white">
@@ -42,10 +44,10 @@
                 <td data-label="Email">
                   {{ $user->email }}
                 </td>
-                <td data-label="Phone">
+                <td data-label="Phone Number">
                   {{ $user->phone ?? '—' }}
                 </td>
-                <td data-label="Roles">
+                <td data-label="Role">
                   @if($user->roles->isNotEmpty())
                     <span class="badge text-bg-primary rounded-pill">
                       {{ ucfirst($user->roles->first()->name) }}
@@ -62,8 +64,8 @@
                   @endif
                 </td>
 
-                <td class="text-center" data-label="Actions">
-                  {{-- Desktop / Tablet: inline buttons --}}
+                <td class="text-center" data-label="Action">
+                  {{-- Desktop / Tablet --}}
                   <div class="d-none d-md-inline-flex align-items-center gap-1">
                     <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-outline-primary" title="Edit">
                       <i class="bi bi-pencil-fill"></i>
@@ -96,10 +98,10 @@
                     </form>
                   </div>
 
-                  {{-- Mobile: compact dropdown --}}
+                  {{-- Mobile --}}
                   <div class="dropdown d-inline-block d-md-none">
                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      Actions
+                      Action
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li>
@@ -154,13 +156,12 @@
   </div>
 </div>
 
-{{-- Inline CSS keeps it self-contained; move to your CSS file if preferred --}}
 <style>
-  /* Stacked cards below md (Bootstrap breakpoint ~768px) */
+  /* Hide header on small screens and show stacked rows */
   @media (max-width: 767.98px) {
     .responsive-table thead { display: none; }
-    .responsive-table tbody, 
-    .responsive-table tr, 
+    .responsive-table tbody,
+    .responsive-table tr,
     .responsive-table td { display: block; width: 100%; }
 
     .responsive-table tr {
@@ -188,21 +189,20 @@
       content: attr(data-label);
       font-weight: 600;
       color: #6c757d;
-      flex: 0 0 45%;
-      max-width: 45%;
+      flex: 0 0 50%;
+      max-width: 50%;
       text-align: left;
     }
 
-    .responsive-table td[data-label="Actions"] {
+    .responsive-table td[data-label="Action"] {
       justify-content: flex-end;
     }
-    .responsive-table td[data-label="Actions"]::before {
+    .responsive-table td[data-label="Action"]::before {
       content: "";
-      display: none; /* actions have their own UI */
+      display: none;
     }
   }
 
-  /* Make long strings break nicely on small screens */
   .responsive-table td { word-break: break-word; }
 </style>
 @endsection

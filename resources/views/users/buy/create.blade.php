@@ -2,18 +2,23 @@
 
 @section('content')
 @php
-  // Payment meta (override in config('payments.*') or .env)
-  $epTitle  = config('payments.easypaisa.title',  env('EASYPAY_TITLE',   'Asad Ali'));
-  $epNumber = config('payments.easypaisa.number', env('EASYPAY_NUMBER',  '03091223334'));
-  $jcTitle  = config('payments.jazzcash.title',   env('JAZZCASH_TITLE',  'Asad Ali'));
-  $jcNumber = config('payments.jazzcash.number',  env('JAZZCASH_NUMBER', '03094433221'));
+  // Payment meta (override via config('payments.*') or .env if you want)
+  $mbTitle  = config('payments.bank.title',      env('BANK_TITLE',      'Asad Ali'));
+  $mbNumber = config('payments.bank.number',     env('BANK_NUMBER',     'PK65MEZN0002730105830000'));
 
-  // ✅ Logos (from your screenshot)
-  $epLogo = asset('asset/images/Easypaisa.png');
+  $jcTitle  = config('payments.jazzcash.title',  env('JAZZCASH_TITLE',  'Asad Ali'));
+  $jcNumber = config('payments.jazzcash.number', env('JAZZCASH_NUMBER', '03094433221'));
+
+  $epTitle  = config('payments.easypaisa.title', env('EASYPAY_TITLE',   'Asad Ali'));
+  $epNumber = config('payments.easypaisa.number',env('EASYPAY_NUMBER',  '03091223334'));
+
+  // Logos (match your /public/asset/images structure)
+  $mbLogo = asset('asset/images/meezan-bank-logo.png'); // ensure this file exists
   $jcLogo = asset('asset/images/Jazzcash.png');
+  $epLogo = asset('asset/images/Easypaisa.png');
 
-  // Optional: fallback if file missing
-  $fallbackLogo = asset('assets/images/logo.png');
+  // Fallback
+  $fallbackLogo = asset('asset/images/logo.png');
 @endphp
 
 <div class="container py-5">
@@ -51,11 +56,52 @@
     </div>
   @endif
 
-  {{-- Payment accounts (Easypaisa & JazzCash) --}}
+  {{-- Payment accounts: 1) Meezan Bank, 2) JazzCash, 3) Easypaisa --}}
   <div class="card border-0 shadow-sm rounded-4 mb-4">
     <div class="card-body">
       <div class="row g-3">
-        <div class="col-md-6">
+        {{-- 1) Meezan Bank --}}
+        <div class="col-lg-4 col-md-6">
+          <div class="pay-card d-flex align-items-center gap-3 p-3 rounded-3">
+            <img src="{{ $mbLogo }}" alt="Meezan Bank" class="pay-logo"
+                 onerror="this.onerror=null;this.src='{{ $fallbackLogo }}'">
+            <div class="flex-grow-1">
+              <div class="small text-muted mb-1">Account Title:</div>
+              <div class="fw-semibold">{{ $mbTitle }}</div>
+
+              <div class="small text-muted mt-2 mb-1">Account Number:</div>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="copyable fw-semibold" data-copy="{{ $mbNumber }}" title="Click to copy" style="font-size: 0.8rem;">{{ $mbNumber }}</span>
+                <button type="button" class="btn btn-outline-secondary btn-sm copy-btn" data-copy="{{ $mbNumber }}" >
+                  <i class="bi bi-clipboard me-1"></i> Copy
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{-- 2) JazzCash --}}
+        <div class="col-lg-4 col-md-6">
+          <div class="pay-card d-flex align-items-center gap-3 p-3 rounded-3">
+            <img src="{{ $jcLogo }}" alt="JazzCash" class="pay-logo"
+                 onerror="this.onerror=null;this.src='{{ $fallbackLogo }}'">
+            <div class="flex-grow-1">
+              <div class="small text-muted mb-1">Account Title:</div>
+              <div class="fw-semibold">{{ $jcTitle }}</div>
+
+              <div class="small text-muted mt-2 mb-1">Account Number:</div>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="copyable fw-semibold" data-copy="{{ $jcNumber }}" title="Click to copy">{{ $jcNumber }}</span>
+                <button type="button" class="btn btn-outline-secondary btn-sm copy-btn" data-copy="{{ $jcNumber }}">
+                  <i class="bi bi-clipboard me-1"></i> Copy
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{-- 3) Easypaisa --}}
+        <div class="col-lg-4 col-md-6">
           <div class="pay-card d-flex align-items-center gap-3 p-3 rounded-3">
             <img src="{{ $epLogo }}" alt="Easypaisa" class="pay-logo"
                  onerror="this.onerror=null;this.src='{{ $fallbackLogo }}'">
@@ -74,24 +120,6 @@
           </div>
         </div>
 
-        <div class="col-md-6">
-          <div class="pay-card d-flex align-items-center gap-3 p-3 rounded-3">
-            <img src="{{ $jcLogo }}" alt="JazzCash" class="pay-logo"
-                 onerror="this.onerror=null;this.src='{{ $fallbackLogo }}'">
-            <div class="flex-grow-1">
-              <div class="small text-muted mb-1">Account Title:</div>
-              <div class="fw-semibold">{{ $jcTitle }}</div>
-
-              <div class="small text-muted mt-2 mb-1">Account Number:</div>
-              <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="copyable fw-semibold" data-copy="{{ $jcNumber }}" title="Click to copy">{{ $jcNumber }}</span>
-                <button type="button" class="btn btn-outline-secondary btn-sm copy-btn" data-copy="{{ $jcNumber }}">
-                  <i class="bi bi-clipboard me-1"></i> Copy
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <p class="text-center text-muted mt-3 mb-0">
@@ -162,31 +190,25 @@
     background:#f5f8ff;
     border:1px solid #e6ecff;
   }
-
-  /* Bigger, clearer logos */
   .pay-logo{
-    width:96px;               /* ⬆ was 48px */
-    height:96px;              /* ⬆ was 48px */
+    width:96px;
+    height:96px;
     object-fit:contain;
     border-radius:50%;
     background:#fff;
-    padding:10px;             /* a bit more inner padding */
+    padding:10px;
     border:1px solid #eef0f4;
     box-shadow:0 1px 2px rgba(0,0,0,.06);
     image-rendering:-webkit-optimize-contrast;
   }
-
-  /* Scale down gracefully on smaller screens */
   @media (max-width: 991.98px){
     .pay-logo{ width:80px; height:80px; }
   }
   @media (max-width: 575.98px){
     .pay-logo{ width:64px; height:64px; }
   }
-
   .copyable{ cursor:pointer; user-select:none; }
 </style>
-
 
 <script>
   document.addEventListener('DOMContentLoaded', function(){

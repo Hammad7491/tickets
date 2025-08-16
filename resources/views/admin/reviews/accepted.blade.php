@@ -1,20 +1,23 @@
+{{-- resources/views/admin/reviews/accepted.blade.php --}}
 @extends('layouts.app')
 
 @section('content')
 <div class="container py-4 py-lg-5">
 
+  <!-- Page header -->
   <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
     <div>
-      <h2 class="mb-1">Accepted Ticket Purchases</h2>
+      <h1 class="fw-bold display-6 mb-1">Accepted Ticket Purchases</h1>
       <div class="text-muted">Purchases that have been approved.</div>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <a href="{{ route('admin.reviews.pending') }}" class="btn btn-light">
-        <i class="bi bi-hourglass-split me-1"></i> View Pending
-      </a>
-    </div>
+
+    <a href="{{ route('admin.reviews.pending') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+      <i class="bi bi-hourglass-split"></i>
+      View Pending
+    </a>
   </div>
 
+  {{-- Flash messages --}}
   @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       {{ session('success') }}
@@ -32,55 +35,70 @@
     <div class="card-body">
       <div class="table-responsive">
         <table class="table align-middle mb-0 responsive-table">
-          <thead class="table-light d-none d-md-table-header-group">
+          {{-- Visible on md+; hidden on mobile via CSS below --}}
+          <thead class="table-light">
             <tr>
-              <th>#</th>
-              <th>User</th>
-              <th>Contact</th>
-              <th>Ticket</th>
-              <th>Serial</th>
-              <th>Account #</th>
+              <th style="width:56px">#</th>
+              <th>User Name</th>
+              <th>Phone Number</th>
+              <th>Ticket Name</th>
+              <th>Serial Number</th>
+              <th>Account Number</th>
               <th>Proof</th>
-              <th>Accepted At</th>
+              <th>Date</th>
             </tr>
           </thead>
+
           <tbody>
             @forelse($purchases as $idx => $p)
               @php
-                $rowNum = ($purchases->currentPage() - 1) * $purchases->perPage() + $idx + 1;
-                $ticket = $p->ticket;
-                $user   = $p->user;
+                $rowNum  = ($purchases->currentPage() - 1) * $purchases->perPage() + $idx + 1;
+                $ticket  = $p->ticket;
+                $user    = $p->user;
 
                 $previewUrl  = $p->proof_image_path ? route('admin.reviews.proof.show', $p->id)     : null;
                 $downloadUrl = $p->proof_image_path ? route('admin.reviews.proof.download', $p->id) : null;
               @endphp
-              <tr class="bg-white">
-                <td class="text-muted" data-label="#">{{ $rowNum }}</td>
 
-                <td data-label="User">
+              <tr class="bg-white">
+                <td class="text-muted" data-label="#"> {{ $rowNum }} </td>
+
+                {{-- User name ONLY (email removed) --}}
+                <td data-label="User Name">
                   <div class="fw-semibold">{{ $user?->name ?? '—' }}</div>
-                  <div class="small text-muted">{{ $user?->email ?? '—' }}</div>
                 </td>
 
-                <td data-label="Contact">
+                {{-- Phone --}}
+                <td data-label="Phone Number">
                   <div class="small">{{ $p->phone ?? $user?->phone ?? '—' }}</div>
                 </td>
 
-                <td data-label="Ticket">
+                {{-- Ticket name ONLY (ID removed) --}}
+                <td data-label="Ticket Name">
                   <div class="fw-semibold">{{ $ticket?->name ?? '—' }}</div>
-                  <div class="small text-muted">ID: {{ $ticket?->id ?? '—' }}</div>
                 </td>
 
-                {{-- SERIAL NOW FROM PURCHASE --}}
-                <td class="font-monospace" data-label="Serial">{{ $p->serial ?? '—' }}</td>
+                {{-- Serial Number (from purchase) --}}
+                <td class="font-monospace" data-label="Serial Number">
+                  {{ $p->serial ?? '—' }}
+                </td>
 
-                <td class="text-monospace" data-label="Account #">{{ $p->account_number ?? '—' }}</td>
+                {{-- Account Number --}}
+                <td class="font-monospace" data-label="Account Number">
+                  {{ $p->account_number ?? '—' }}
+                </td>
 
+                {{-- Proof thumbnail + download --}}
                 <td data-label="Proof">
                   @if($previewUrl)
                     <div class="d-flex align-items-center gap-2">
                       <a href="{{ $previewUrl }}" target="_blank" rel="noopener" class="d-inline-block" title="Open proof">
-                        <img src="{{ $previewUrl }}" alt="Proof" class="rounded border proof-thumb" style="width:60px;height:40px;object-fit:cover">
+                        <img
+                          src="{{ $previewUrl }}"
+                          alt="Proof"
+                          class="rounded border proof-thumb"
+                          style="width:60px;height:40px;object-fit:cover"
+                        >
                       </a>
                       <a href="{{ $downloadUrl }}" class="btn btn-sm btn-outline-secondary" title="Download">
                         <i class="bi bi-download"></i>
@@ -91,7 +109,10 @@
                   @endif
                 </td>
 
-                <td class="small text-muted" data-label="Accepted At">{{ $p->updated_at?->format('d M Y, h:i A') }}</td>
+                {{-- Accepted date (use updated_at since status changed to accepted) --}}
+                <td class="small text-muted" data-label="Date">
+                  {{ $p->updated_at?->format('d M Y, h:i A') }}
+                </td>
               </tr>
             @empty
               <tr>
@@ -110,58 +131,57 @@
 </div>
 
 <style>
-  .text-monospace,.font-monospace{
-    font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  .font-monospace{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
-  /* Slightly larger proof thumb on very small screens for visibility */
-  @media (max-width: 575.98px){
-    .proof-thumb{ width: 72px !important; height: 48px !important; }
+  /* Match the heading scale from Pending page */
+  .display-6{
+    font-size: clamp(1.5rem, 2.2vw + 1rem, 2.5rem);
   }
 
-  /* Stacked “card” rows under md (Bootstrap md ≈ 768px) */
-  @media (max-width: 767.98px) {
-    .responsive-table thead { display: none; }
+  .proof-thumb{ width: 72px !important; height: 48px !important; }
+
+  /* Mobile stacked-cards layout (same as Pending) */
+  @media (max-width: 767.98px){
+    .responsive-table thead { display: none !important; }
     .responsive-table tbody,
     .responsive-table tr,
     .responsive-table td { display: block; width: 100%; }
 
-    .responsive-table tr {
+    .responsive-table tr{
       margin-bottom: 1rem;
       border: 1px solid #e9ecef;
       border-radius: .75rem;
       overflow: hidden;
       box-shadow: 0 1px 2px rgba(16,24,40,.04);
-      background: #fff;
+      padding-top: .25rem;
     }
 
-    .responsive-table td {
+    .responsive-table td{
       padding: .75rem 1rem;
       border: 0 !important;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: .75rem;
+      word-break: break-word;
     }
 
-    .responsive-table td + td {
+    .responsive-table td + td{
       border-top: 1px solid #f1f3f5 !important;
     }
 
-    .responsive-table td::before {
+    .responsive-table td::before{
       content: attr(data-label);
       font-weight: 600;
       color: #6c757d;
-      flex: 0 0 45%;
-      max-width: 45%;
+      flex: 0 0 48%;
+      max-width: 48%;
       text-align: left;
     }
 
-    /* Let multi-line values flow */
-    .responsive-table td > *:not(img) { flex: 1 1 auto; }
+    .proof-thumb{ width: 84px !important; height: 56px !important; }
   }
-
-  /* Prevent overflow for long text (emails/serials/account numbers) */
-  .responsive-table td { word-break: break-word; }
 </style>
 @endsection

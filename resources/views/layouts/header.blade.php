@@ -11,7 +11,7 @@
     // WhatsApp link (config/app.php or .env)
     // In config/app.php: 'support_whatsapp' => '+923001234567'
     // Or .env: SUPPORT_WHATSAPP=+923001234567
-    $waPhone = config('app.support_whatsapp', env('SUPPORT_WHATSAPP', '+923001234567'));
+    $waPhone = config('app.support_whatsapp', env('SUPPORT_WHATSAPP', '+923124932021'));
     $waLink  = 'https://wa.me/' . preg_replace('/\D+/', '', $waPhone) . '?text=' . urlencode('Hello! I need help.');
 
     // YouTube link (config/app.php or .env)

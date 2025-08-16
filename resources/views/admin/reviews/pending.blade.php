@@ -4,16 +4,17 @@
 @section('content')
 <div class="container py-4 py-lg-5">
 
+  <!-- Page header -->
   <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
     <div>
-      <h2 class="mb-1">Pending Ticket Purchases</h2>
+      <h1 class="fw-bold display-6 mb-1">Pending Ticket Purchases</h1>
       <div class="text-muted">All user submissions that require admin review.</div>
     </div>
-    <div class="d-flex align-items-center gap-2">
-      <a href="{{ route('admin.tickets.index', ['status' => 'accepted']) }}" class="btn btn-light">
-        <i class="bi bi-check2-circle me-1"></i> View Accepted
-      </a>
-    </div>
+
+    <a href="{{ route('admin.reviews.accepted') }}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+      <i class="bi bi-check2-square"></i>
+      View Accepted
+    </a>
   </div>
 
   {{-- Flash messages --}}
@@ -34,24 +35,26 @@
     <div class="card-body">
       <div class="table-responsive">
         <table class="table align-middle mb-0 responsive-table">
-          <thead class="table-light d-none d-md-table-header-group">
+          {{-- Visible on md+; hidden on mobile via CSS below --}}
+          <thead class="table-light">
             <tr>
-              <th>#</th>
-              <th>User</th>
-              <th>Contact</th>
-              <th>Ticket</th>
-              <th>Serial</th>
-              <th>Account #</th>
+              <th style="width:56px">#</th>
+              <th>User Name</th>
+              <th>Phone Number</th>
+              <th>Ticket Name</th>
+              <th>Serial Number</th>
+              <th>Account Number</th>
               <th>Proof</th>
-              <th>Submitted</th>
+              <th>Date</th>
               <th class="text-end">Action</th>
             </tr>
           </thead>
+
           <tbody>
             @forelse($purchases as $idx => $p)
               @php
                 $rowNum  = ($purchases->currentPage() - 1) * $purchases->perPage() + $idx + 1;
-                $ticket  = $p->ticket;
+                $ticket  = $p->ticket;   // name only; no ID shown
                 $user    = $p->user;
 
                 $previewUrl  = $p->proof_image_path ? route('admin.reviews.proof.show', $p->id)     : null;
@@ -59,32 +62,34 @@
               @endphp
 
               <tr class="bg-white">
-                <td class="text-muted" data-label="#">
-                  {{ $rowNum }}
-                </td>
+                <td class="text-muted" data-label="#"> {{ $rowNum }} </td>
 
-                <td data-label="User">
+                {{-- User name ONLY (email removed) --}}
+                <td data-label="User Name">
                   <div class="fw-semibold">{{ $user?->name ?? '—' }}</div>
-                  <div class="small text-muted">{{ $user?->email ?? '—' }}</div>
                 </td>
 
-                <td data-label="Contact">
+                {{-- Phone --}}
+                <td data-label="Phone Number">
                   <div class="small">{{ $p->phone ?? $user?->phone ?? '—' }}</div>
                 </td>
 
-                <td data-label="Ticket">
+                {{-- Ticket name ONLY (ID removed) --}}
+                <td data-label="Ticket Name">
                   <div class="fw-semibold">{{ $ticket?->name ?? '—' }}</div>
-                  <div class="small text-muted">ID: {{ $ticket?->id ?? '—' }}</div>
                 </td>
 
-                <td class="font-monospace" data-label="Serial">
-                  {{ $ticket?->serial ?? '—' }}
+                {{-- Serial Number (from purchase) --}}
+                <td class="font-monospace" data-label="Serial Number">
+                  {{ $p->serial ?? '—' }}
                 </td>
 
-                <td class="text-monospace" data-label="Account #">
+                {{-- Account Number --}}
+                <td class="font-monospace" data-label="Account Number">
                   {{ $p->account_number ?? '—' }}
                 </td>
 
+                {{-- Proof thumbnail + download --}}
                 <td data-label="Proof">
                   @if($previewUrl)
                     <div class="d-flex align-items-center gap-2">
@@ -105,10 +110,12 @@
                   @endif
                 </td>
 
-                <td class="small text-muted" data-label="Submitted">
+                {{-- Submitted date --}}
+                <td class="small text-muted" data-label="Date">
                   {{ $p->created_at?->format('d M Y, h:i A') }}
                 </td>
 
+                {{-- Actions --}}
                 <td class="text-end" data-label="Action">
                   {{-- md+ screens: inline buttons --}}
                   <div class="d-none d-md-inline-flex align-items-center gap-2">
@@ -193,23 +200,26 @@
 </div>
 
 <style>
-  .text-monospace, .font-monospace{
+  .font-monospace{
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
-  /* tighten proof thumb on very small screens */
-  @media (max-width: 575.98px){
-    .proof-thumb{ width: 72px !important; height: 48px !important; }
+  /* Slightly larger heading look */
+  .display-6{
+    font-size: clamp(1.5rem, 2.2vw + 1rem, 2.5rem);
   }
 
-  /* Responsive "stacked cards" under md (Bootstrap md ~ 768px) */
-  @media (max-width: 767.98px) {
-    .responsive-table thead { display: none; }
-    .responsive-table tbody, 
-    .responsive-table tr, 
+  /* Proof thumb a bit larger on sm+ */
+  .proof-thumb{ width: 72px !important; height: 48px !important; }
+
+  /* Hide thead only on small screens; show on md+ */
+  @media (max-width: 767.98px){
+    .responsive-table thead { display: none !important; }
+    .responsive-table tbody,
+    .responsive-table tr,
     .responsive-table td { display: block; width: 100%; }
 
-    .responsive-table tr {
+    .responsive-table tr{
       margin-bottom: 1rem;
       border: 1px solid #e9ecef;
       border-radius: .75rem;
@@ -218,41 +228,32 @@
       padding-top: .25rem;
     }
 
-    .responsive-table td {
+    .responsive-table td{
       padding: .75rem 1rem;
       border: 0 !important;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: .75rem;
+      word-break: break-word;
     }
 
-    .responsive-table td + td {
+    .responsive-table td + td{
       border-top: 1px solid #f1f3f5 !important;
     }
 
-    .responsive-table td::before {
+    .responsive-table td::before{
       content: attr(data-label);
       font-weight: 600;
       color: #6c757d;
-      flex: 0 0 45%;
-      max-width: 45%;
+      flex: 0 0 48%;
+      max-width: 48%;
       text-align: left;
     }
 
-    /* Let multi-line values flow nicely */
-    .responsive-table td > *:not(img) { flex: 1 1 auto; }
-
-    /* Action row: keep only the dropdown label */
-    .responsive-table td[data-label="Action"] {
-      justify-content: flex-end;
-    }
-    .responsive-table td[data-label="Action"]::before {
-      content: ""; display: none;
-    }
+    /* Keep only the controls for the Action row label */
+    .responsive-table td[data-label="Action"]::before{ content: ""; display: none; }
+    .proof-thumb{ width: 84px !important; height: 56px !important; }
   }
-
-  /* Word-breaking safety for emails/serials/account numbers */
-  .responsive-table td { word-break: break-word; }
 </style>
 @endsection

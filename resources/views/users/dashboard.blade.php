@@ -5,7 +5,7 @@
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
     <div>
       <h3 class="mb-1">Welcome, {{ $user->name }}</h3>
-      <div class="text-muted">Browse tickets and reserve while stock lasts.</div>
+    
     </div>
   </div>
 
