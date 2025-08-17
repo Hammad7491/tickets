@@ -136,7 +136,7 @@
 
         {{-- YOUR NAME (editable, empty by default) --}}
         <div class="mb-3">
-          <label class="form-label fw-semibold">Your Name <span class="text-danger">*</span></label>
+          <label class="form-label fw-semibold">Sender Name <span class="text-danger">*</span></label>
           <input type="text"
                  name="name"
                  class="form-control"
@@ -148,7 +148,7 @@
 
         {{-- ACCOUNT NUMBER --}}
         <div class="mb-3">
-          <label class="form-label fw-semibold">Account Number <span class="text-danger">*</span></label>
+          <label class="form-label fw-semibold">Sender Account Number <span class="text-danger">*</span></label>
           <input type="text"
                  name="account_number"
                  class="form-control"

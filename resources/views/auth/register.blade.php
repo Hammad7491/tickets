@@ -170,7 +170,7 @@
         <span class="icon position-absolute top-50 start-0 translate-middle-y ms-3">
           <iconify-icon icon="ri:user-line"></iconify-icon>
         </span>
-        <input type="text" name="name" class="form-control ps-5" placeholder="Name" required value="{{ old('name') }}">
+        <input type="text" name="name" class="form-control ps-5" placeholder="Name123" required value="{{ old('name') }}">
       </div>
 
       {{-- Email --}}

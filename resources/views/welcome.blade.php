@@ -46,7 +46,7 @@
     }
 
     html{scroll-padding-top:72px;}
-    body{ background:var(--bg); color:var(--dark); }
+    body{ background:var(--bg); color:var(--dark); -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
     img{ max-width:100%; height:auto; display:block; }
 
     .container-xl{ max-width:1200px; }
@@ -85,11 +85,13 @@
     }
     .hero .content{ position:relative; z-index:2; padding:64px 0 56px; }
     .hero h1{
-      font-weight:900; line-height:1.1;
-      font-size: clamp(1.6rem, 1.1rem + 3.2vw, 3rem);
+      font-weight:900; line-height:1.15;
+      font-size: clamp(1.45rem, 1.05rem + 3.4vw, 3rem);
       letter-spacing:.2px;
+      margin-bottom:.75rem;
+      word-break:break-word;
     }
-    .hero p.lead{ color:#dbe3ff; font-size:clamp(1rem, .85rem + .6vw, 1.25rem); }
+    .hero p.lead{ color:#dbe3ff; font-size:clamp(.98rem, .9rem + .6vw, 1.2rem); }
 
     /* Stats row */
     .stat-badge{
@@ -100,7 +102,7 @@
     .stat-badge .label{ color:var(--muted); font-weight:600; letter-spacing:.3px; font-size:.9rem; }
 
     /* Generic cards */
-    .section-title{ font-weight:900; letter-spacing:.2px; font-size:clamp(1.25rem,1rem + 1.2vw,1.8rem); }
+    .section-title{ font-weight:900; letter-spacing:.2px; font-size:clamp(1.15rem,.9rem + 1.2vw,1.75rem); }
     .card-lite{
       background:#fff; border:1px solid #eef0f4; border-radius:16px;
       box-shadow:0 8px 34px rgba(15,23,42,.06);
@@ -111,6 +113,7 @@
       width:56px; height:56px; border-radius:50%;
       background:#fff; box-shadow:0 10px 22px rgba(2,16,60,.12);
       display:grid; place-items:center; overflow:hidden;
+      flex:0 0 auto;
     }
     .logo-bubble img{ width:100%; height:100%; object-fit:contain; padding:8px; }
 
@@ -124,7 +127,7 @@
     /* Quote cards */
     .quote{ position:relative; padding-left:42px; }
     .quote:before{ content:"“"; position:absolute; left:0; top:-14px;
-      font-size:3.5rem; line-height:1; color:#c7d2fe; font-weight:900; opacity:.5;
+      font-size:3.2rem; line-height:1; color:#c7d2fe; font-weight:900; opacity:.5;
     }
     .quote small{ color:#cbd5e1; }
 
@@ -138,11 +141,12 @@
     /* Footer */
     .site-footer{ border-top:1px solid #eef0f4; background:#fff; color:#6b7280; }
 
-    /* Hero right mockup (single, responsive definition) */
+    /* Hero right mockup */
     .mockup{
       background:#fff; border:1px solid #eef0f4; border-radius:20px;
       box-shadow:0 10px 36px rgba(2,16,60,.10);
       height:240px; padding:0; display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
     }
     .mockup img{
       width:100%; height:100%; object-fit:contain; object-position:center; border-radius:20px;
@@ -150,9 +154,37 @@
     @media (min-width:768px){ .mockup{ height:300px; } }
     @media (min-width:1200px){ .mockup{ height:360px; } }
 
-    /* Respect reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .hero img.bg{ transform:none; }
+    /* ======= Mobile-first fixes ======= */
+    /* Very small phones (≤360px) */
+    @media (max-width:360px){
+      .container-xl{ padding-left:12px; padding-right:12px; }
+      .brand img{ height:32px; }
+      .hero .content{ padding:48px 0 36px; }
+      .hero h1{ font-size: clamp(1.25rem, 1.05rem + 3.2vw, 2.2rem); }
+      .hero p.lead{ font-size: .98rem; }
+      .btn, .btn-lg{ padding:.625rem .9rem; font-size:.95rem; }
+      .logo-bubble{ width:48px; height:48px; }
+      .stat-badge{ padding:12px; border-radius:12px; }
+      .quote{ padding-left:32px; }
+      .quote:before{ top:-10px; font-size:2.6rem; }
+      /* hide brand text to save space */
+      .brand span{ display:none; }
+    }
+
+    /* Small devices (≤576px) */
+    @media (max-width:575.98px){
+      /* stack & expand CTAs */
+      .hero .content .d-flex.gap-2 > a{
+        width:100%;
+      }
+      /* tighter rows */
+      .row.g-4{ --bs-gutter-x:1rem; --bs-gutter-y:1rem; }
+      .section-title{ margin-bottom:.75rem; }
+    }
+
+    /* Tablet tweaks (≤768px) */
+    @media (max-width:767.98px){
+      .hero .content{ padding:56px 0 44px; }
     }
   </style>
 </head>
@@ -218,7 +250,7 @@
     <div class="container-xl content">
       <div class="row align-items-center g-4">
         <div class="col-md-7">
-          <h1 class="mb-3">Buy Tickets. Watch Live. Win Prizes.</h1>
+          <h1>Buy Tickets. Watch Live. Win Prizes.</h1>
           <p class="lead mb-4">
             Join thousands of players buying tickets for transparent live draws on YouTube.
             Sales close → we stream → winners get paid fast. Simple.
@@ -271,34 +303,42 @@
 
       <div class="row g-4">
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card-lite p-4 h-100">
-            <div class="logo-bubble mb-3"><img src="{{ $icoCreate }}" alt="Create"></div>
-            <h6 class="fw-bold mb-1">1. Create Account</h6>
-            <p class="mb-0 text-muted">Register & log in to your personal dashboard.</p>
+          <div class="card-lite p-4 h-100 d-flex align-items-start gap-3">
+            <div class="logo-bubble"><img src="{{ $icoCreate }}" alt="Create"></div>
+            <div>
+              <h6 class="fw-bold mb-1">1. Create Account</h6>
+              <p class="mb-0 text-muted">Register & log in to your personal dashboard.</p>
+            </div>
           </div>
         </div>
 
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card-lite p-4 h-100">
-            <div class="logo-bubble mb-3"><img src="{{ $icoBuy }}" alt="Buy"></div>
-            <h6 class="fw-bold mb-1">2. Buy Tickets</h6>
-            <p class="mb-0 text-muted">Purchase any number of tickets before the draw closes.</p>
+          <div class="card-lite p-4 h-100 d-flex align-items-start gap-3">
+            <div class="logo-bubble"><img src="{{ $icoBuy }}" alt="Buy"></div>
+            <div>
+              <h6 class="fw-bold mb-1">2. Buy Tickets</h6>
+              <p class="mb-0 text-muted">Purchase any number of tickets before the draw closes.</p>
+            </div>
           </div>
         </div>
 
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card-lite p-4 h-100">
-            <div class="logo-bubble mb-3"><img src="{{ $icoWatch }}" alt="Watch"></div>
-            <h6 class="fw-bold mb-1">3. Watch Live</h6>
-            <p class="mb-0 text-muted">We stream the draw on YouTube—fully transparent.</p>
+          <div class="card-lite p-4 h-100 d-flex align-items-start gap-3">
+            <div class="logo-bubble"><img src="{{ $icoWatch }}" alt="Watch"></div>
+            <div>
+              <h6 class="fw-bold mb-1">3. Watch Live</h6>
+              <p class="mb-0 text-muted">We stream the draw on YouTube—fully transparent.</p>
+            </div>
           </div>
         </div>
 
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card-lite p-4 h-100">
-            <div class="logo-bubble mb-3"><img src="{{ $icoPaid }}" alt="Paid"></div>
-            <h6 class="fw-bold mb-1">4. Get Paid</h6>
-            <p class="mb-0 text-muted">Winners are verified quickly and prizes are paid fast.</p>
+          <div class="card-lite p-4 h-100 d-flex align-items-start gap-3">
+            <div class="logo-bubble"><img src="{{ $icoPaid }}" alt="Paid"></div>
+            <div>
+              <h6 class="fw-bold mb-1">4. Get Paid</h6>
+              <p class="mb-0 text-muted">Winners are verified quickly and prizes are paid fast.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -340,7 +380,7 @@
           <h3 class="fw-bold mb-1">Next Live Stream</h3>
           <p class="mb-0">We announce the draw time once all tickets are sold. Tune in and watch the action live!</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
           <a href="{{ $youtubeUrl }}" class="btn btn-light fw-bold px-4" target="_blank" rel="noopener">
             Go to YouTube
           </a>

@@ -11,7 +11,7 @@
   <meta charset="utf-8">
   <title>Terms & Conditions — {{ $app }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+ <link rel="icon" type="image/png" href="{{ asset('asset/images/Logo_92.png') }}" sizes="32x32" />
   {{-- Use the same CSS stack you already ship --}}
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -247,7 +247,7 @@
             <h3 id="contact" class="section-title">15) Contact</h3>
             <p class="mb-2">Questions about these Terms?</p>
             <ul class="mb-0">
-              <li>Email: <a href="mailto:{{ $email }}">{{ $email }}</a></li>
+              
               <li>WhatsApp: <a href="{{ $waLink }}" target="_blank" rel="noopener">{{ $wa }}</a></li>
             </ul>
 
