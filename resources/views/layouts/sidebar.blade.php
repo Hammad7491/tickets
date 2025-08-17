@@ -64,9 +64,8 @@
 
   <div>
     <a href="{{ $dashUrl }}" class="sidebar-logo">
-      <img src="{{ asset('asset/images/logo_92.png') }}" alt="site logo" class="light-logo">
-      <img src="{{ asset('assets/images/logo-light.png') }}" alt="site logo" class="dark-logo">
-      <img src="{{ asset('assets/images/logo-icon.png') }}" alt="site logo" class="logo-icon">
+      <img src="{{ asset('asset/images/logo_92.png') }}" alt="site logo" class="light-logo ">
+      
     </a>
   </div>
 
@@ -219,7 +218,7 @@
         <li class="dropdown {{ $isStatus ? 'open' : '' }}">
           <a href="javascript:void(0)">
             <iconify-icon icon="mdi:clipboard-text-search-outline" class="menu-icon"></iconify-icon>
-            <span>Ticket Status</span>
+            <span>My Ticket</span>
             <iconify-icon icon="mdi:chevron-down" class="chev"></iconify-icon>
           </a>
           <ul class="sidebar-submenu {{ $isStatus ? 'show' : '' }}">

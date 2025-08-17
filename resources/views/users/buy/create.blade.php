@@ -71,8 +71,8 @@
 
               <div class="small text-muted mt-2 mb-1">Account Number:</div>
               <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="copyable fw-semibold" data-copy="{{ $mbNumber }}" title="Click to copy" style="font-size: 0.8rem;">{{ $mbNumber }}</span>
-                <button type="button" class="btn btn-outline-secondary btn-sm copy-btn" data-copy="{{ $mbNumber }}" >
+                <span class="copyable fw-semibold" data-copy="{{ $mbNumber }}" title="Click to copy" style="font-size: 0.7rem;">{{ $mbNumber }}</span>
+                <button type="button" class="btn btn-outline-secondary btn-sm copy-btn" data-copy="{{ $mbNumber }}">
                   <i class="bi bi-clipboard me-1"></i> Copy
                 </button>
               </div>
@@ -134,11 +134,19 @@
       <form action="{{ route('users.buy.store', $ticket->id) }}" method="POST" enctype="multipart/form-data" novalidate>
         @csrf
 
+        {{-- YOUR NAME (editable, empty by default) --}}
         <div class="mb-3">
-          <label class="form-label fw-semibold">Your Name</label>
-          <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly>
+          <label class="form-label fw-semibold">Your Name <span class="text-danger">*</span></label>
+          <input type="text"
+                 name="name"
+                 class="form-control"
+                 value="{{ old('name') }}"
+                 maxlength="100"
+                 placeholder="Enter your name"
+                 required>
         </div>
 
+        {{-- ACCOUNT NUMBER --}}
         <div class="mb-3">
           <label class="form-label fw-semibold">Account Number <span class="text-danger">*</span></label>
           <input type="text"
@@ -151,17 +159,19 @@
           <div class="form-text">Enter your account number (IBAN or numeric). Max 40 chars.</div>
         </div>
 
+        {{-- PHONE (empty by default) --}}
         <div class="mb-3">
           <label class="form-label fw-semibold">Phone</label>
           <input type="tel"
                  name="phone"
                  class="form-control"
-                 value="{{ old('phone', auth()->user()->phone) }}"
-                 placeholder="+92 300 1234567"
+                 value="{{ old('phone') }}"
+                 placeholder="Enter your phone number"
                  pattern="^\+?[0-9\s\-()]{7,20}$">
           <div class="form-text">Enter a reachable number (e.g., +92 300 1234567)</div>
         </div>
 
+        {{-- PROOF --}}
         <div class="mb-3">
           <label class="form-label fw-semibold">Upload Proof of Payment <span class="text-danger">*</span></label>
           <input type="file"
