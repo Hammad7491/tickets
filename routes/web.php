@@ -138,3 +138,5 @@ Route::get('/winners', [WinnerController::class, 'index'])->name('winners.index'
 Route::middleware(['auth', 'not_blocked'])->group(function () {
     // protected routes...
 });
+
+Route::view('/terms', 'term&condition')->name('terms.show');

@@ -42,7 +42,7 @@
   $statusUrl  = $statusRoute ? route($statusRoute) : url('/dashboard');
   $isStatus   = request()->routeIs('users.ticketstatus.*') || request()->routeIs('users.dashboard');
 
-  // --- Winners: routes & actives
+  // --- Winners: routes & actives (same)
   $hasAdminWinnersCreate = Route::has('admin.winners.create');
   $hasAdminWinnersIndex  = Route::has('admin.winners.index');
   $hasPublicWinnersIndex = Route::has('winners.index');
@@ -50,6 +50,11 @@
   $isWinnersAdmin  = request()->routeIs('admin.winners.*');
   $isWinnersPublic = request()->routeIs('winners.index');
   $isWinners       = $isWinnersAdmin || $isWinnersPublic;
+
+  // --- Terms & Conditions: available to everyone
+  $hasTerms  = Route::has('terms.show');
+  $termsUrl  = $hasTerms ? route('terms.show') : url('/terms');
+  $isTerms   = $hasTerms ? request()->routeIs('terms.show') : request()->is('terms');
 @endphp
 
 <aside class="sidebar">
@@ -60,7 +65,6 @@
   <div>
     <a href="{{ $dashUrl }}" class="sidebar-logo">
       <img src="{{ asset('asset/images/logo_92.png') }}" alt="site logo" class="light-logo">
-
       <img src="{{ asset('assets/images/logo-light.png') }}" alt="site logo" class="dark-logo">
       <img src="{{ asset('assets/images/logo-icon.png') }}" alt="site logo" class="logo-icon">
     </a>
@@ -105,14 +109,14 @@
             <li>
               <a href="{{ route('admin.users.index') }}"
                  class="{{ request()->routeIs('admin.users.index') ? 'is-active' : '' }}">
-                <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Admin List
+                <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> User List
               </a>
             </li>
             <li>
-              <a href="{{ route('admin.users.list') }}"
+              {{-- <a href="{{ route('admin.users.list') }}"
                  class="{{ request()->routeIs('admin.users.list') ? 'is-active' : '' }}">
                 <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> Users List
-              </a>
+              </a> --}}
             </li>
           </ul>
         </li>
@@ -228,9 +232,28 @@
         </li>
       @endunless
 
+      {{-- LEGAL: Terms & Conditions (everyone) --}}
+      <li class="sidebar-menu-group-title">Legal</li>
+      <li class="dropdown {{ $isTerms ? 'open' : '' }}">
+        <a href="javascript:void(0)">
+          <iconify-icon icon="mdi:file-document-outline" class="menu-icon"></iconify-icon>
+          <span>Terms &amp; Conditions</span>
+          <iconify-icon icon="mdi:chevron-down" class="chev"></iconify-icon>
+        </a>
+        <ul class="sidebar-submenu {{ $isTerms ? 'show' : '' }}">
+          <li>
+            <a href="{{ $termsUrl }}" class="{{ $isTerms ? 'is-active' : '' }}">
+              <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i>
+              View Terms
+            </a>
+          </li>
+        </ul>
+      </li>
+
     </ul>
   </div>
 </aside>
+
 <style>
 /* === Sidebar (theme preserved) === */
 .sidebar { width:270px; background:#fff; border-right:1px solid #eef0f4; }
@@ -284,46 +307,39 @@
 
 /* Bigger, crisp logo */
 .light-logo{
-  height: 60px !important;      /* was tiny; make it clearly visible */
-  width: auto !important;        /* keep aspect ratio */
+  height: 60px !important;
+  width: auto !important;
   object-fit: contain;
   image-rendering: -webkit-optimize-contrast;
   -ms-interpolation-mode: nearest-neighbor;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,.08));
 }
 
-/* Give the logo some breathing room if it's inside the sidebar brand area */
-/* ——— Center the logo block horizontally & vertically ——— */
+/* Brand block centering */
 .sidebar-logo{
-  /* make the brand row a true flex container */
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-
   width:100%;
-  height:84px;                 /* height of the brand strip; tweak if needed */
-  padding:0 !important;        /* remove side padding that pushes it left */
-  margin:0 auto !important;    /* ensure it's centered within the sidebar */
+  height:84px;
+  padding:0 !important;
+  margin:0 auto !important;
   text-align:center !important;
 }
-
-/* make the image itself large & crisp, but keep aspect ratio */
 .sidebar-logo .light-logo{
-  height:64px;       /* visible + readable size */
+  height:64px;
   width:100px;
   object-fit:contain;
   image-rendering:-webkit-optimize-contrast;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,.08));
   display:block;
 }
-
-/* if your template also renders other brand images, hide them */
 .sidebar-logo .dark-logo,
 .sidebar-logo .logo-icon{
   display:none !important;
 }
 
-/* Responsive tweaks (optional) */
+/* Responsive tweaks */
 @media (min-width:1200px){
   .sidebar-logo{ height:92px; }
   .sidebar-logo .light-logo{ height:72px; }
@@ -333,7 +349,9 @@
   .sidebar-logo .light-logo{ height:56px; }
 }
 
-
+.sidebar .dropdown > a::after{
+  content: none !important;
+}
 </style>
 
 <script>

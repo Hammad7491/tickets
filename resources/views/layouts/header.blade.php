@@ -44,8 +44,8 @@
       <div class="d-flex flex-wrap align-items-center gap-3">
 
         {{-- Theme toggle --}}
-        <button type="button" data-theme-toggle
-          class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
+        {{-- <button type="button" data-theme-toggle
+          class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button> --}}
 
         {{-- WhatsApp --}}
         <a href="{{ $waLink }}" target="_blank" rel="noopener"
@@ -65,7 +65,7 @@
         <div class="dropdown">
           <button class="d-flex justify-content-center align-items-center rounded-circle" type="button"
                   data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{{ $avatar }}" alt="{{ $user?->name ?? 'User' }}"
+            <img src="{{ asset('asset/images/logo.png') }}" alt="{{ $user?->name ?? 'User' }}"
                  class="w-40-px h-40-px object-fit-cover rounded-circle">
           </button>
 
