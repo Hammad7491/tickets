@@ -4,28 +4,28 @@ use Illuminate\Support\Facades\Route;
 
 // ---------- Controllers ----------
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\SocialController;
-use App\Http\Controllers\Admin\ClientController;
-use App\Http\Controllers\Admin\ReviewController;
-use App\Http\Controllers\Admin\TicketController;
-use App\Http\Controllers\Admin\WinnerController;
+
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\User\UserTicketController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\WinnerController;
+
 use App\Http\Controllers\User\UserDashboardController;
-use App\Http\Controllers\Admin\PurchaseOrderController; // if you use it
-use App\Http\Controllers\Admin\SiteController;          // if you use it
-use App\Http\Controllers\Chatbot\ChatbotController;     // if you use it
-use App\Http\Controllers\Chatbot\UserNameController;    // if you use it
+use App\Http\Controllers\User\UserTicketController;
 
 // ==========================================================================
 // Public
 // ==========================================================================
 Route::get('/', function () {
-    return redirect()->route('login');
-});
+    $tickets = \App\Models\Ticket::latest()->take(8)->get();
+    $winners = \App\Models\Winner::latest()->take(5)->get();
+
+    return view('welcome', compact('tickets', 'winners'));
+})->name('welcome');
 
 Route::get('/login',     [AuthController::class, 'loginform'])->name('loginform');
 Route::post('/login',    [AuthController::class, 'login'])->name('login');
@@ -42,7 +42,7 @@ Route::get('login/facebook',          [SocialController::class, 'redirectToFaceb
 Route::get('login/facebook/callback', [SocialController::class, 'handleFacebookCallback']);
 
 // ==========================================================================
-// Admin area (auth required, all admin routes in one group)
+// Admin area (auth required)
 // ==========================================================================
 Route::middleware('auth')
     ->prefix('admin')
@@ -51,8 +51,6 @@ Route::middleware('auth')
 
         // Dashboard
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-     
 
         // Users
         Route::resource('users', UserController::class)->except(['show'])
@@ -74,18 +72,27 @@ Route::middleware('auth')
             ->where('path', '.*')
             ->name('tickets.download');
 
-        // ==================================================================
-        // Reviews (requires role:admin — change to permission:... if needed)
-        // ==================================================================
-        // Route::middleware('role:admin')->group(function () {
-            Route::get('reviews/pending', [ReviewController::class, 'pending'])->name('reviews.pending');
-            Route::get('reviews/accepted', [ReviewController::class, 'accepted'])->name('reviews.accepted');
-            Route::get('reviews/{purchase}/proof', [ReviewController::class, 'proofShow'])->name('reviews.proof.show');
-            Route::get('reviews/{purchase}/proof/download', [ReviewController::class, 'proofDownload'])->name('reviews.proof.download');
-            Route::put('reviews/{purchase}/accept', [ReviewController::class, 'accept'])->name('reviews.accept');
-            Route::put('reviews/{purchase}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
-        });
-    // });
+        // Reviews (admin only)
+        Route::prefix('reviews')
+            ->name('reviews.')
+            ->middleware('role:admin')
+            ->group(function () {
+                Route::get('pending',  [ReviewController::class, 'pending'])->name('pending');
+                Route::get('accepted', [ReviewController::class, 'accepted'])->name('accepted');
+
+                Route::get('{purchase}/proof',            [ReviewController::class, 'proofShow'])->name('proof.show');
+                Route::get('{purchase}/proof/download',   [ReviewController::class, 'proofDownload'])->name('proof.download');
+
+                Route::put('{purchase}/accept', [ReviewController::class, 'accept'])->name('accept');
+                Route::put('{purchase}/reject', [ReviewController::class, 'reject'])->name('reject');
+
+                Route::delete('{purchase}',  [ReviewController::class, 'destroy'])->name('destroy');
+                Route::post('bulk-delete',   [ReviewController::class, 'bulkDelete'])->name('bulkDelete');
+            });
+
+        // Winners (admin manage)
+        Route::resource('winners', WinnerController::class)->except(['show']);
+    });
 
 // ==========================================================================
 // User portal (role:user)
@@ -97,7 +104,7 @@ Route::middleware(['auth', 'role:user'])
         Route::get('dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     });
 
-// Optional /dashboard alias
+// Optional /dashboard alias for verified users
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])
         ->name('users.dashboard');
@@ -110,30 +117,24 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/user/ticketstatus', [UserTicketController::class, 'index'])->name('users.ticketstatus.index');
     Route::get('/user/ticketstatus/{purchase}/proof', [UserTicketController::class, 'proofShow'])->name('users.ticketstatus.proof.show');
     Route::get('/user/ticketstatus/{purchase}/proof/download', [UserTicketController::class, 'proofDownload'])->name('users.ticketstatus.proof.download');
+
     Route::post('/tickets/{ticket}/buy', [UserTicketController::class, 'buy'])->name('users.tickets.buy');
+
+    // delete a user's own ticket request
+    Route::delete('ticketstatus/{purchase}', [UserTicketController::class, 'destroy'])
+        ->name('users.ticketstatus.destroy');
+
+    // Buy flow (create + store)
+    Route::get('/users/buy/create/{ticket}', [UserTicketController::class, 'create'])
+        ->name('users.buy.create');
+    Route::post('/users/buy/{ticket}', [UserTicketController::class, 'buy'])
+        ->name('users.buy.store');
 });
 
-
-
-Route::delete('ticketstatus/{purchase}', [UserTicketController::class, 'destroy'])
-    ->name('users.ticketstatus.destroy');
-
-Route::get('/users/buy/create/{ticket}', [UserTicketController::class, 'create'])
-    ->name('users.buy.create')
-    ->middleware('auth');
-
-// Handle buy submit (uses existing buy() method)
-Route::post('/users/buy/{ticket}', [UserTicketController::class, 'buy'])
-    ->name('users.buy.store')
-    ->middleware('auth');
-
-// ADMIN routes (manage)
-Route::middleware(['auth']) // add your admin middleware if you have one
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-        Route::resource('winners', WinnerController::class)->except(['show']);
-    });
-
-// USER / PUBLIC list (read-only)
+// USER / PUBLIC winners (read-only list)
 Route::get('/winners', [WinnerController::class, 'index'])->name('winners.index');
+
+// Example: protect other routes from blocked users (if you have the middleware)
+Route::middleware(['auth', 'not_blocked'])->group(function () {
+    // protected routes...
+});

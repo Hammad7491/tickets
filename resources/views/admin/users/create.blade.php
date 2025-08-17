@@ -101,33 +101,28 @@
             </div>
           </div>
 
-          <!-- Roles: ONLY Admin/User -->
+          <!-- Roles: ONLY Admin -->
           <div class="col-12">
             <label class="form-label fw-semibold">
-              <i class="bi bi-people-fill me-2"></i>Roles <span class="text-danger">*</span>
-              <i class="bi bi-question-circle ms-1 text-muted" data-bs-toggle="tooltip" title="Select one or more roles for this user."></i>
+              <i class="bi bi-people-fill me-2"></i>Role <span class="text-danger">*</span>
             </label>
+
+            @php
+              // Only show Admin in the picker
+              $allowed = ['admin'];
+            @endphp
 
             <div class="dropdown w-100 role-picker">
               <button class="form-select text-start d-flex align-items-center justify-content-between"
                       type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                 <span class="selected-badges d-inline-flex flex-wrap gap-1"></span>
-                <span class="placeholder text-muted">Select roles…</span>
+                <span class="placeholder text-muted">Select role…</span>
                 <i class="bi bi-caret-down ms-auto"></i>
               </button>
 
-              <div class="dropdown-menu w-100 p-0 shadow" style="max-height:280px;overflow:auto;z-index:2000;">
-                <div class="px-3 pt-3 pb-2">
-                  <div class="input-group input-group-sm">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span>
-                    <input type="text" class="form-control role-search" placeholder="Search roles…">
-                  </div>
-                </div>
-                <hr class="my-0">
+              <div class="dropdown-menu w-100 p-0 shadow" style="max-height:220px;overflow:auto;z-index:2000;">
+                <!-- No search bar anymore -->
                 <div class="role-list py-2">
-                  @php
-                    $allowed = ['admin','user'];
-                  @endphp
                   @foreach($allowed as $rname)
                     <label class="dropdown-item d-flex align-items-center gap-2">
                       <input type="checkbox" class="form-check-input role-check"
@@ -142,7 +137,7 @@
 
             <!-- real field Laravel reads -->
             <select id="roles" name="roles[]" multiple class="d-none">
-              @foreach(['admin','user'] as $rname)
+              @foreach($allowed as $rname)
                 <option value="{{ $rname }}" {{ in_array($rname, $userRoles ?? []) ? 'selected' : '' }}>
                   {{ ucfirst($rname) }}
                 </option>
@@ -174,7 +169,6 @@
   .avatar-circle{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#eef2ff;color:#4f46e5}
   .has-icon label i{opacity:.9}
 
-  /* Eye button alignment in input-group */
   .toggle-password{display:flex;align-items:center;gap:.25rem}
   .toggle-password i{line-height:1;font-size:1rem}
 
@@ -233,14 +227,12 @@
     });
   })();
 
-  // Roles picker wiring (checkbox list <-> hidden select + badges + search)
+  // Roles picker wiring (checkbox list <-> hidden select + badges)
   (function(){
     const picker = document.querySelector('.role-picker');
     if(!picker) return;
 
-    const menu = picker.querySelector('.dropdown-menu');
     const listWrap = picker.querySelector('.role-list');
-    const search = picker.querySelector('.role-search');
     const select = document.getElementById('roles');
     const badges = picker.querySelector('.selected-badges');
     const placeholder = picker.querySelector('.placeholder');
@@ -272,15 +264,6 @@
       });
     }
 
-    // Filter options
-    search?.addEventListener('input',()=>{
-      const q = search.value.trim().toLowerCase();
-      picker.querySelectorAll('.dropdown-item').forEach(lbl=>{
-        const txt = lbl.textContent.trim().toLowerCase();
-        lbl.style.display = (q && !txt.includes(q)) ? 'none' : '';
-      });
-    });
-
     // Listen changes
     listWrap.addEventListener('change', e=>{
       if(e.target && e.target.classList.contains('role-check')) syncFromChecks();
@@ -288,14 +271,6 @@
 
     // Init from pre-checked (edit mode)
     syncFromChecks();
-
-    // Close on ESC for UX
-    menu.addEventListener('keydown', e=>{
-      if(e.key==='Escape'){
-        const dropdown = bootstrap.Dropdown.getOrCreateInstance(picker.querySelector('[data-bs-toggle="dropdown"]'));
-        dropdown.hide();
-      }
-    });
   })();
 </script>
 @endsection

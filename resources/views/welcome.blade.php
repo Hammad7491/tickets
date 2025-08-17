@@ -1,408 +1,467 @@
-<!DOCTYPE html>
-<html dir="ltr" lang="en-US">
-  <head>
-    <!-- Document Meta-->
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <!-- IE Compatibility Meta-->
-    <meta name="author" content="zytheme"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-    <meta name="description" content="Multi-purpose Business html5 landing page"/>
-    <link href="{{ asset('asset/images/favicon/favicon.png') }}" rel="icon"/>
-    <!--  Fonts-->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500&amp;display=swap%7CMontserrat:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&amp;display=swap" rel="stylesheet" type="text/css"/>
-    <!-- Stylesheets-->
-    <link href="{{ asset('asset/css/vendor.css') }}" rel="stylesheet"/>
-    <link href="{{ asset('asset/css/style.css') }}" rel="stylesheet"/>
-    <!-- include includes/_googleTagHead.pug-->
-    <!-- 
-    Document Title
-    ============================================= 
-    -->
-    <title>Landing Click | LeData - Responsive Business HTML5 Landing Page</title>
-  </head>
-  <body class="body-scroll">
-    <!-- include includes/_googleTagbody.pug-->
-    <!--  
-    Document Wrapper
-    =============================================  
-    -->
-    <div class="wrapper clearfix" id="wrapper">
-      <!--   
-      Header
-      =============================================  
-      -->
-      <header class="header header-transparent header-sticky">
-        <nav class="navbar navbar-sticky navbar-expand-lg" id="primary-menu"> 
-          <div class="container"> <a class="logo navbar-brand" href="index.html"><img class="logo logo-dark" src="{{ asset('asset/images/logo/logo-dark.png') }}" alt="LeData Logo"/><img class="logo logo-light" src="{{ asset('asset/images/logo/logo-light.png') }}" alt="LeData Logo"/></a>
-            <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarContent" aria-expanded="false"><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse" id="navbarContent">
-              <ul class="navbar-nav ml-auto">
-                <li class="nav-item active"><a class="nav-link" data-scroll="scrollTo" href="#hero">Home</a></li>
-                <li class="nav-item"><a class="nav-link" data-scroll="scrollTo" href="#feature">Features</a></li>
-                <li class="nav-item"><a class="nav-link" data-scroll="scrollTo" href="#video">Video</a></li>
-                <li class="nav-item"><a class="nav-link" data-scroll="scrollTo" href="#services">Services</a></li>
-                <li class="nav-item"><a class="nav-link" data-scroll="scrollTo" href="#testimonials">Testimonials</a></li>
-              </ul>
-              <div class="module-container">
-                <!--module-btn-->
-                <div class="module module-cta"><a class="btn btn--white btn--secondary" href="javascript:void(0)" data-toggle="modal" data-target="#contactUsModal"> <span>contact us <i class="icon-right-arrow"></i></span></a></div>
-              </div>
-              <!-- End Module Container  -->
-            </div>
-            <!-- End .nav-collapse-->
-          </div>
-          <!-- End .container-->
+{{-- resources/views/welcome.blade.php --}}
+@php
+  use Illuminate\Support\Facades\Route;
+
+  $logo       = asset('asset/images/logo_92.png');
+  $heroImg    = asset('asset/images/landing/hero.jpg');
+  $heroCard   = asset('asset/images/landing/hero-card.jpg');          // NEW (image inside white box)
+
+  // Logos for the “How it works” cards (fallback to site logo if files are missing)
+  $icoCreate  = file_exists(public_path('asset/images/landing/icons/create.png'))
+                  ? asset('asset/images/landing/icons/create.png') : $logo;
+  $icoBuy     = file_exists(public_path('asset/images/landing/icons/buy.png'))
+                  ? asset('asset/images/landing/icons/buy.png')    : $logo;
+  $icoWatch   = file_exists(public_path('asset/images/landing/icons/watch.png'))
+                  ? asset('asset/images/landing/icons/watch.png')  : $logo;
+  $icoPaid    = file_exists(public_path('asset/images/landing/icons/paid.png'))
+                  ? asset('asset/images/landing/icons/paid.png')   : $logo;
+
+  $youtubeUrl = config('app.youtube_url', env('YOUTUBE_URL', '#'));
+
+  // Resolve dashboard link for logged-in users
+  $dashRoute = url('/');
+  if (auth()->check()) {
+      $user = auth()->user();
+      $isAdmin = method_exists($user, 'hasRole')
+                 ? $user->hasRole('admin')
+                 : (strtolower((string)($user->role ?? '')) === 'admin');
+      $dashRoute = $isAdmin && Route::has('admin.dashboard')
+                  ? route('admin.dashboard')
+                  : (Route::has('users.dashboard') ? route('users.dashboard') : url('/'));
+  }
+@endphp
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>92 Dream PK — Buy Tickets. Watch Live. Win Prizes.</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+/* keep your existing mockup box sizing, but make the image fit */
+.mockup{
+  background:#fff;
+  border:1px solid #eef0f4;
+  border-radius:20px;
+  box-shadow:0 10px 36px rgba(2,16,60,.10);
+  height:320px;                 /* your existing height */
+  padding:0;                    /* no inner padding so it can use full area */
+  display:flex;                 /* center the image */
+  align-items:center;
+  justify-content:center;
+}
+@media (min-width:1200px){
+  .mockup{ height:340px; }
+}
+
+/* 👇 this line makes the whole image visible without cropping */
+.mockup img{
+  width:100%;
+  height:100%;
+  object-fit:contain;           /* was 'cover' */
+  object-position:center center;
+  border-radius:20px;           /* match the box */
+  max-width:100%;
+  max-height:100%;
+}
+
+
+    :root{
+      --brand:#4f46e5;     /* Indigo */
+      --accent:#0ea5e9;    /* Sky */
+      --dark:#0f172a;      /* Slate-900 */
+      --muted:#64748b;     /* Slate-500 */
+      --bg:#f7f9fc;        /* App background */
+    }
+    body{ background:var(--bg); color:var(--dark); }
+    .container-xl{ max-width:1200px; }
+
+    /* Header */
+    .landing-header{
+      position:sticky; top:0; z-index:60; background:#fff;
+      border-bottom:1px solid #eef0f4;
+    }
+    .brand{ display:flex; align-items:center; gap:.6rem; text-decoration:none; color:var(--dark); font-weight:800; }
+    .brand img{ height:42px; width:auto; }
+    .landing-header .nav-link{ color:#475569; font-weight:600; }
+    .landing-header .nav-link:hover{ color:var(--brand); }
+
+    .btn-brand{
+      background:linear-gradient(135deg,var(--brand),var(--accent));
+      color:#fff; font-weight:700; border:0;
+      box-shadow:0 10px 24px rgba(14,165,233,.28);
+    }
+    .btn-brand:hover{ opacity:.95; color:#fff; }
+
+    /* Hero */
+    .hero{
+      position:relative; overflow:hidden; background:#0b1020; color:#fff;
+    }
+    .hero .overlay{ position:absolute; inset:0;
+      background:linear-gradient( to right, rgba(6,10,25,.78), rgba(10,18,40,.55) );
+    }
+    .hero img.bg{
+      position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.35;
+      transform:scale(1.03); filter:saturate(110%) contrast(105%);
+    }
+    .hero .content{ position:relative; z-index:2; padding:84px 0 64px; }
+    .hero h1{ font-weight:900; line-height:1.08;
+      font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3.2rem);
+    }
+    .hero p.lead{ color:#dbe3ff; }
+
+    /* Stats row */
+    .stat-badge{
+      background:#fff; border:1px solid #eef0f4; border-radius:16px; padding:18px;
+      box-shadow:0 8px 34px rgba(2,16,60,.06);
+    }
+    .stat-badge .value{ font-weight:900; font-size:1.6rem; color:var(--brand); }
+    .stat-badge .label{ color:var(--muted); font-weight:600; letter-spacing:.3px; }
+
+    /* Generic cards */
+    .section-title{ font-weight:900; letter-spacing:.2px; }
+    .card-lite{
+      background:#fff; border:1px solid #eef0f4; border-radius:16px;
+      box-shadow:0 8px 34px rgba(15,23,42,.06);
+    }
+
+    /* Logo bubbles (replaces gradient dots) */
+    .logo-bubble{
+      width:56px; height:56px; border-radius:50%;
+      background:#fff; box-shadow:0 10px 22px rgba(2,16,60,.12);
+      display:grid; place-items:center; overflow:hidden;
+    }
+    .logo-bubble img{ width:100%; height:100%; object-fit:contain; padding:8px; }
+
+    /* Live stream callout */
+    .callout{
+      background:linear-gradient(135deg,#1d4ed8, #06b6d4);
+      color:#fff; border-radius:20px;
+      box-shadow:0 18px 50px rgba(2, 132, 199, .35);
+    }
+
+    /* Quote cards */
+    .quote{ position:relative; padding-left:42px; }
+    .quote:before{ content:"“"; position:absolute; left:0; top:-14px;
+      font-size:4rem; line-height:1; color:#c7d2fe; font-weight:900; opacity:.5;
+    }
+    .quote small{ color:#cbd5e1; }
+
+    /* CTA bottom */
+    .cta-gradient{
+      background:radial-gradient(1200px 400px at 10% 120%, #4f46e5 10%, #0ea5e9 40%, #06b6d4 70%);
+      color:#fff; border-radius:24px;
+      box-shadow:0 30px 80px rgba(79,70,229,.35);
+    }
+
+    /* Footer */
+    .site-footer{ border-top:1px solid #eef0f4; background:#fff; color:#6b7280; }
+
+    /* NEW: hero white-box image holder (same size look) */
+    .mockup{
+      background:#fff; border:1px solid #eef0f4; border-radius:20px;
+      box-shadow:0 10px 36px rgba(2,16,60,.10);
+      padding:16px; height: 320px;     /* controls the box size */
+    }
+    .mockup img{
+      width:100%; height:100%; object-fit:cover; border-radius:12px;
+    }
+    @media (min-width:1200px){
+      .mockup{ height:340px; }
+    }
+  </style>
+</head>
+<body>
+
+  {{-- ================= Header ================= --}}
+  <header class="landing-header">
+    <div class="container-xl py-2">
+      <div class="d-flex align-items-center justify-content-between">
+        <a href="{{ url('/') }}" class="brand">
+          <img src="{{ $logo }}" alt="92 Dream PK"> <span>92 Dream PK</span>
+        </a>
+
+        <nav class="d-none d-md-flex align-items-center gap-3">
+          <a href="#how" class="nav-link">How it Works</a>
+          <a href="#why" class="nav-link">Why Us</a>
+          <a href="#live" class="nav-link">Live Stream</a>
+          <a href="#faq" class="nav-link">FAQ</a>
+
+          @auth
+            <a href="{{ $dashRoute }}" class="btn btn-brand ms-1">Dashboard</a>
+          @else
+            <a href="{{ route('registerform') }}" class="btn btn-outline-primary fw-semibold">Register</a>
+            <a href="{{ route('loginform') }}" class="btn btn-brand ms-2">Login</a>
+          @endauth
         </nav>
-        <!-- End .navbar-->
-      </header>
-      <!-- End Header-->
-      <div class="modal fade" id="contactUsModal" tabindex="-1" role="dialog" aria-labelledby="contactUsModal" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-body p-0">
-              <div class="popup-contact-form">
-                <div class="heading heading-5">
-                  <div class="heading-title">Be Our Client</div>
-                  <div class="heading-desc">Supporting call-to-actiongoes here</div>
-                </div>
-                <div class="contact-body">
-                  <form class="contactForm mb-0" method="post" action="assets/php/contact.php">
-                    <div class="row">
-                      <div class="col-12">
-                        <div class="form-group">
-                          <label for="name">your name</label>
-                          <input class="form-control" type="text" id="name" name="contact-name" required="required"/>
-                        </div>
-                      </div>
-                      <div class="col-12">
-                        <div class="form-group">
-                          <label for="email">your email</label>
-                          <input class="form-control" type="text" id="email" name="contact-email" required="required"/>
-                        </div>
-                      </div>
-                      <div class="col-12">
-                        <div class="form-group">
-                          <label for="phone">your phone</label>
-                          <input class="form-control" type="text" id="phone" name="contact-phone" required="required"/>
-                        </div>
-                      </div>
-                      <div class="col-12">
-                        <button class="btn--block btn btn--secondary mt-20 mb-20"><span>Grap Your account</span></button>
-                      </div>
-                      <div class="col-12">
-                        <p class="notice">Start by trying our service for 30 days free triar no credit card required.</p>
-                      </div>
-                      <div class="col-12">
-                        <div class="contact-result"></div>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-                <!-- End .contact-body-->
+
+        <div class="d-flex d-md-none align-items-center gap-2">
+          @auth
+            <a href="{{ $dashRoute }}" class="btn btn-sm btn-brand">Dashboard</a>
+          @else
+            <a href="{{ route('loginform') }}" class="btn btn-sm btn-brand">Login</a>
+          @endauth
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {{-- ================= Hero ================= --}}
+  <section class="hero">
+    <img class="bg" src="{{ $heroImg }}" alt="Live Lottery">
+    <div class="overlay"></div>
+
+    <div class="container-xl content">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+          <h1 class="mb-3">Buy Tickets. Watch Live. Win Prizes.</h1>
+          <p class="lead mb-4">
+            Join thousands of players buying tickets for transparent live draws on YouTube.
+            Sales close → we stream → winners get paid fast. Simple.
+          </p>
+
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('registerform') }}" class="btn btn-brand btn-lg px-4">Get Started</a>
+            <a href="{{ $youtubeUrl }}" target="_blank" rel="noopener" class="btn btn-outline-light btn-lg px-4">
+              Watch Live Stream
+            </a>
+          </div>
+
+          <div class="row g-3 mt-4">
+            <div class="col-6 col-md-4">
+              <div class="stat-badge text-center">
+                <div class="value">100% Live</div>
+                <div class="label">Transparent Draws</div>
               </div>
             </div>
+            <div class="col-6 col-md-4">
+              <div class="stat-badge text-center">
+                <div class="value">Instant</div>
+                <div class="label">Ticket Purchase</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="stat-badge text-center">
+                <div class="value">Fast</div>
+                <div class="label">Prize Payouts</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{-- RIGHT: the white box now shows a picture at same size --}}
+        <div class="col-lg-5 d-none d-lg-block">
+         <div class="mockup">
+  <img src="{{ asset('asset/images/Home Page.png') }}"
+       alt="Live draw / product preview" loading="lazy"
+       style="max-width:90%;max-height:90%;object-fit:contain;">
+</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{-- ================= How it works ================= --}}
+  <section id="how" class="py-5">
+    <div class="container-xl">
+      <h2 class="section-title mb-4">How It Works</h2>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="card-lite p-4 h-100">
+            <div class="logo-bubble mb-3">
+              <img src="{{ $icoCreate }}" alt="Create">
+            </div>
+            <h6 class="fw-bold">1. Create Account</h6>
+            <p class="mb-0 text-muted">Register & log in to your personal dashboard.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <div class="card-lite p-4 h-100">
+            <div class="logo-bubble mb-3">
+              <img src="{{ $icoBuy }}" alt="Buy">
+            </div>
+            <h6 class="fw-bold">2. Buy Tickets</h6>
+            <p class="mb-0 text-muted">Purchase any number of tickets before the draw closes.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <div class="card-lite p-4 h-100">
+            <div class="logo-bubble mb-3">
+              <img src="{{ $icoWatch }}" alt="Watch">
+            </div>
+            <h6 class="fw-bold">3. Watch Live</h6>
+            <p class="mb-0 text-muted">We stream the draw on YouTube—fully transparent.</p>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <div class="card-lite p-4 h-100">
+            <div class="logo-bubble mb-3">
+              <img src="{{ $icoPaid }}" alt="Paid">
+            </div>
+            <h6 class="fw-bold">4. Get Paid</h6>
+            <p class="mb-0 text-muted">Winners are verified quickly and prizes are paid fast.</p>
           </div>
         </div>
       </div>
-      <!-- Start hero #1-->
-      <section class="hero hero-mailchimp bg-overlay bg-overlay-dark" id="hero">
-        <div class="bg-section"><img src="{{ asset('asset/images/background/bg-6.jpg') }}" alt="background"/></div>
-        <div class="divider-shape"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="139" viewBox="0 0 1920 139" preserveAspectRatio="none">
-<g transform="translate(0 -0.59)">
-<path data-name="Path 429" d="M1920,3.4C1575.885,18,1529.1,84.89,1101.63,84.89c-480,0-480-84.3-960-84.3C89.1.59,42.3,1.6,0,3.4V140H1920Z" transform="translate(0)" fill="rgba(255,255,255,0.3)"/>
-<path data-name="Path 430" d="M0,24.31c65.19-5.69,141.84-9.25,237.63-9.25,480,0,480,89.24,960,89.24,384.2,0,460.92-57.16,722.37-80V140H0Z" transform="translate(0)" fill="rgba(255,255,255,0.5)"/>
-<path data-name="Path 431" d="M1920,51.76c-301.5,12.49-363.645,53.4-770.37,53.4-480,0-480-57-960-57C116.355,48.17,54.315,49.51,0,51.76V140H1920Z" fill="#fff"/>
-</g>
-</svg>
-        </div>
-        <div class="container">
-          <div class="hero-cotainer text--center">
-            <div class="row">
-              <div class="col-12 col-md-8 offset-md-2 col-lg-8 offset-lg-2">
-                <div class="hero-content">
-                  <h1 class="hero-headline">Make The Best Landing <Br> in The Market</h1>
-                  <div class="hero-bio">We are LeData agency, our strategists will help you set an objective and choose your tools, <Br> developing a plan that is custom built for your business.</div>
-                  <div class="hero-action text-center">
-                    <form class="mb-0 form-action mailchimp">
-                      <div class="input-group">
-                        <input class="form-control" type="email" placeholder="E-mail address" required="required"/>
-                        <button class="btn btn--secondary"><span>Get Start Now <i class="icon-right-arrow"></i></span></button>
-                      </div>
-                      <!--  End .input-group-->
-                    </form>
-                    <div class="subscribe-alert"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End .row-->
-          </div>
-          <!-- End .hero-cotainer--><a class="scroll-to" href="#feature"><svg xmlns="http://www.w3.org/2000/svg" width="47.7" height="26.26" viewBox="0 0 47.7 26.26">
-<path id="down-chevron" d="M45.221,91.567l-21.371,21.3L2.48,91.567,0,94.055l23.85,23.772L47.7,94.055Z" transform="translate(0 -91.567)" fill="#fff"/>
-</svg></a>
-        </div>
-        <!-- End .container	-->
-      </section>
-      <!-- End #hero   -->
-      <!-- Start Feature #1-->
-      <section class="features" id="feature">
-        <div class="container">
-          <div class="row">
-            <!-- Panel #1  -->
-            <div class="col-12 col-md-12 col-lg-4 ">
-              <div class="feature-panel">
-                <div class="feature-icon"><i class="flaticon-command"></i></div>
-                <div class="feature-content">
-                  <h3>Ultra Responsive</h3>
-                  <p>This should be used to tell a story and let your users know more about your service. How can you benefit them?</p>
-                </div>
-              </div>
-              <!-- .feature-panel end  -->
-            </div>
-            <!-- .col-md-12 end  -->
-            <!-- Panel #2  -->
-            <div class="col-12 col-md-12 col-lg-4 ">
-              <div class="feature-panel active">
-                <div class="feature-icon"><i class="flaticon-controls-1"></i></div>
-                <div class="feature-content">
-                  <h3>Unlimited Features</h3>
-                  <p>This should be used to tell a story and let your users know more about your service. How can you benefit them?</p>
-                </div>
-              </div>
-              <!-- .feature-panel end  -->
-            </div>
-            <!-- .col-md-12 end  -->
-            <!-- Panel #3  -->
-            <div class="col-12 col-md-12 col-lg-4 ">
-              <div class="feature-panel">
-                <div class="feature-icon"><i class="flaticon-diamond"></i></div>
-                <div class="feature-content">
-                  <h3>Creative Design</h3>
-                  <p>This should be used to tell a story and let your users know more about your service. How can you benefit them?</p>
-                </div>
-              </div>
-              <!-- .feature-panel end  -->
-            </div>
-            <!-- .col-md-12 end  -->
-          </div>
-          <!-- End .row  -->
-        </div>
-        <!-- End .container  -->
-      </section>
-      <!-- Video Section-->
-      <section class="video-section bg-light-primary" id="video">
-        <div class="container">
-          <div class="row clearfix">
-            <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-              <div class="heading heading-1 text-center">
-                <h2 class="heading-title">
-                   Don't miss our new awesome <br/>Services promo video</h2>
-                <p class="heading-desc">This should be used to tell a story and let your users know a little more about your product or service. How can you benefit them?</p>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-12 col-md-10 offset-md-1">
-              <div class="video">
-                <div class="bg-section"><img src="{{ asset('asset/images/background/bg-7.jpg') }}" alt="background"/></div><a class="btn-video popup-video" href="https://www.youtube.com/watch?v=7e90gBu4pas"><i class="fas fa-play"></i></a>
-              </div>
-              <div class="connect"><span>Working everyday to get our customers' trust. </span>
-                <div class="connect-link"><a href="index.html"> <span>get started now</span><i class="icon-right-arrow"></i></a></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section class="services features features-2 bg-pink" id="services">
-        <div class="container">
-          <div class="row">
-            <div class="col-12 col-lg-6">
-              <div class="service-card">
-                <div class="service-card-top">
-                  <div class="bg-section"><img src="{{ asset('asset/images/background/bg-card.png') }}" alt="background"/></div>
-                </div>
-                <div class="service-card-middle">
-                  <div class="service-card-bg">
-                    <div class="bg-section"><img class="img-fluid" src="{{ asset('asset/images/background/bg-6.jpg') }}" alt="vector"/></div>
-                  </div>
-                </div>
-                <div class="service-card-bottom">
-                  <div class="bg-section"><img src="{{ asset('asset/images/background/bg-card.png') }}" alt="background"/></div>
-                  <div class="counters">
-                    <div class="counting-holder"><span class="counting">25</span>+</div>
-                    <p class="counting-desc">years of experience</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-12 col-lg-6">
-              <div class="service-content">
-                <div class="heading heading-4">
-                  <h2 class="heading-title">Your most exciting landing page will be LeData template</h2>
-                  <p class="heading-desc">This should be used to tell a story and let your users know a little more about your product or service</p>
-                </div>
-                <ul class="list-unstyled service-list">
-                  <li> 
-                    <div class="feature-panel">
-                      <div class="feature-icon"><i class="flaticon-layers-1"></i></div>
-                      <div class="feature-content">
-                        <h3>Easy Customization</h3>
-                        <p>This should be used to tell a story and let your users know more about your service. How can you benefit them?</p>
-                      </div>
-                    </div>
-                  </li>
-                  <li> 
-                    <div class="feature-panel">
-                      <div class="feature-icon"><i class="flaticon-radar"></i></div>
-                      <div class="feature-content">
-                        <h3>Supper Support</h3>
-                        <p>This should be used to tell a story and let your users know more about your service. How can you benefit them?</p>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <!-- Start Testimonials-->
-      <section class="testimonials bg-light-primary" id="testimonials">
-        <div class="container">
-          <div class="row clearfix">
-            <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
-              <div class="heading heading-1 text-center">
-                <h2 class="heading-title">
-                   What people will talk about us<br/>after Using our services</h2>
-                <p class="heading-desc">This should be used to tell a story and let your users know a little more about your product or service. How can you benefit them?</p>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-12 col-md-12 col-lg-12">
-              <div class="owl-carousel carousel-dots carousel-navs" data-slide="3" data-slide-res="1" data-autoplay="false" data-nav="true" data-dots="true" data-space="30" data-loop="true" data-speed="800" data-center="true">
-                <!--  Testimonial #1   -->
-                <div class="testimonial-panel">
-                  <div class="testimonial-body">
-                    <div class="testimonial-icon"><span class="icon-left-quotes-sign"></span></div>
-                    <div class="testimonial-author">
-                      <div class="testimonial-img"><img src="{{ asset('asset/images/testimonials/avatar-1.png') }}" alt="avatar author"/></div>
-                      <p><span>Mark Joe</span> Digital Inc</p>
-                    </div>
-                    <p>" This should be used to tell a story and include any testimonials you might have about your product or service for your clients "</p>
-                  </div>
-                </div>
-                <!--  Testimonial #2 -->
-                <div class="testimonial-panel">
-                  <div class="testimonial-body">
-                    <div class="testimonial-icon"><span class="icon-left-quotes-sign"></span></div>
-                    <div class="testimonial-author">
-                      <div class="testimonial-img"><img src="{{ asset('asset/images/testimonials/avatar-2.png') }}" alt="author"/></div>
-                      <p><span>Leila Domniuc</span> Google Inc</p>
-                    </div>
-                    <p>" This should be used to tell a story and include any testimonials you might have about your product or service for your clients "</p>
-                  </div>
-                </div>
-                <!--  Testimonial #3 -->
-                <div class="testimonial-panel">
-                  <div class="testimonial-body">
-                    <div class="testimonial-icon"><span class="icon-left-quotes-sign"></span></div>
-                    <div class="testimonial-author">
-                      <div class="testimonial-img"><img src="{{ asset('asset/images/testimonials/avatar-3.png') }}" alt="author"/></div>
-                      <p><span>Vera Duncan</span> Envato Inc</p>
-                    </div>
-                    <p>" This should be used to tell a story and include any testimonials you might have about your product or service for your clients "</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End .container  -->
-      </section>
-      <!-- End #testimonials -->
-      <!-- 
-      CTA #1
-      =============================================  
-      -->
-      <section class="cta text-center bg-overlay bg-overlay-dark" id="cta">
-        <div class="bg-section"><img src="{{ asset('asset/images/background/bg-8.jpg') }}" alt="background"/></div>
-        <div class="container">
-          <div class="row">
-            <div class="col-12 col-md-8 offset-md-2 col-lg-8 offset-lg-2 text-center">
-              <h3>Whatever the challenge, we Deliver a solution.</h3>
-              <p>Bengal. Birman. American shorthair tabby russian blue. Turkish angora leopard yet malkin and ocicat cougar, cougar manx. Cornish rex cougar but bombay, cheetah.</p><a class="btn btn--secondary mx-auto" href="javascript:void(0)" data-toggle="modal" data-target="#contactUsModal"> <span>Grap your Account <i class="icon-right-arrow"></i></span></a>
-            </div>
-            <!-- End .col-md-12-->
-          </div>
-          <!-- End .row-->
-        </div>
-        <!-- End .container-->
-      </section>
-      <!-- End #cta-->
-      <hr/>
-      <!-- 
-      Footer #1
-      ============================================= 
-      -->
-      <footer class="footer" id="footer">
-        <div class="footer-widgets-container">
-          <div class="container">
-            <div class="row">
-              <div class="col-12">
-                <div class="footer-widget"><a class="logo navbar-brand" href="index.html"><img class="logo logo-light" src="{{ asset('asset/images/logo/logo-light.png') }}" alt="LeData Logo"/></a>
-                  <div class="footer-contact">
-                    <ul class="list-unstyled">
-                      <li> <a href="mailto:support@LeData.com">support@LeData.com</a></li>
-                      <li> <a href="tel:+25-485-685-245">+25 485 685 245</a></li>
-                    </ul>
-                  </div>
-                  <ul class="list-unstyled navigation">
-                    <li class="nav-item"><a class="nav-link" href="javascript:void(0)">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="javascript:void(0)">Features</a></li>
-                    <li class="nav-item"><a class="nav-link" href="javascript:void(0)">Video </a></li>
-                    <li class="nav-item"><a class="nav-link" href="javascript:void(0)">Services</a></li>
-                    <li class="nav-item"><a class="nav-link" href="javascript:void(0)">Testimonials</a></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="container">
-          <hr/>
-        </div>
-        <!-- 
-        Copyrights
-        =============================================  
-        -->
-        <div class="container">
-          <div class="row">
-            <div class="col-12 col-md-12 col-lg-12 text--center">
-              <div class="footer-copyright"><span>2020 &copy; <a href="http://themeforest.net/user/zytheme/portfolio?ref=zytheme">zytheme</a>. All rights reserved.</span>
-                <div class="footer-social">
-                  <ul class="list-unstyled">
-                    <li> <a href="javascript:void(0)"><i class="fab fa-facebook-f"></i></a></li>
-                    <li> <a href="javascript:void(0)"><i class="fab fa-twitter"></i></a></li>
-                    <li> <a href="javascript:void(0)"><i class="fab fa-dribbble"></i></a></li>
-                    <li> <a href="javascript:void(0)"><i class="fab fa-behance"></i></a></li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- End .container  -->
-      </footer>
     </div>
-    <!-- End #wrapper   -->
-    <!-- 
-    Footer Scripts
-    =============================================  
-    -->
-    <script src="{{ asset('asset/js/vendor/jquery-3.4.1.min.js') }}"></script>
-    <script src="{{ asset('asset/js/vendor.js') }}"></script>
-    <script src="{{ asset('asset/js/functions.js') }}"></script>
-  </body>
+  </section>
+
+  {{-- ================= Why choose us ================= --}}
+  <section id="why" class="pb-5">
+    <div class="container-xl">
+      <h2 class="section-title mb-4">Why Choose 92 Dream PK?</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card-lite p-4 h-100">
+            <h6 class="fw-bold">Secure Payments</h6>
+            <p class="mb-0 text-muted">We use trusted local channels and safeguard your data end-to-end.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-lite p-4 h-100">
+            <h6 class="fw-bold">100% Live & Transparent</h6>
+            <p class="mb-0 text-muted">Every draw is streamed live on YouTube. No hidden steps—watch and verify.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-lite p-4 h-100">
+            <h6 class="fw-bold">Fast Payouts</h6>
+            <p class="mb-0 text-muted">We aim to process payouts as quickly as possible for verified winners.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{-- ================= Next live stream banner ================= --}}
+  <section id="live" class="pb-5">
+    <div class="container-xl">
+      <div class="callout p-4 p-lg-5 d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3">
+        <div>
+          <h3 class="fw-bold mb-1">Next Live Stream</h3>
+          <p class="mb-0">We announce the draw time once all tickets are sold. Tune in and watch the action live!</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <a href="{{ $youtubeUrl }}" class="btn btn-light fw-bold px-4" target="_blank" rel="noopener">
+            Go to YouTube
+          </a>
+          <a href="{{ route('registerform') }}" class="btn btn-outline-light fw-bold px-4">
+            Get Started
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{-- ================= Testimonials ================= --}}
+  <section class="pb-5">
+    <div class="container-xl">
+      <h2 class="section-title mb-4">What Players Say</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card-lite p-4 h-100 quote">
+            <p class="mb-3">Transparent, fast and fun. I love watching the live streams!</p>
+            <small>— Ali R.</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-lite p-4 h-100 quote">
+            <p class="mb-3">Buying tickets is super easy and payouts are quick. Highly recommend.</p>
+            <small>— Sana K.</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card-lite p-4 h-100 quote">
+            <p class="mb-3">The whole experience feels professional and secure. Great job!</p>
+            <small>— Hamza M.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{-- ================= FAQ ================= --}}
+  <section id="faq" class="pb-5">
+    <div class="container-xl">
+      <h2 class="section-title mb-4">Frequently Asked Questions</h2>
+
+    <div class="accordion" id="faqAcc">
+      <div class="accordion-item card-lite">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+            Is the draw really live?
+          </button>
+        </h2>
+        <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#faqAcc">
+          <div class="accordion-body">
+            Yes. Every draw is streamed on YouTube. You can watch, verify, and celebrate in real-time.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item card-lite mt-3">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+            Can I buy multiple tickets?
+          </button>
+        </h2>
+        <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+          <div class="accordion-body">
+            Absolutely. You can purchase unlimited tickets while sales are open.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item card-lite mt-3">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+            How are winners paid?
+          </button>
+        </h2>
+        <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+          <div class="accordion-body">
+            After verification, we process prize payouts quickly using secure payment methods.
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  {{-- ================= Final CTA ================= --}}
+  <section class="pb-5">
+    <div class="container-xl">
+      <div class="cta-gradient p-5 text-center">
+        <h2 class="fw-bold mb-2">Ready to Join the Next Draw?</h2>
+        <p class="mb-4">Create your account, buy tickets, and catch the action live on YouTube.</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+          <a href="{{ route('registerform') }}" class="btn btn-light fw-bold px-4">Create Account</a>
+          <a href="{{ route('loginform') }}" class="btn btn-outline-light fw-bold px-4">Log In</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{-- ================= Footer ================= --}}
+  <footer class="site-footer py-4">
+    <div class="container-xl d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div>© {{ date('Y') }} 92 Dream PK. All rights reserved.</div>
+      <div class="d-flex align-items-center gap-3">
+        <a href="#how" class="text-decoration-none">How it works</a>
+        <a href="#why" class="text-decoration-none">Why Us</a>
+        <a href="#live" class="text-decoration-none">Live Stream</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

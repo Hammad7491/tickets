@@ -59,7 +59,8 @@
 
   <div>
     <a href="{{ $dashUrl }}" class="sidebar-logo">
-      <img src="{{ asset('assets/images/logo.png') }}" alt="site logo" class="light-logo">
+      <img src="{{ asset('asset/images/logo_92.png') }}" alt="site logo" class="light-logo">
+
       <img src="{{ asset('assets/images/logo-light.png') }}" alt="site logo" class="dark-logo">
       <img src="{{ asset('assets/images/logo-icon.png') }}" alt="site logo" class="logo-icon">
     </a>
@@ -230,7 +231,6 @@
     </ul>
   </div>
 </aside>
-
 <style>
 /* === Sidebar (theme preserved) === */
 .sidebar { width:270px; background:#fff; border-right:1px solid #eef0f4; }
@@ -281,6 +281,59 @@
   .dropdown .chev{ transition:none; }
   .sidebar-submenu{ transition:none; }
 }
+
+/* Bigger, crisp logo */
+.light-logo{
+  height: 60px !important;      /* was tiny; make it clearly visible */
+  width: auto !important;        /* keep aspect ratio */
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  -ms-interpolation-mode: nearest-neighbor;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.08));
+}
+
+/* Give the logo some breathing room if it's inside the sidebar brand area */
+/* ——— Center the logo block horizontally & vertically ——— */
+.sidebar-logo{
+  /* make the brand row a true flex container */
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  width:100%;
+  height:84px;                 /* height of the brand strip; tweak if needed */
+  padding:0 !important;        /* remove side padding that pushes it left */
+  margin:0 auto !important;    /* ensure it's centered within the sidebar */
+  text-align:center !important;
+}
+
+/* make the image itself large & crisp, but keep aspect ratio */
+.sidebar-logo .light-logo{
+  height:64px;       /* visible + readable size */
+  width:100px;
+  object-fit:contain;
+  image-rendering:-webkit-optimize-contrast;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.08));
+  display:block;
+}
+
+/* if your template also renders other brand images, hide them */
+.sidebar-logo .dark-logo,
+.sidebar-logo .logo-icon{
+  display:none !important;
+}
+
+/* Responsive tweaks (optional) */
+@media (min-width:1200px){
+  .sidebar-logo{ height:92px; }
+  .sidebar-logo .light-logo{ height:72px; }
+}
+@media (max-width:575.98px){
+  .sidebar-logo{ height:74px; }
+  .sidebar-logo .light-logo{ height:56px; }
+}
+
+
 </style>
 
 <script>

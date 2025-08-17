@@ -1,175 +1,246 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Log In | Silva - Responsive Admin Dashboard Template</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}" sizes="16x16" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Log In | {{ config('app.name','Silva') }}</title>
+  <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}" sizes="16x16" />
 
-    <!-- remix icon font css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}" />
-    <!-- BootStrap css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/bootstrap.min.css') }}" />
-    <!-- Apex Chart css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/apexcharts.css') }}" />
-    <!-- Data Table css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/dataTables.min.css') }}" />
-    <!-- Text Editor css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/editor-katex.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/editor.atom-one-dark.min.css') }}" />
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/editor.quill.snow.css') }}" />
-    <!-- Date picker css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/flatpickr.min.css') }}" />
-    <!-- Calendar css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/full-calendar.css') }}" />
-    <!-- Vector Map css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/jquery-jvectormap-2.0.5.css') }}" />
-    <!-- Popup css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/magnific-popup.css') }}" />
-    <!-- Slick Slider css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/slick.css') }}" />
-    <!-- prism css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/prism.css') }}" />
-    <!-- file upload css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/file-upload.css') }}" />
-    <!-- audioplayer css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/audioplayer.css') }}" />
-    <!-- main css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
+  {{-- keep your existing CSS stack --}}
+  <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/bootstrap.min.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/apexcharts.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/dataTables.min.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/editor-katex.min.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/editor.atom-one-dark.min.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/editor.quill.snow.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/flatpickr.min.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/full-calendar.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/jquery-jvectormap-2.0.5.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/magnific-popup.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/slick.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/prism.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/file-upload.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/lib/audioplayer.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}" />
+
+  <style>
+    :root{
+      --brand:#4f46e5;   /* indigo */
+      --accent:#06b6d4;  /* cyan */
+      --ink:#0b132b;     /* deep navy */
+      --muted:#64748b;   /* slate */
+    }
+
+    /* lock page scrolling */
+    html, body { height:100%; }
+    body { overflow:hidden; }
+
+    /* background */
+    .auth-modern{
+      min-height:100dvh;
+      display:flex; align-items:center; justify-content:center;
+      background:
+        radial-gradient(1200px 500px at 10% -20%, rgba(79,70,229,.35) 0%, transparent 55%),
+        radial-gradient(900px 500px at 110% 10%, rgba(6,182,212,.32) 0%, transparent 60%),
+        linear-gradient(135deg,#0b132b 0%, #091a2e 55%, #0b1f35 100%);
+      position:relative;
+      padding:20px;
+    }
+
+    /* card */
+    .auth-card{
+      width:100%;
+      max-width:520px;
+      background:rgba(255,255,255,.96);
+      backdrop-filter: blur(8px);
+      border-radius:20px;
+      padding:26px 22px;
+      position:relative;
+      box-shadow:
+        0 26px 70px rgba(2, 8, 23, .38),
+        0 0 0 1px rgba(255,255,255,.55),
+        0 0 0 3px rgba(79,70,229,.07);
+    }
+    .auth-card:after{
+      content:""; position:absolute; inset:-2px; border-radius:inherit;
+      background:
+        radial-gradient(180px 180px at 10% 0%, rgba(99,102,241,.28), transparent 70%),
+        radial-gradient(200px 200px at 90% 0%, rgba(6,182,212,.22), transparent 70%);
+      z-index:-1; filter: blur(18px);
+    }
+
+    .auth-logo{ height:64px; width:auto; object-fit:contain; filter: drop-shadow(0 10px 24px rgba(79,70,229,.28)); }
+    .auth-title{
+      color:#0f172a; font-weight:900; letter-spacing:.2px;
+      font-size:clamp(1.35rem, 1rem + 1.4vw, 1.9rem); line-height:1.2;
+    }
+    .auth-sub{ color:#6b7280; }
+
+    .icon-field .icon{ color:#94a3b8; }
+    .form-control{
+      height:52px; border-radius:12px!important;
+      border:1px solid #e5e7eb; background:#f8fafc;
+    }
+    .form-control:focus{
+      border-color:#bfdbfe; box-shadow:0 0 0 .18rem rgba(59,130,246,.12);
+      background:#fff;
+    }
+
+    /* CTA */
+    .btn-primary{
+      background: linear-gradient(90deg, var(--brand), var(--accent), var(--brand));
+      background-size:200% 100%;
+      animation: slide 4s linear infinite;
+      border:0; box-shadow: 0 14px 32px rgba(6,182,212,.28);
+      font-weight:800; letter-spacing:.2px;
+    }
+    @keyframes slide { to { background-position:-200% 0; } }
+
+    /* compact chips */
+    .chip-row{ gap:.4rem; }
+    .chip{
+      display:inline-flex; align-items:center; gap:.35rem;
+      background:#eef2ff; color:#4338ca; font-weight:600; font-size:.82rem;
+      border-radius:999px; padding:.25rem .55rem; border:1px solid #e2e8f0;
+    }
+
+    /* shorter screens */
+    @media (max-height: 720px){
+      .auth-card{ padding:20px 18px; }
+      .auth-logo{ height:56px; }
+      .auth-title{ font-size:clamp(1.2rem, .9rem + 1.1vw, 1.6rem); }
+      .form-control{ height:48px; }
+      .btn-primary{ padding:.65rem 1rem!important; }
+    }
+    @media (max-width:575.98px){
+      .auth-card{ padding:22px 16px; }
+    }
+  </style>
 </head>
 <body>
-<section class="auth bg-base d-flex flex-wrap">
-    <div class="auth-left d-lg-block d-none">
-        <div class="d-flex align-items-center flex-column h-100 justify-content-center">
-            <img src="{{ asset('assets/images/auth/auth-img.png') }}" alt="">
-        </div>
+
+<section class="auth-modern">
+  <div class="auth-card">
+    {{-- Logo --}}
+    <div class="text-center mb-2">
+      <a href="{{ url('/') }}" class="d-inline-block">
+        <img class="auth-logo" src="{{ asset('asset/images/logo_92.png') }}" alt="logo">
+      </a>
     </div>
 
-    <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
-        <div class="max-w-464-px mx-auto w-100">
-            <div class="text-center mb-40">
-                <a href="{{ url('/') }}" class="max-w-290-px d-inline-block">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="logo">
-                </a>
-            </div>
-
-            @if ($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            <h4 class="mb-12">Welcome back</h4>
-            <p class="mb-32 text-secondary-light text-lg">Sign in to continue to Silva.</p>
-
-            <form id="loginForm" action="{{ route('login') }}" method="POST">
-                @csrf
-
-                <!-- Social buttons & divider removed -->
-
-                <div class="icon-field mb-16">
-                    <span class="icon top-50 translate-middle-y">
-                        <iconify-icon icon="mage:email"></iconify-icon>
-                    </span>
-                    <input type="email"
-                           name="email"
-                           id="emailaddress"
-                           class="form-control h-56-px bg-neutral-50 radius-12"
-                           placeholder="Email address"
-                           required
-                           value="{{ old('email') }}">
-                </div>
-
-                <div class="position-relative mb-20">
-                    <div class="icon-field">
-                        <span class="icon top-50 translate-middle-y">
-                            <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
-                        </span>
-                        <input type="password"
-                               name="password"
-                               id="password"
-                               class="form-control h-56-px bg-neutral-50 radius-12"
-                               placeholder="Password"
-                               required>
-                        <button type="button"
-                                id="togglePassword"
-                                class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light"
-                                data-toggle="#password"></button>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between mb-32">
-                    <div class="form-check style-check d-flex align-items-center">
-                        <input class="form-check-input border border-neutral-300" type="checkbox" id="remember">
-                        <label class="form-check-label ms-2" for="remember">Remember me</label>
-                    </div>
-                    <!-- Forgot Password removed -->
-                </div>
-
-                <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mb-32">
-                    Log In
-                </button>
-
-                <div class="d-flex flex-wrap gap-2 mb-32">
-                    <button type="button" class="btn btn-secondary" onclick="fillLogin('a@a','a')">Admin</button>
-                    {{-- <button type="button" class="btn btn-secondary" onclick="fillLogin('u@u','a')">User</button> --}}
-                </div>
-
-                <!-- Signup link restored -->
-                <p class="text-center text-sm mb-0">
-                    Don’t have an account?
-                    <a href="{{ route('registerform') }}" class="text-primary-600 fw-semibold">Sign Up</a>
-                </p>
-            </form>
-        </div>
+    {{-- Title --}}
+    <div class="text-center mb-3">
+      <h2 class="auth-title mb-1">Welcome back</h2>
+      <p class="auth-sub mb-0">Sign in to continue to {{ config('app.name','Silva') }}.</p>
     </div>
+
+    {{-- Errors --}}
+    @if ($errors->any())
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <ul class="mb-0">
+          @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+          @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    @endif
+
+    {{-- Form --}}
+    <form id="loginForm" action="{{ route('login') }}" method="POST" autocomplete="off">
+      @csrf
+
+      <div class="icon-field mb-3 position-relative">
+        <span class="icon position-absolute top-50 start-0 translate-middle-y ms-3">
+          <iconify-icon icon="mage:email"></iconify-icon>
+        </span>
+        <input type="email"
+               name="email"
+               id="emailaddress"
+               class="form-control ps-5"
+               placeholder="Email address"
+               required
+               value="{{ old('email') }}">
+      </div>
+
+      <div class="icon-field mb-2 position-relative">
+        <span class="icon position-absolute top-50 start-0 translate-middle-y ms-3">
+          <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
+        </span>
+        <input type="password"
+               name="password"
+               id="password"
+               class="form-control ps-5 pe-5"
+               placeholder="Password"
+               required>
+        <button type="button"
+                id="togglePassword"
+                class="ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-3 text-secondary-light"
+                data-toggle="#password"></button>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="form-check style-check d-flex align-items-center">
+          <input class="form-check-input border border-neutral-300" type="checkbox" id="remember" name="remember">
+          <label class="form-check-label ms-2" for="remember">Remember me</label>
+        </div>
+        {{-- Uncomment if you have a route --}}
+        {{-- <a href="{{ route('password.request') }}" class="text-primary small">Forgot password?</a> --}}
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 py-3 mb-2">
+        Log In
+      </button>
+
+      {{-- Quick-fill (optional) --}}
+      <div class="d-flex flex-wrap gap-2 justify-content-center mb-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillLogin('a@a','a')">Admin</button>
+        {{-- <button type="button" class="btn btn-outline-secondary btn-sm" onclick="fillLogin('u@u','a')">User</button> --}}
+      </div>
+
+      <div class="d-flex flex-wrap justify-content-center chip-row mb-2">
+        <span class="chip"><i class="ri-shield-check-line"></i> Secure</span>
+        <span class="chip"><i class="ri-broadcast-line"></i> Live Draws</span>
+        <span class="chip"><i class="ri-flashlight-line"></i> Fast Payouts</span>
+      </div>
+
+      <p class="text-center mb-0">
+        Don’t have an account?
+        <a href="{{ route('registerform') }}" class="text-primary fw-semibold">Sign Up</a>
+      </p>
+    </form>
+  </div>
 </section>
 
-<!-- jQuery -->
+{{-- JS --}}
 <script src="{{ asset('assets/js/lib/jquery-3.7.1.min.js') }}"></script>
-<!-- Bootstrap -->
 <script src="{{ asset('assets/js/lib/bootstrap.bundle.min.js') }}"></script>
-<!-- Apex Charts -->
 <script src="{{ asset('assets/js/lib/apexcharts.min.js') }}"></script>
-<!-- DataTables -->
 <script src="{{ asset('assets/js/lib/dataTables.min.js') }}"></script>
-<!-- Iconify -->
 <script src="{{ asset('assets/js/lib/iconify-icon.min.js') }}"></script>
-<!-- jQuery UI -->
 <script src="{{ asset('assets/js/lib/jquery-ui.min.js') }}"></script>
-<!-- Vector Map -->
 <script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
 <script src="{{ asset('assets/js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
-<!-- Popup -->
 <script src="{{ asset('assets/js/lib/magnific-popup.min.js') }}"></script>
-<!-- Slick Slider -->
 <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
-<!-- Prism -->
 <script src="{{ asset('assets/js/lib/prism.js') }}"></script>
-<!-- File Upload -->
 <script src="{{ asset('assets/js/lib/file-upload.js') }}"></script>
-<!-- Audioplayer -->
 <script src="{{ asset('assets/js/lib/audioplayer.js') }}"></script>
-<!-- Main JS -->
 <script src="{{ asset('assets/js/app.js') }}"></script>
 
 <script>
-    function fillLogin(email, password) {
-        document.getElementById('emailaddress').value = email;
-        document.getElementById('password').value = password;
-        document.getElementById('loginForm').submit();
-    }
+  function fillLogin(email, password) {
+    document.getElementById('emailaddress').value = email;
+    document.getElementById('password').value = password;
+    document.getElementById('loginForm').submit();
+  }
 
-    document.getElementById('togglePassword').addEventListener('click', function() {
-        this.classList.toggle('ri-eye-off-line');
-        let input = document.querySelector(this.getAttribute('data-toggle'));
-        input.type = input.type === 'password' ? 'text' : 'password';
-    });
+  document.getElementById('togglePassword').addEventListener('click', function() {
+    this.classList.toggle('ri-eye-off-line');
+    const input = document.querySelector(this.getAttribute('data-toggle'));
+    input.type = input.type === 'password' ? 'text' : 'password';
+  });
 </script>
 </body>
 </html>

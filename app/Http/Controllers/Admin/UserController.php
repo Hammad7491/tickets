@@ -5,24 +5,34 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    private const ALLOWED_ROLES = ['admin','user'];
+    /**
+     * Only these roles are assignable via the Admin UI.
+     */
+    private const ALLOWED_ROLES = ['admin', 'user'];
 
+    /**
+     * List users (Name, Email, Phone, Role(s), Status).
+     */
     public function index()
     {
-        // Ensure roles exist (lowercase, guard web)
-        Role::firstOrCreate(['name'=>'admin','guard_name'=>'web']);
-        Role::firstOrCreate(['name'=>'user','guard_name'=>'web']);
+        // Ensure base roles exist (guard: web)
+        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'user',  'guard_name' => 'web']);
 
-        $users = User::select('id','name','email','phone','is_blocked')
-            ->with(['roles' => fn($q) =>
-                $q->whereIn('name', self::ALLOWED_ROLES)->select('id','name')
+        $users = User::select('id', 'name', 'email', 'phone', 'is_blocked')
+            ->with([
+                'roles' => fn ($q) => $q
+                    ->whereIn('name', self::ALLOWED_ROLES)
+                    ->select('id', 'name')
             ])
             ->orderBy('name')
             ->get();
@@ -30,52 +40,63 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
-    /** Users list page (Name, Email, Phone, Status, Roles) */
+    /**
+     * (Optional extra page) Simple latest-first listing.
+     */
     public function show()
     {
         $users = User::with('roles:id,name')
-            ->select('id','name','email','phone','is_blocked')
+            ->select('id', 'name', 'email', 'phone', 'is_blocked')
             ->orderByDesc('id')
             ->get();
 
         return view('admin.users.show', compact('users'));
     }
 
+    /**
+     * Show create form.
+     */
     public function create()
     {
         $roles = Role::whereIn('name', self::ALLOWED_ROLES)
-            ->orderByRaw("FIELD(name,'admin','user')")
+            ->orderByRaw("FIELD(name, 'admin', 'user')")
             ->get(['name']);
 
-        return view('admin.users.create', ['roles'=>$roles, 'userRoles'=>[]]);
+        return view('admin.users.create', [
+            'roles'     => $roles,
+            'userRoles' => [],
+        ]);
     }
 
+    /**
+     * Store a new user.
+     */
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name'     => ['required','string','max:255'],
-            'email'    => ['required','email','max:255','unique:users,email'],
-            'password' => ['required','confirmed','min:8'],
-            'phone'    => ['nullable','string','max:30'],
-            'roles'    => ['required','array', 'min:1'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', 'min:8'],
+            'phone'    => ['nullable', 'string', 'max:30'],
+            'roles'    => ['required', 'array', 'min:1'],
             'roles.*'  => ['string'],
         ]);
 
-        // Normalize and whitelist roles
+        // Normalize + whitelist roles
         $picked = collect($data['roles'] ?? [])
-            ->map(fn($r) => strtolower(trim($r)))
+            ->map(fn ($r) => strtolower(trim($r)))
             ->intersect(self::ALLOWED_ROLES)
             ->values()
             ->all();
 
-        // Fallback if nothing valid came through (shouldn't happen due to 'required')
+        // Safety fallback (shouldn't happen because of 'required', but just in case)
         if (empty($picked)) {
-            $picked = ['admin']; // default when creating via Admin panel
+            $picked = ['admin'];
         }
 
-        // Ensure the roles exist in the DB with guard web
+        // Ensure roles exist (guard: web)
         foreach ($picked as $r) {
-            Role::firstOrCreate(['name'=>$r,'guard_name'=>'web']);
+            Role::firstOrCreate(['name' => $r, 'guard_name' => 'web']);
         }
 
         $user = User::create([
@@ -85,31 +106,41 @@ class UserController extends Controller
             'phone'    => $data['phone'] ?? null,
         ]);
 
-        // Apply selected roles
         $user->syncRoles($picked);
 
-        return redirect()->route('admin.users.index')->with('success','User created.');
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'User created.');
     }
 
+    /**
+     * Show edit form.
+     */
     public function edit(User $user)
     {
         $roles = Role::whereIn('name', self::ALLOWED_ROLES)
-            ->orderByRaw("FIELD(name,'admin','user')")
+            ->orderByRaw("FIELD(name, 'admin', 'user')")
             ->get(['name']);
 
-        $userRoles = $user->roles()->pluck('name')->map(fn($r)=>strtolower($r))->toArray();
+        $userRoles = $user->roles()
+            ->pluck('name')
+            ->map(fn ($r) => strtolower($r))
+            ->toArray();
 
-        return view('admin.users.create', compact('user','roles','userRoles'));
+        return view('admin.users.create', compact('user', 'roles', 'userRoles'));
     }
 
+    /**
+     * Update a user.
+     */
     public function update(Request $request, User $user)
     {
         $data = $request->validate([
-            'name'     => ['required','string','max:255'],
-            'email'    => ['required','email','max:255','unique:users,email,'.$user->id],
-            'password' => ['nullable','confirmed','min:8'],
-            'phone'    => ['nullable','string','max:30'],
-            'roles'    => ['required','array','min:1'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'password' => ['nullable', 'confirmed', 'min:8'],
+            'phone'    => ['nullable', 'string', 'max:30'],
+            'roles'    => ['required', 'array', 'min:1'],
             'roles.*'  => ['string'],
         ]);
 
@@ -122,57 +153,106 @@ class UserController extends Controller
         }
         $user->save();
 
-        // Normalize + whitelist
         $picked = collect($data['roles'] ?? [])
-            ->map(fn($r) => strtolower(trim($r)))
+            ->map(fn ($r) => strtolower(trim($r)))
             ->intersect(self::ALLOWED_ROLES)
             ->values()
             ->all();
 
         if (empty($picked)) {
-            // Keep at least one role (fallback to existing or 'admin')
-            $existing = $user->roles()->pluck('name')->map(fn($r)=>strtolower($r))->toArray();
-            $picked = !empty($existing) ? $existing : ['admin'];
+            // Keep at least one role – fall back to existing or admin
+            $existing = $user->roles()->pluck('name')->map(fn ($r) => strtolower($r))->toArray();
+            $picked   = !empty($existing) ? $existing : ['admin'];
         }
 
         foreach ($picked as $r) {
-            Role::firstOrCreate(['name'=>$r,'guard_name'=>'web']);
+            Role::firstOrCreate(['name' => $r, 'guard_name' => 'web']);
         }
 
         $user->syncRoles($picked);
 
-        return redirect()->route('admin.users.index')->with('success','User updated.');
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'User updated.');
     }
 
+    /**
+     * Delete a user.
+     */
     public function destroy(User $user)
     {
-        if (auth()->id() === $user->id) {
-            return back()->with('success','You cannot delete your own account.');
+        if (Auth::id() === $user->id) {
+            return back()->with('success', 'You cannot delete your own account.');
         }
+
+        // Optional: invalidate remember token to be safe
+        $this->invalidateRememberToken($user);
+        // Optional: kill their active sessions
+        $this->killSessionsOf($user);
+
         $user->delete();
-        return redirect()->route('admin.users.index')->with('success','User deleted.');
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'User deleted.');
     }
 
+    /**
+     * Block a user and immediately log them out everywhere.
+     */
     public function block(User $user)
     {
-        if (auth()->id() === $user->id) {
-            return back()->with('success','You cannot block yourself.');
+        if (Auth::id() === $user->id) {
+            return back()->with('success', 'You cannot block yourself.');
         }
+
         $user->is_blocked = true;
         $user->save();
 
-        if (config('session.driver') === 'database' && Schema::hasTable('sessions')) {
-            DB::table('sessions')->where('user_id', $user->id)->delete();
-        }
+        // Kill active sessions + remember token so they are out
+        $this->killSessionsOf($user);
+        $this->invalidateRememberToken($user);
 
-        return back()->with('success','User blocked.');
+        return back()->with('success', 'User blocked and logged out.');
     }
 
+    /**
+     * Unblock a user.
+     */
     public function unblock(User $user)
     {
         $user->is_blocked = false;
         $user->save();
 
-        return back()->with('success','User unblocked.');
+        return back()->with('success', 'User unblocked.');
+    }
+
+    /* -----------------------------------------------------------
+     | Helpers
+     |------------------------------------------------------------
+     */
+
+    /**
+     * Kill all sessions for a user when using the database session driver.
+     * Falls back to no-op if not applicable.
+     */
+    private function killSessionsOf(User $user): void
+    {
+        if (config('session.driver') === 'database' && Schema::hasTable('sessions')) {
+            DB::table('sessions')
+                ->where('user_id', (string) $user->getAuthIdentifier())
+                ->delete();
+        }
+    }
+
+    /**
+     * Invalidate remember_token if the column exists (helps kick persistent logins).
+     */
+    private function invalidateRememberToken(User $user): void
+    {
+        if (Schema::hasColumn('users', 'remember_token')) {
+            $user->setRememberToken(Str::random(60));
+            $user->save();
+        }
     }
 }
