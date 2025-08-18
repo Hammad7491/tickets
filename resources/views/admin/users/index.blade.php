@@ -21,6 +21,24 @@
         </div>
       @endif
 
+      {{-- Search by Name --}}
+      <div class="d-flex justify-content-end mb-3">
+        <div class="search-wrap">
+          <label for="nameSearch" class="form-label fw-semibold mb-1">Search by Name</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="search" id="nameSearch" class="form-control" placeholder="Type a name…" autocomplete="off">
+            <button class="btn btn-outline-secondary" type="button" id="clearNameSearch" title="Clear">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="noNameResults" class="alert alert-info py-2 px-3 d-none" role="alert">
+        <i class="bi bi-info-circle me-2"></i>No matching users on this page.
+      </div>
+
       <div class="table-responsive">
         <table class="table table-striped table-hover align-middle mb-0 responsive-table">
           {{-- ✅ Show headers normally; CSS will hide on small screens --}}
@@ -35,9 +53,9 @@
             </tr>
           </thead>
 
-          <tbody>
+          <tbody id="usersTbody">
             @foreach($users as $user)
-              <tr class="bg-white">
+              <tr class="bg-white" data-name="{{ strtolower($user->name ?? '') }}">
                 <td class="fw-semibold" data-label="Name">
                   {{ $user->name }}
                 </td>
@@ -157,6 +175,8 @@
 </div>
 
 <style>
+  .search-wrap{ min-width: 260px; max-width: 360px; width: 100%; }
+
   /* Hide header on small screens and show stacked rows */
   @media (max-width: 767.98px) {
     .responsive-table thead { display: none; }
@@ -205,4 +225,33 @@
 
   .responsive-table td { word-break: break-word; }
 </style>
+
+{{-- Realtime filter by name --}}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const input   = document.getElementById('nameSearch');
+    const clear   = document.getElementById('clearNameSearch');
+    const rows    = Array.from(document.querySelectorAll('#usersTbody tr[data-name]'));
+    const noRes   = document.getElementById('noNameResults');
+
+    function apply() {
+      const q = (input.value || '').trim().toLowerCase();
+      let shown = 0;
+
+      rows.forEach(tr => {
+        const name = (tr.dataset.name || '');
+        const show = !q || name.includes(q);
+        tr.style.display = show ? '' : 'none';
+        if (show) shown++;
+      });
+
+      if (noRes) noRes.classList.toggle('d-none', shown !== 0);
+    }
+
+    input?.addEventListener('input', apply);
+    clear?.addEventListener('click', () => { input.value = ''; apply(); input.focus(); });
+
+    apply(); // initial run
+  });
+</script>
 @endsection

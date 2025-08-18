@@ -26,17 +26,15 @@
 
   <style>
     :root{
-      --brand:#4f46e5;   /* indigo */
-      --accent:#06b6d4;  /* cyan */
-      --ink:#0b132b;     /* deep navy */
-      --muted:#64748b;   /* slate */
+      --brand:#4f46e5;
+      --accent:#06b6d4;
+      --ink:#0b132b;
+      --muted:#64748b;
     }
 
-    /* lock page scrolling */
     html, body { height:100%; }
     body { overflow:hidden; }
 
-    /* --- gorgeous background (no busy blobs) --- */
     .auth-modern{
       min-height:100dvh;
       display:flex; align-items:center; justify-content:center;
@@ -48,7 +46,6 @@
       padding:20px;
     }
 
-    /* --- compact glass card (no inner scrollbars) --- */
     .auth-card{
       width:100%;
       max-width:520px;
@@ -61,9 +58,7 @@
         0 26px 70px rgba(2, 8, 23, .38),
         0 0 0 1px rgba(255,255,255,.55),
         0 0 0 3px rgba(79,70,229,.07);
-      /* removed: max-height & overflow to kill inner scrollbar */
     }
-
     .auth-card:after{
       content:""; position:absolute; inset:-2px; border-radius:inherit;
       background:
@@ -74,29 +69,26 @@
 
     .auth-logo{ height:64px; width:auto; object-fit:contain; filter: drop-shadow(0 10px 24px rgba(79,70,229,.28)); }
 
-    /* smaller, balanced heading */
     .auth-title{
-      color:#0f172a;
-      font-weight:900;
-      letter-spacing:.2px;
-      font-size:clamp(1.35rem, 1rem + 1.4vw, 1.9rem);
-      line-height:1.2;
+      color:#0f172a; font-weight:900; letter-spacing:.2px;
+      font-size:clamp(1.35rem, 1rem + 1.4vw, 1.9rem); line-height:1.2;
     }
     .auth-sub{ color:#6b7280; }
 
     .icon-field .icon{ color:#94a3b8; }
     .form-control{
-      height:52px;
-      border-radius:12px!important;
-      border:1px solid #e5e7eb;
-      background:#f8fafc;
+      height:52px; border-radius:12px!important; border:1px solid #e5e7eb; background:#f8fafc;
     }
     .form-control:focus{
-      border-color:#bfdbfe; box-shadow:0 0 0 .18rem rgba(59,130,246,.12);
-      background:#fff;
+      border-color:#bfdbfe; box-shadow:0 0 0 .18rem rgba(59,130,246,.12); background:#fff;
+    }
+    /* Stronger invalid visuals */
+    .form-control.is-invalid{
+      border-color:#ef4444 !important;
+      box-shadow:0 0 0 .18rem rgba(239,68,68,.12) !important;
+      background:#fff !important;
     }
 
-    /* animated gradient CTA */
     .btn-primary{
       background: linear-gradient(90deg, var(--brand), var(--accent), var(--brand));
       background-size:200% 100%;
@@ -106,11 +98,9 @@
     }
     @keyframes slide { to { background-position:-200% 0; } }
 
-    /* tiny password meter */
     .pw-meter{ height:6px; border-radius:999px; background:#e5e7eb; overflow:hidden; }
     .pw-meter > span{ display:block; height:100%; width:0; background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e); transition:width .25s ease; }
 
-    /* compact chips */
     .chip-row{ gap:.4rem; }
     .chip{
       display:inline-flex; align-items:center; gap:.35rem;
@@ -118,7 +108,6 @@
       border-radius:999px; padding:.25rem .55rem; border:1px solid #e2e8f0;
     }
 
-    /* tighten a bit more on short screens so page remains scroll-free */
     @media (max-height: 720px){
       .auth-card{ padding:20px 18px; }
       .auth-logo{ height:56px; }
@@ -162,7 +151,7 @@
     @endif
 
     {{-- Form --}}
-    <form action="{{ route('register') }}" method="POST" autocomplete="off" id="registerForm">
+    <form action="{{ route('register') }}" method="POST" autocomplete="off" id="registerForm" novalidate>
       @csrf
 
       {{-- Name --}}
@@ -170,7 +159,7 @@
         <span class="icon position-absolute top-50 start-0 translate-middle-y ms-3">
           <iconify-icon icon="ri:user-line"></iconify-icon>
         </span>
-        <input type="text" name="name" class="form-control ps-5" placeholder="Name123" required value="{{ old('name') }}">
+        <input type="text" name="name" class="form-control ps-5" placeholder="Name" required value="{{ old('name') }}">
       </div>
 
       {{-- Email --}}
@@ -181,13 +170,27 @@
         <input type="email" name="email" class="form-control ps-5" placeholder="Email address" required value="{{ old('email') }}">
       </div>
 
-      {{-- Phone --}}
-      <div class="icon-field mb-3 position-relative">
+      {{-- Phone (exact 11 digits) --}}
+      <div class="icon-field mb-1 position-relative">
         <span class="icon position-absolute top-50 start-0 translate-middle-y ms-3">
           <iconify-icon icon="ri:phone-line"></iconify-icon>
         </span>
-        <input type="tel" name="phone" class="form-control ps-5" placeholder="Phone number" required value="{{ old('phone') }}">
+        <input
+          type="tel"
+          name="phone"
+          id="phone"
+          class="form-control ps-5"
+          placeholder="03XXXXXXXXX"
+          inputmode="numeric"
+          autocomplete="tel"
+          aria-describedby="phoneError"
+          value="{{ old('phone') }}"
+          required
+          pattern="\d{11}"
+          title="Enter exactly 11 digits"
+        >
       </div>
+      <div id="phoneError" class="invalid-feedback"></div>
 
       {{-- Password --}}
       <div class="position-relative mb-2">
@@ -215,9 +218,7 @@
       </div>
 
       {{-- Submit --}}
-      <button type="submit" class="btn btn-primary w-100 py-3 mb-2">
-        Sign Up
-      </button>
+      <button type="submit" class="btn btn-primary w-100 py-3 mb-2">Sign Up</button>
 
       <div class="d-flex flex-wrap justify-content-center chip-row mb-1">
         <span class="chip"><i class="ri-shield-check-line"></i> Secure</span>
@@ -240,7 +241,7 @@
 <script src="{{ asset('assets/js/lib/dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/js/lib/iconify-icon.min.js') }}"></script>
 <script src="{{ asset('assets/js/lib/jquery-ui.min.js') }}"></script>
-<script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
+script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
 <script src="{{ asset('assets/js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
 <script src="{{ asset('assets/js/lib/magnific-popup.min.js') }}"></script>
 <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
@@ -250,7 +251,7 @@
 <script src="{{ asset('assets/js/app.js') }}"></script>
 
 <script>
-  // show/hide password buttons
+  // === Show/hide password
   document.querySelectorAll('.toggle-password').forEach(btn => {
     btn.addEventListener('click', function(){
       this.classList.toggle('ri-eye-off-line');
@@ -259,7 +260,7 @@
     });
   });
 
-  // tiny password strength bar
+  // === Tiny password strength bar
   const pw  = document.getElementById('password');
   const bar = document.getElementById('pwBar');
   function scorePassword(s){
@@ -277,6 +278,62 @@
     return Math.min(100, score);
   }
   pw && pw.addEventListener('input', () => { bar.style.width = scorePassword(pw.value) + '%'; });
+
+  // === PHONE VALIDATION (exact length) ===
+  (function(){
+    const REQUIRED_LEN = 11; // change if you need a different exact length
+    const form   = document.getElementById('registerForm');
+    const input  = document.getElementById('phone');
+    const errEl  = document.getElementById('phoneError');
+
+    if(!input) return;
+
+    // Sanitize to digits-only on input & paste, but DO NOT cap length so we can show "too long" error
+    const sanitize = (val) => (val || '').replace(/\D+/g,'');
+    const setError = (msg) => {
+      input.classList.add('is-invalid');
+      if (errEl){ errEl.textContent = msg; errEl.classList.add('d-block'); }
+    };
+    const clearError = () => {
+      input.classList.remove('is-invalid');
+      if (errEl){ errEl.textContent = ''; errEl.classList.remove('d-block'); }
+    };
+
+    function validatePhone(){
+      // keep digits only in the field
+      const raw = input.value;
+      const digits = sanitize(raw);
+      if (raw !== digits) input.value = digits;
+
+      let msg = '';
+      if (digits.length === 0) {
+        msg = 'Phone number is required.';
+      } else if (digits.length < REQUIRED_LEN) {
+        msg = `Phone number is too short. Enter exactly ${REQUIRED_LEN} digits.`;
+      } else if (digits.length > REQUIRED_LEN) {
+        msg = `Phone number is too long. Enter exactly ${REQUIRED_LEN} digits.`;
+      }
+
+      if (msg){ setError(msg); return false; }
+      clearError(); return true;
+    }
+
+    input.addEventListener('input', validatePhone);
+    input.addEventListener('blur', validatePhone);
+    input.addEventListener('paste', (e) => {
+      requestAnimationFrame(validatePhone);
+    });
+
+    form.addEventListener('submit', function(e){
+      const ok = validatePhone();
+      if (!ok) {
+        e.preventDefault();
+        e.stopPropagation();
+        input.focus();
+      }
+    });
+  })();
 </script>
+
 </body>
 </html>

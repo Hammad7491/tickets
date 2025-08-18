@@ -4,14 +4,13 @@
 <div class="container my-5">
 
   {{-- Page header --}}
-  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
     <div class="d-flex align-items-center gap-3">
       <span class="page-icon d-inline-flex align-items-center justify-content-center rounded-3">
         <i class="bi bi-receipt-cutoff"></i>
       </span>
       <div>
         <h3 class="mb-1 fw-bold">My Ticket Requests</h3>
-       
       </div>
     </div>
   </div>
@@ -30,6 +29,22 @@
     </div>
   @endif
 
+  {{-- Realtime search by serial --}}
+  <div class="row g-2 align-items-center mb-3">
+    <div class="col-12 col-sm-8 col-md-6 col-lg-4">
+      <label for="serialSearch" class="form-label fw-semibold mb-1">Search by Serial</label>
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="search" id="serialSearch" class="form-control"
+               placeholder="e.g., PK123456" autocomplete="off">
+        <button class="btn btn-outline-secondary" type="button" id="serialClear" title="Clear">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <small class="text-muted">Filters items on this page in real time.</small>
+    </div>
+  </div>
+
   {{-- DESKTOP / TABLET --}}
   <div class="card border-0 shadow-sm rounded-4 d-none d-md-block">
     <div class="card-body p-0">
@@ -47,14 +62,15 @@
               <th class="text-end" style="width: 100px;">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="desktopList">
             @forelse($purchases as $p)
               @php
                 $serial      = $p->status === 'accepted' ? ($p->serial ?? '—') : '—';
+                $serialRaw   = $p->serial ?? '';
                 $showUrl     = route('users.ticketstatus.proof.show', $p);
                 $downloadUrl = route('users.ticketstatus.proof.download', $p);
               @endphp
-              <tr>
+              <tr data-serial-item data-serial="{{ strtolower($serialRaw) }}">
                 <td class="fw-semibold text-truncate" title="{{ $p->ticket->name ?? 'Ticket' }}">
                   <i class="bi bi-ticket-perforated me-1 text-primary"></i>{{ $p->ticket->name ?? 'Ticket' }}
                 </td>
@@ -136,15 +152,16 @@
   </div>
 
   {{-- MOBILE CARDS --}}
-  <div class="d-md-none mt-4">
+  <div class="d-md-none mt-4" id="mobileList">
     @forelse($purchases as $p)
       @php
         $serial      = $p->status === 'accepted' ? ($p->serial ?? '—') : '—';
+        $serialRaw   = $p->serial ?? '';
         $showUrl     = $p->proof_image_path ? route('users.ticketstatus.proof.show', $p) : null;
         $downloadUrl = $p->proof_image_path ? route('users.ticketstatus.proof.download', $p) : null;
       @endphp
 
-      <div class="card shadow-sm border-0 rounded-4 mb-3">
+      <div class="card shadow-sm border-0 rounded-4 mb-3" data-serial-item data-serial="{{ strtolower($serialRaw) }}">
         <div class="card-body">
           <div class="d-flex justify-content-between gap-3">
             <div class="flex-grow-1">
@@ -226,6 +243,11 @@
     @endforelse
   </div>
 
+  {{-- No search results (hidden by default, shown via JS) --}}
+  <div id="noSerialResults" class="alert alert-info mt-3 d-none" role="alert">
+    <i class="bi bi-info-circle me-2"></i>No matching serials on this page.
+  </div>
+
   <div class="mt-3">{{ $purchases->links() }}</div>
 </div>
 
@@ -235,28 +257,18 @@
     width:44px;height:44px;background:#f5f8ff;color:#4f7cff;font-size:20px;
   }
 
-  /* monospace helper */
   .font-monospace{
     font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace
   }
 
-  /* modern table */
   .table-modern thead th{
     background:#f8f9fb;border-bottom:1px solid #eef0f4;
     text-transform:uppercase; font-size:.75rem; letter-spacing:.02em; color:#6b7280;
   }
-  .table-modern tbody tr{
-    --row-bg:#fff;
-    background:var(--row-bg);
-  }
-  .table-modern tbody tr:hover{
-    --row-bg:#f9fbff;
-  }
-  .table-modern td, .table-modern th{
-    padding:14px 16px; vertical-align:middle;
-  }
+  .table-modern tbody tr{ --row-bg:#fff; background:var(--row-bg); }
+  .table-modern tbody tr:hover{ --row-bg:#f9fbff; }
+  .table-modern td, .table-modern th{ padding:14px 16px; vertical-align:middle; }
 
-  /* proof thumbnail with hover overlay */
   .proof-thumb img{
     width:72px;height:48px;object-fit:cover;border-radius:10px;border:1px solid #e5e7eb;display:block;
   }
@@ -277,7 +289,6 @@
   }
   .proof-thumb-sm:hover .overlay{ opacity:1; }
 
-  /* status badges (soft) */
   .status-badge{
     display:inline-flex; align-items:center; gap:.4rem;
     padding:.375rem .6rem; border-radius:999px; font-weight:600; font-size:.75rem;
@@ -291,7 +302,6 @@
   .badge-soft-danger{ background:#fdebec; color:#b42318; border-color:#f7c7c9; }
   .badge-soft-danger .dot{ background:#ef4444; }
 
-  /* chips */
   .chip{
     display:inline-flex; align-items:center; gap:.35rem; padding:.35rem .55rem;
     background:#f5f8ff; border:1px solid #e6ecff; border-radius:10px; cursor:default;
@@ -299,7 +309,6 @@
   .chip-mono{ font-size:.9rem; }
   .chip-good{ background:#e9f9ef; border-color:#c7f0d6; }
 
-  /* clickable copy */
   .chip[data-copy]{ cursor:pointer; user-select:none; }
 </style>
 
@@ -324,5 +333,33 @@
     const chip = e.target.closest('.chip[data-copy]');
     if (chip) copyText(chip.dataset.copy, chip);
   }, { passive:true });
+
+  // ===== Realtime serial filter (desktop + mobile) =====
+  document.addEventListener('DOMContentLoaded', function () {
+    const input   = document.getElementById('serialSearch');
+    const clear   = document.getElementById('serialClear');
+    const items   = Array.from(document.querySelectorAll('[data-serial-item]'));
+    const noRes   = document.getElementById('noSerialResults');
+
+    const apply = () => {
+      const q = (input.value || '').trim().toLowerCase();
+      let shown = 0;
+
+      items.forEach(el => {
+        const s = (el.dataset.serial || '').toLowerCase();
+        const show = !q || (s && s.includes(q));
+        el.style.display = show ? '' : 'none';
+        if (show) shown++;
+      });
+
+      if (noRes) noRes.classList.toggle('d-none', shown !== 0);
+    };
+
+    input?.addEventListener('input', apply);
+    clear?.addEventListener('click', () => { input.value=''; apply(); input.focus(); });
+
+    // Run once so the "no results" banner is consistent on load
+    apply();
+  });
 </script>
 @endsection

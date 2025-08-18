@@ -28,8 +28,8 @@
       <div class="text-muted">Transfer payment in any given account & submit proof.</div>
     </div>
     <div>
-      <a href="{{ url()->previous() }}" class="btn btn-light">
-        <i class="bi bi-arrow-left me-1"></i> Back
+      <a href="{{ route('users.dashboard')}}" class="btn btn-light">
+        <i class="bi bi-arrow-left me-1"></i> Dashboard
       </a>
     </div>
   </div>
@@ -68,7 +68,7 @@
             <div class="flex-grow-1">
               <div class="small text-muted mb-1">Account Title:</div>
               <div class="fw-semibold">{{ $mbTitle }}</div>
-
+              
               <div class="small text-muted mt-2 mb-1">Account Number:</div>
               <div class="d-flex align-items-center gap-2 flex-wrap">
                 <span class="copyable fw-semibold" data-copy="{{ $mbNumber }}" title="Click to copy" style="font-size: 0.7rem;">{{ $mbNumber }}</span>
@@ -79,7 +79,7 @@
             </div>
           </div>
         </div>
-
+         
         {{-- 2) JazzCash --}}
         <div class="col-lg-4 col-md-6">
           <div class="pay-card d-flex align-items-center gap-3 p-3 rounded-3">

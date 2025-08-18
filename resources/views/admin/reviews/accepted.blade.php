@@ -40,6 +40,35 @@
     </div>
   @endif
 
+  {{-- Filters: Name + Serial (realtime) --}}
+  <div class="card border-0 shadow-sm rounded-4 mb-3">
+    <div class="card-body py-3">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-6">
+          <label for="searchName" class="form-label fw-semibold mb-1">Search by <span class="text-primary">User Name</span></label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            <input type="search" id="searchName" class="form-control" placeholder="Type a user name…" autocomplete="off">
+            <button class="btn btn-outline-secondary" type="button" id="clearName" title="Clear"><i class="bi bi-x-lg"></i></button>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="searchSerial" class="form-label fw-semibold mb-1">Search by <span class="text-primary">Serial Number</span></label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-hash"></i></span>
+            <input type="search" id="searchSerial" class="form-control" placeholder="e.g., PK123456" autocomplete="off">
+            <button class="btn btn-outline-secondary" type="button" id="clearSerial" title="Clear"><i class="bi bi-x-lg"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div id="noResults" class="alert alert-info mt-3 py-2 px-3 d-none" role="alert">
+        <i class="bi bi-info-circle me-2"></i>No matching rows on this page.
+      </div>
+    </div>
+  </div>
+
   {{-- Table --}}
   <div class="card shadow-sm border-0 rounded-4">
     <div class="card-body">
@@ -62,7 +91,7 @@
             </tr>
           </thead>
 
-          <tbody>
+          <tbody id="acceptedTbody">
             @forelse($purchases as $idx => $p)
               @php
                 $rowNum      = ($purchases->currentPage() - 1) * $purchases->perPage() + $idx + 1;
@@ -70,9 +99,13 @@
                 $user        = $p->user;
                 $previewUrl  = $p->proof_image_path ? route('admin.reviews.proof.show', $p->id)     : null;
                 $downloadUrl = $p->proof_image_path ? route('admin.reviews.proof.download', $p->id) : null;
+                $userName    = strtolower($user?->name ?? '');
+                $serialStr   = strtolower($p->serial ?? '');
               @endphp
 
-              <tr class="bg-white">
+              <tr class="bg-white"
+                  data-name="{{ $userName }}"
+                  data-serial="{{ $serialStr }}">
                 {{-- Row checkbox --}}
                 <td data-label="Select">
                   <input type="checkbox" class="form-check-input row-check" value="{{ $p->id }}">
@@ -166,11 +199,9 @@
   .font-monospace{
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
-
   .display-6{
     font-size: clamp(1.5rem, 2.2vw + 1rem, 2.5rem);
   }
-
   .proof-thumb{ width: 72px !important; height: 48px !important; }
 
   /* Mobile stacked-cards layout */
@@ -259,6 +290,42 @@
       bulkIds.value = ids.join(',');
       bulkForm.submit();
     });
+  })();
+
+  // ----- REALTIME FILTER: by name AND serial (AND logic) -----
+  (function () {
+    const nameInput   = document.getElementById('searchName');
+    const serialInput = document.getElementById('searchSerial');
+    const clearName   = document.getElementById('clearName');
+    const clearSerial = document.getElementById('clearSerial');
+    const tbody       = document.getElementById('acceptedTbody');
+    const rows        = Array.from(tbody?.querySelectorAll('tr[data-name][data-serial]') || []);
+    const noResults   = document.getElementById('noResults');
+
+    const apply = () => {
+      const qName   = (nameInput?.value || '').trim().toLowerCase();
+      const qSerial = (serialInput?.value || '').trim().toLowerCase();
+      let visible = 0;
+
+      rows.forEach(tr => {
+        const dn = tr.dataset.name || '';
+        const ds = tr.dataset.serial || '';
+        const passName   = !qName   || dn.includes(qName);
+        const passSerial = !qSerial || ds.includes(qSerial);
+        const show = passName && passSerial;
+        tr.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      if (noResults) noResults.classList.toggle('d-none', visible !== 0);
+    };
+
+    nameInput?.addEventListener('input', apply);
+    serialInput?.addEventListener('input', apply);
+    clearName?.addEventListener('click', () => { nameInput.value = ''; nameInput.focus(); apply(); });
+    clearSerial?.addEventListener('click', () => { serialInput.value = ''; serialInput.focus(); apply(); });
+
+    apply(); // initial
   })();
 </script>
 @endsection

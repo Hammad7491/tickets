@@ -2,7 +2,7 @@
 @php
   use Illuminate\Support\Facades\Route;
 
-  $logo       = asset('asset/images/logo_92.png');
+  $logo       = asset('asset/images/Logo_92.png');
   $heroImg    = asset('asset/images/landing/hero.jpg');
 
   // “How it works” icons (fallback to site logo)
@@ -202,7 +202,7 @@
         <nav class="d-none d-md-flex align-items-center gap-3">
           <a href="#how" class="nav-link">How it Works</a>
           <a href="#why" class="nav-link">Why Us</a>
-          <a href="#live" class="nav-link">Live Stream</a>
+          <a href="https://youtube.com/@92dreampk?si=hf6OmC6i3GSw7W3a" class="nav-link">Live Stream</a>
           <a href="#faq" class="nav-link">FAQ</a>
 
           @auth
@@ -230,7 +230,7 @@
     <div class="offcanvas-body d-flex flex-column gap-2">
       <a class="nav-link" href="#how" data-bs-dismiss="offcanvas">How it Works</a>
       <a class="nav-link" href="#why" data-bs-dismiss="offcanvas">Why Us</a>
-      <a class="nav-link" href="#live" data-bs-dismiss="offcanvas">Live Stream</a>
+      <a class="https://youtube.com/@92dreampk?si=hf6OmC6i3GSw7W3a" href="#live" data-bs-dismiss="offcanvas">Live Stream</a>
       <a class="nav-link" href="#faq" data-bs-dismiss="offcanvas">FAQ</a>
       <hr>
       @auth
@@ -257,8 +257,8 @@
           </p>
 
           <div class="d-flex flex-wrap gap-2">
-            <a href="{{ route('registerform') }}" class="btn btn-brand btn-lg px-4">Get Started</a>
-            <a href="{{ $youtubeUrl }}" target="_blank" rel="noopener" class="btn btn-outline-light btn-lg px-4">
+            <a href="{{ route('registerform') }}" class="btn btn-brand btn-lg px-4">Buy Lottery Ticket</a>
+            <a href="https://youtube.com/@92dreampk?si=hf6OmC6i3GSw7W3a" target="_blank" rel="noopener" class="btn btn-outline-light btn-lg px-4">
               Watch Live Stream
             </a>
           </div>
@@ -381,7 +381,7 @@
           <p class="mb-0">We announce the draw time once all tickets are sold. Tune in and watch the action live!</p>
         </div>
         <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
-          <a href="{{ $youtubeUrl }}" class="btn btn-light fw-bold px-4" target="_blank" rel="noopener">
+          <a href="https://youtube.com/@92dreampk?si=hf6OmC6i3GSw7W3a" class="btn btn-light fw-bold px-4" target="_blank" rel="noopener">
             Go to YouTube
           </a>
           <a href="{{ route('registerform') }}" class="btn btn-outline-light fw-bold px-4">
@@ -488,7 +488,7 @@
       <div class="d-flex align-items-center gap-3">
         <a href="#how" class="text-decoration-none">How it works</a>
         <a href="#why" class="text-decoration-none">Why Us</a>
-        <a href="#live" class="text-decoration-none">Live Stream</a>
+        <a href="https://youtube.com/@92dreampk?si=hf6OmC6i3GSw7W3a" class="text-decoration-none">Live Stream</a>
       </div>
     </div>
   </footer>

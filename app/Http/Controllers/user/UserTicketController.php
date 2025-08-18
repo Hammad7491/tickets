@@ -25,21 +25,19 @@ class UserTicketController extends Controller
         return view('users.ticketstatus.index', compact('purchases'));
     }
 
-
     public function create(Request $request, Ticket $ticket)
-{
-    $user = $request->user();
+    {
+        $user = $request->user();
 
-    // Count active purchases to show remaining stock
-    $held = TicketPurchase::where('ticket_id', $ticket->id)
-        ->whereIn('status', ['pending', 'accepted'])
-        ->count();
+        // Count active purchases to show remaining stock
+        $held = TicketPurchase::where('ticket_id', $ticket->id)
+            ->whereIn('status', ['pending', 'accepted'])
+            ->count();
 
-    $remaining = max(0, ((int) $ticket->quantity) - $held);
+        $remaining = max(0, ((int) $ticket->quantity) - $held);
 
-    return view('users.buy.create', compact('ticket', 'user', 'remaining'));
-}
-
+        return view('users.buy.create', compact('ticket', 'user', 'remaining'));
+    }
 
     public function proofShow(TicketPurchase $purchase)
     {
@@ -117,25 +115,26 @@ class UserTicketController extends Controller
             'serial'           => $this->makeSerial(), // ← generate now
         ]);
 
-        return back()->with('success', 'Your ticket request was submitted and is pending review.');
+        // 🔁 Redirect straight to the user's ticket status page
+        return redirect()
+            ->route('users.ticketstatus.index')
+            ->with('success', 'Your ticket request was submitted and is pending review.');
     }
-
-
 
     public function destroy(TicketPurchase $purchase)
-{
-    $user = request()->user();
-    abort_unless($purchase->user_id === $user->id, 403);
+    {
+        $user = request()->user();
+        abort_unless($purchase->user_id === $user->id, 403);
 
-    // Prevent deleting accepted tickets
-    if ($purchase->status === 'accepted') {
-        return back()->with('error', 'You cannot delete an accepted ticket.');
+        // Prevent deleting accepted tickets
+        if ($purchase->status === 'accepted') {
+            return back()->with('error', 'You cannot delete an accepted ticket.');
+        }
+
+        $purchase->delete();
+
+        return back()->with('success', 'Ticket request deleted successfully.');
     }
-
-    $purchase->delete();
-
-    return back()->with('success', 'Ticket request deleted successfully.');
-}
 
     /** Generate PK + 6 digits (e.g., PK123456) and ensure uniqueness. */
     private function makeSerial(): string

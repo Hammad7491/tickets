@@ -14,12 +14,31 @@
     </div>
 
     <div class="card-body">
+
       @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
           {{ session('success') }}
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
       @endif
+
+      {{-- Search by Name --}}
+      <div class="d-flex justify-content-end mb-3">
+        <div class="search-wrap">
+          <label for="ticketSearch" class="form-label fw-semibold mb-1">Search by Name</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="search" id="ticketSearch" class="form-control" placeholder="Type a ticket name…" autocomplete="off">
+            <button class="btn btn-outline-secondary" type="button" id="clearTicketSearch" title="Clear">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="noTicketResults" class="alert alert-info py-2 px-3 d-none" role="alert">
+        <i class="bi bi-info-circle me-2"></i>No matching tickets on this page.
+      </div>
 
       {{-- TABLE (md and up) --}}
       <div class="table-responsive d-none d-md-block">
@@ -33,9 +52,9 @@
               <th class="text-center" style="width:120px;">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="ticketsTbody">
             @forelse($tickets as $t)
-              <tr>
+              <tr data-name="{{ strtolower($t->name ?? '') }}">
                 <td class="fw-semibold text-truncate" style="max-width: 280px;" title="{{ $t->name }}">
                   {{ $t->name }}
                 </td>
@@ -105,9 +124,9 @@
       </div>
 
       {{-- MOBILE CARDS (below md) --}}
-      <div class="d-md-none">
+      <div class="d-md-none" id="ticketsCards">
         @forelse($tickets as $t)
-          <div class="border rounded-3 p-3 mb-3 shadow-sm">
+          <div class="border rounded-3 p-3 mb-3 shadow-sm" data-name="{{ strtolower($t->name ?? '') }}">
             <div class="d-flex align-items-start justify-content-between gap-3">
               <div class="flex-grow-1">
                 <div class="fw-semibold mb-1 text-truncate" title="{{ $t->name }}">{{ $t->name }}</div>
@@ -185,6 +204,8 @@
 </div>
 
 <style>
+  .search-wrap{ min-width: 260px; max-width: 360px; width: 100%; }
+
   /* Prevent tiny screens from squashing the header buttons */
   @media (max-width: 575.98px){
     .card-header .btn{padding:.3rem .5rem}
@@ -194,4 +215,37 @@
     .table td,.table th{vertical-align:middle}
   }
 </style>
+
+{{-- Realtime filter by ticket name (desktop table + mobile cards) --}}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const input   = document.getElementById('ticketSearch');
+    const clear   = document.getElementById('clearTicketSearch');
+    const tableRows = Array.from(document.querySelectorAll('#ticketsTbody tr[data-name]'));
+    const cardRows  = Array.from(document.querySelectorAll('#ticketsCards [data-name]'));
+    const noRes  = document.getElementById('noTicketResults');
+
+    function apply() {
+      const q = (input.value || '').trim().toLowerCase();
+      let shown = 0;
+
+      const applySet = (els) => els.forEach(el => {
+        const name = (el.dataset.name || '');
+        const show = !q || name.includes(q);
+        el.style.display = show ? '' : 'none';
+        if (show) shown++;
+      });
+
+      applySet(tableRows);
+      applySet(cardRows);
+
+      if (noRes) noRes.classList.toggle('d-none', shown !== 0);
+    }
+
+    input?.addEventListener('input', apply);
+    clear?.addEventListener('click', () => { input.value = ''; apply(); input.focus(); });
+
+    apply(); // initial run
+  });
+</script>
 @endsection
