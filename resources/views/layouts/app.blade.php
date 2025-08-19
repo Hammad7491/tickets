@@ -51,9 +51,17 @@
   href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 @stack('styles')
 @yield('styles')
+
+<script>
+    $(".sidebar-close-btn").on("click", function(){
+    $(".sidebar").removeClass("sidebar-open");
+    $("body").removeClass("overlay-active");
+  });
+</script>
 </head>
 
 <body>  
+  
 @include('layouts.sidebar')
 
 <main class="dashboard-main">
