@@ -18,7 +18,7 @@
       {{-- COPY / ACTIONS --}}
       <div class="hero-copy">
         <h4 class="hero-title">Welcome, {{ $user->name }}</h4>
-        <p class="hero-sub">92 DREAM PK • LIVE LOTTERY</p>
+        <p class="hero-sub">92 DREAM PK • LIVE Lucky Draw</p>
 
         <div class="d-flex flex-wrap gap-2 mt-2">
           @if(Route::has('users.ticketstatus.index'))
@@ -95,7 +95,7 @@
                   </span>
                   <a href="{{ route('users.buy.create', $t->id) }}"
                      class="btn btn-primary btn-sm order-2 ms-auto">
-                    Buy Lottery Ticket
+                    Buy Lucky DrawTicket
                   </a>
                 @else
                   <span class="badge bg-danger-subtle text-danger fw-bold order-1">Out of stock</span>

@@ -257,7 +257,7 @@
           </p>
 
           <div class="d-flex flex-wrap gap-2">
-            <a href="{{ route('registerform') }}" class="btn btn-brand btn-lg px-4">Buy Lottery Ticket</a>
+            <a href="{{ route('registerform') }}" class="btn btn-brand btn-lg px-4">Buy Lucky Draw Ticket</a>
             <a href="https://youtube.com/@92dreampk?si=hf6OmC6i3GSw7W3a" target="_blank" rel="noopener" class="btn btn-outline-light btn-lg px-4">
               Watch Live Stream
             </a>
@@ -316,8 +316,8 @@
           <div class="card-lite p-4 h-100 d-flex align-items-start gap-3">
             <div class="logo-bubble"><img src="{{ $icoBuy }}" alt="Buy"></div>
             <div>
-              <h6 class="fw-bold mb-1">2. Buy Tickets</h6>
-              <p class="mb-0 text-muted">Purchase any number of tickets before the draw closes.</p>
+              <h6 class="fw-bold mb-1">2. Get Lucky Draw Ticket</h6>
+              <p class="mb-0 text-muted">Get perfume and get lucky draw tickets</p>
             </div>
           </div>
         </div>
@@ -393,31 +393,7 @@
   </section>
 
   {{-- ================= Testimonials ================= --}}
-  <section class="pb-5">
-    <div class="container-xl">
-      <h2 class="section-title mb-4">What Players Say</h2>
-      <div class="row g-4">
-        <div class="col-12 col-md-4">
-          <div class="card-lite p-4 h-100 quote">
-            <p class="mb-3">Transparent, fast and fun. I love watching the live streams!</p>
-            <small>— Ali R.</small>
-          </div>
-        </div>
-        <div class="col-12 col-md-4">
-          <div class="card-lite p-4 h-100 quote">
-            <p class="mb-3">Buying tickets is super easy and payouts are quick. Highly recommend.</p>
-            <small>— Sana K.</small>
-          </div>
-        </div>
-        <div class="col-12 col-md-4">
-          <div class="card-lite p-4 h-100 quote">
-            <p class="mb-3">The whole experience feels professional and secure. Great job!</p>
-            <small>— Hamza M.</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  
 
   {{-- ================= FAQ ================= --}}
   <section id="faq" class="pb-5">
