@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Log In | {{ config('app.name','Silva') }}</title>
-  <link rel="icon" type="image/png" href="{{ asset('assets/images/favicon.png') }}" sizes="16x16" />
+  <link rel="icon" type="image/png" href="{{ asset('asset/images/LOGO LUCKY DRAW.png') }}" sizes="16x16" />
 
   {{-- keep your existing CSS stack --}}
   <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}" />
@@ -125,7 +125,7 @@
     {{-- Logo --}}
     <div class="text-center mb-2">
       <a href="{{ url('/') }}" class="d-inline-block">
-        <img class="auth-logo" src="{{ asset('asset/images/logo_92.png') }}" alt="logo">
+        <img class="auth-logo" src="{{ asset('asset/images/LOGO LUCKY DRAW.png') }}" alt="logo">
       </a>
     </div>
 

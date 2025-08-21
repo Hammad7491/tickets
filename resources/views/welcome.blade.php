@@ -2,7 +2,7 @@
 @php
   use Illuminate\Support\Facades\Route;
 
-  $logo       = asset('asset/images/Logo_92.png');
+  $logo       = asset('asset/images/LOGO LUCKY DRAW.png');
   $heroImg    = asset('asset/images/landing/hero.jpg');
 
   // “How it works” icons (fallback to site logo)
@@ -288,7 +288,7 @@
         {{-- RIGHT: white box with image (visible from md and up) --}}
         <div class="col-md-5 d-none d-md-block">
           <div class="mockup">
-            <img src="{{ asset('asset/images/Home Page.png') }}"
+            <img src="{{ asset('asset/images/Home New LUCKYDRAW.png') }}"
                  alt="Live draw / product preview" loading="lazy">
           </div>
         </div>

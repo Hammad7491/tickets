@@ -14,7 +14,7 @@
     $waTextPlain = '92dreampk.com.'; // default message to prefill
 
     $ytLink = config('app.youtube_url', env('YOUTUBE_URL', 'https://youtube.com/@92dreampk?si=hf6OmC6i3GSw7W3a'));
-    $centerLogo = asset('asset/images/logo_92.png');
+    $centerLogo = asset('asset/images/LOGO LUCKY DRAW.png');
 @endphp
 
 <div class="navbar-header position-relative">

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>92 Dream PK Live Lottery
 </title>
-    <link rel="icon" type="image/png" href="{{ asset('asset/images/Logo_92.png') }}" sizes="32x32" />
+    <link rel="icon" type="image/png" href="{{ asset('asset/images/LOGO LUCKY DRAW.png') }}" sizes="32x32" />
 
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}" />

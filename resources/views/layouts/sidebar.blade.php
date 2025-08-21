@@ -68,7 +68,7 @@
 
     <div>
         <a href="{{ $dashUrl }}" class="sidebar-logo">
-            <img src="{{ asset('asset/images/logo_92.png') }}" alt="site logo" class="light-logo">
+            <img src="{{ asset('asset/images/LOGO LUCKY DRAW.png') }}" alt="site logo" class="light-logo">
         </a>
     </div>
 
