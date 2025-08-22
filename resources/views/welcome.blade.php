@@ -32,6 +32,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>92 Dream PK — Buy Tickets. Watch Live. Win Prizes.</title>
+   <link rel="icon" type="image/png" href="{{ asset('asset/images/LOGO LUCKY DRAW.png') }}" sizes="16x16" />
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -417,7 +418,7 @@
         <div class="accordion-item card-lite mt-3">
           <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
-              Can I buy multiple tickets?
+              Can I Get multiple tickets?
             </button>
           </h2>
           <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
@@ -448,7 +449,7 @@
     <div class="container-xl">
       <div class="cta-gradient p-4 p-lg-5 text-center">
         <h2 class="fw-bold mb-2">Ready to Join the Next Draw?</h2>
-        <p class="mb-4">Create your account, buy tickets, and catch the action live on YouTube.</p>
+        <p class="mb-4">Create your account, get tickets, and catch the action live on YouTube.</p>
         <div class="d-flex flex-wrap justify-content-center gap-2">
           <a href="{{ route('registerform') }}" class="btn btn-light fw-bold px-4">Create Account</a>
           <a href="{{ route('loginform') }}" class="btn btn-outline-light fw-bold px-4">Log In</a>

@@ -1,7 +1,7 @@
 @php
   $app    = config('app.name', '92 Dream PK');
   $email  = config('mail.from.address', 'support@example.com');
-  $wa     = config('app.support_whatsapp', env('SUPPORT_WHATSAPP', '+923124932021'));
+  $wa     = config('app.support_whatsapp', env('SUPPORT_WHATSAPP', '03066262459'));
   $waLink = 'https://wa.me/' . preg_replace('/\D+/', '', $wa);
 @endphp
 
@@ -105,6 +105,7 @@
           <ul>
             <li>You will receive your Lucky Draw ticket number after purchase.</li>
             <li>All tickets are printed as chits (پرچیاں) and entered into the draw bowl.</li>
+            <li>15% service fee will be deducted from winning amount.</li>
             <li>The draw will be streamed live on our official YouTube channel on the announced date.</li>
             <li>Winners will be contacted directly after the live event.</li>
           </ul>

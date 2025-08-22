@@ -255,6 +255,8 @@ document.querySelector(".sidebar-close-btn").addEventListener("click", function(
   document.querySelector(".sidebar").classList.remove("sidebar-open");
   document.querySelector(".sidebar").classList.remove("open");
   document.querySelector(".sidebar-backdrop ").classList.remove("show");
+document.querySelector("body").classList.remove("no-scroll", "sidebar-open");
+
   document.body.classList.remove("overlay-active");
 });
 

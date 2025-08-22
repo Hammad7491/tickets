@@ -95,7 +95,7 @@
                   </span>
                   <a href="{{ route('users.buy.create', $t->id) }}"
                      class="btn btn-primary btn-sm order-2 ms-auto">
-                    Buy Lucky DrawTicket
+                    Buy Lucky Draw Ticket
                   </a>
                 @else
                   <span class="badge bg-danger-subtle text-danger fw-bold order-1">Out of stock</span>

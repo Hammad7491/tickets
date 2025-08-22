@@ -9,7 +9,7 @@
             ?? asset('assets/images/user.png');
 
     // Support numbers / links (config or .env)
-    $waPhoneRaw = config('app.support_whatsapp', env('SUPPORT_WHATSAPP', '+92 309 4040765')); // human-friendly
+    $waPhoneRaw = config('app.support_whatsapp', env('SUPPORT_WHATSAPP', '03066262459')); // human-friendly
     $waPhoneDigits = preg_replace('/\D+/', '', $waPhoneRaw); // 923094040765 (no +, spaces, etc.)
     $waTextPlain = '92dreampk.com.'; // default message to prefill
 
