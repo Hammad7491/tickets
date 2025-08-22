@@ -101,15 +101,16 @@
             </div>
           </div>
 
-          <!-- Roles: ONLY Admin -->
+          <!-- Roles: Admin & User -->
           <div class="col-12">
             <label class="form-label fw-semibold">
               <i class="bi bi-people-fill me-2"></i>Role <span class="text-danger">*</span>
             </label>
 
             @php
-              // Only show Admin in the picker
-              $allowed = ['admin'];
+              // Allow Admin & User. If creating (no $user), default preselect "user".
+              $allowed = ['admin', 'user'];
+              $userRoles = $userRoles ?? (isset($user) ? ($userRoles ?? []) : ['user']);
             @endphp
 
             <div class="dropdown w-100 role-picker">
@@ -121,7 +122,6 @@
               </button>
 
               <div class="dropdown-menu w-100 p-0 shadow" style="max-height:220px;overflow:auto;z-index:2000;">
-                <!-- No search bar anymore -->
                 <div class="role-list py-2">
                   @foreach($allowed as $rname)
                     <label class="dropdown-item d-flex align-items-center gap-2">
