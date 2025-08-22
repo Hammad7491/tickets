@@ -3,14 +3,15 @@
 @section('content')
 @php
   // Payment meta (override via config('payments.*') or .env if you want)
-  $mbTitle  = config('payments.bank.title',      env('BANK_TITLE',      'Asad Ali'));
-  $mbNumber = config('payments.bank.number',     env('BANK_NUMBER',     'PK65MEZN0002730105830000'));
+  $mbTitle  = config('payments.bank.title',      env('BANK_TITLE',      'ALI SHER'));
+  $mbNumber = config('payments.bank.number',     env('BANK_NUMBER',     'PK65MEZN0002730105833529'));
 
-  $jcTitle  = config('payments.jazzcash.title',  env('JAZZCASH_TITLE',  'Asad Ali'));
-  $jcNumber = config('payments.jazzcash.number', env('JAZZCASH_NUMBER', '03094433221'));
+  $jcTitle  = config('payments.jazzcash.title',  env('JAZZCASH_TITLE',  '.....'));
+  $jcNumber = config('payments.jazzcash.number', env('JAZZCASH_NUMBER', '....'));
 
-  $epTitle  = config('payments.easypaisa.title', env('EASYPAY_TITLE',   'Asad Ali'));
-  $epNumber = config('payments.easypaisa.number',env('EASYPAY_NUMBER',  '03091223334'));
+  $epTitle  = config('payments.easypaisa.title', env('EASYPAY_TITLE',   'Shamsa Aslam
+'));
+  $epNumber = config('payments.easypaisa.number',env('EASYPAY_NUMBER',  '03276779140'));
 
   // Logos (match your /public/asset/images structure)
   $mbLogo = asset('asset/images/meezan-bank-logo.png'); // ensure this file exists
