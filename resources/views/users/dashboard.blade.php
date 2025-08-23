@@ -9,7 +9,7 @@
       {{-- IMAGE --}}
       <figure class="hero-visual" aria-label="92 Dream PK">
         <img
-          src="{{ asset('asset/images/Home New.png') }}"
+          src="{{ asset('asset/images/Home New LUCKYDRAW.png') }}"
           alt="92 DREAM PK — Live Lottery"
           class="hero-img"
           loading="eager" decoding="async">
