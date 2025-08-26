@@ -115,12 +115,12 @@
                             </a>
                         </li>
 
-                         <li>
+                         {{-- <li>
                             <a href="{{ route('admin.users.index') }}"
                                 class="{{ request()->routeIs('admin.users.show') ? 'is-active' : '' }}">
                                 <i class="ri-circle-fill circle-icon text-primary-600 w-auto"></i> User show
                             </a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </li>
             @endif
