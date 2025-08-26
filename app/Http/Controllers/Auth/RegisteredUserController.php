@@ -24,30 +24,37 @@ class RegisteredUserController extends Controller
     /**
      * Handle a new user registration.
      *
-     * - New signups are regular "user" role by default.
-     * - We still check roles after login in case an admin creates an account elsewhere
-     *   and then logs in (role-based redirect will work).
+     * - Phone is required and stored as digits-only.
+     * - Email is unique; phone is NOT unique (per your requirement).
+     * - Newly registered users get the "user" role by default.
      */
     public function store(Request $request)
     {
+        // Normalize phone to digits BEFORE validation
+        $normalizedPhone = preg_replace('/\D+/', '', (string) $request->input('phone'));
+        $request->merge(['phone' => $normalizedPhone]);
+
+        // Validate inputs
         $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
+            // phone required, exactly 11 digits, NOT unique
+            'phone'    => ['required', 'digits:11'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'phone'    => ['nullable', 'string', 'max:30'],
         ]);
 
-        $user = User::create([
-            'name'     => $request->string('name')->trim(),
-            'email'    => strtolower($request->string('email')->trim()),
-            'password' => Hash::make($request->password),
-            'phone'    => $request->input('phone'),
-        ]);
+        // Create user explicitly (no mass-assignment ambiguity)
+        $user = new User();
+        $user->name     = trim((string) $request->input('name'));
+        $user->email    = strtolower(trim((string) $request->input('email')));
+        $user->phone    = $request->input('phone'); // already normalized to digits
+        $user->password = Hash::make($request->input('password'));
+        $user->save();
 
         // Fire the "Registered" event
         event(new Registered($user));
 
-        // Make sure base roles exist, then assign "user" to self-registered accounts
+        // Ensure roles exist (guard: web) and assign default role
         Role::firstOrCreate(['name' => 'user',  'guard_name' => 'web']);
         Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $user->assignRole('user');

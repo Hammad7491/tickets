@@ -82,7 +82,6 @@
     .form-control:focus{
       border-color:#bfdbfe; box-shadow:0 0 0 .18rem rgba(59,130,246,.12); background:#fff;
     }
-    /* Stronger invalid visuals */
     .form-control.is-invalid{
       border-color:#ef4444 !important;
       box-shadow:0 0 0 .18rem rgba(239,68,68,.12) !important;
@@ -151,7 +150,7 @@
     @endif
 
     {{-- Form --}}
-    <form action="{{ route('register') }}" method="POST" autocomplete="off" id="registerForm" novalidate>
+    <form action="{{ route('register.store') }}" method="POST" autocomplete="off" id="registerForm" novalidate>
       @csrf
 
       {{-- Name --}}
@@ -186,7 +185,7 @@
           aria-describedby="phoneError"
           value="{{ old('phone') }}"
           required
-          pattern="\d{11}"
+          pattern="^\d{11}$"
           title="Enter exactly 11 digits"
         >
       </div>
@@ -228,7 +227,7 @@
 
       <p class="text-center mb-0">
         Already have an account?
-        <a href="{{ Route::has('login') ? route('login') : route('loginform') }}" class="text-primary fw-semibold">Log In</a>
+        <a href="{{ route('login') }}" class="text-primary fw-semibold">Log In</a>
       </p>
     </form>
   </div>
@@ -241,7 +240,7 @@
 <script src="{{ asset('assets/js/lib/dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/js/lib/iconify-icon.min.js') }}"></script>
 <script src="{{ asset('assets/js/lib/jquery-ui.min.js') }}"></script>
-script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
+<script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
 <script src="{{ asset('assets/js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
 <script src="{{ asset('assets/js/lib/magnific-popup.min.js') }}"></script>
 <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
@@ -281,14 +280,13 @@ script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></scrip
 
   // === PHONE VALIDATION (exact length) ===
   (function(){
-    const REQUIRED_LEN = 11; // change if you need a different exact length
+    const REQUIRED_LEN = 11;
     const form   = document.getElementById('registerForm');
     const input  = document.getElementById('phone');
     const errEl  = document.getElementById('phoneError');
 
     if(!input) return;
 
-    // Sanitize to digits-only on input & paste, but DO NOT cap length so we can show "too long" error
     const sanitize = (val) => (val || '').replace(/\D+/g,'');
     const setError = (msg) => {
       input.classList.add('is-invalid');
@@ -300,7 +298,6 @@ script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></scrip
     };
 
     function validatePhone(){
-      // keep digits only in the field
       const raw = input.value;
       const digits = sanitize(raw);
       if (raw !== digits) input.value = digits;
@@ -320,9 +317,7 @@ script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></scrip
 
     input.addEventListener('input', validatePhone);
     input.addEventListener('blur', validatePhone);
-    input.addEventListener('paste', (e) => {
-      requestAnimationFrame(validatePhone);
-    });
+    input.addEventListener('paste', () => { requestAnimationFrame(validatePhone); });
 
     form.addEventListener('submit', function(e){
       const ok = validatePhone();

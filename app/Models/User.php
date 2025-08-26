@@ -71,8 +71,7 @@ class User extends Authenticatable
     public function setPasswordAttribute($value): void
     {
         if (blank($value)) {
-            // keep existing password when null/empty passed
-            return;
+            return; // keep existing password when null/empty passed
         }
 
         $this->attributes['password'] = Hash::needsRehash($value)
@@ -80,21 +79,23 @@ class User extends Authenticatable
             : $value;
     }
 
+    /**
+     * Always store phone as digits-only; null if empty.
+     */
+    public function setPhoneAttribute($value): void
+    {
+        $digits = preg_replace('/\D+/', '', (string) $value);
+        $this->attributes['phone'] = $digits !== '' ? $digits : null;
+    }
+
     /* -----------------------------------------------------------------
      |  Helpers
      | -----------------------------------------------------------------*/
-    /**
-     * Convenience accessor: is admin?
-     * Prefer Spatie role; fall back to legacy 'role' column if present.
-     */
     public function getIsAdminAttribute(): bool
     {
         return $this->hasRole(self::ROLE_ADMIN) || ($this->getAttribute('role') === self::ROLE_ADMIN);
     }
 
-    /**
-     * Quick helpers to enforce the two-role model.
-     */
     public function makeAdmin(): void
     {
         $this->syncRoles([self::ROLE_ADMIN]);
@@ -105,9 +106,6 @@ class User extends Authenticatable
         $this->syncRoles([self::ROLE_USER]);
     }
 
-    /**
-     * Scope: only not-blocked users.
-     */
     public function scopeActive($query)
     {
         return $query->where('is_blocked', false);

@@ -63,7 +63,8 @@
                   {{ $user->email }}
                 </td>
                 <td data-label="Phone Number">
-                  {{ $user->phone ?? '—' }}
+                 {{ $user->phone ?: '—' }}
+
                 </td>
                 <td data-label="Role">
                   @if($user->roles->isNotEmpty())

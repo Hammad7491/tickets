@@ -207,7 +207,7 @@
 
       <p class="text-center mb-0">
         Don’t have an account?
-        <a href="{{ route('registerform') }}" class="text-primary fw-semibold">Sign Up</a>
+        <a href="{{ route('register') }}" class="text-primary fw-semibold">Sign Up</a>
       </p>
     </form>
   </div>

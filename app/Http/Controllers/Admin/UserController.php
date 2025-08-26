@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -73,11 +74,16 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        // Normalize phone to digits-only before validating
+        $phone = $this->sanitizePhone($request->input('phone'));
+        $request->merge(['phone' => $phone]);
+
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:8'],
-            'phone'    => ['nullable', 'string', 'max:30'],
+            // phone required, exactly 11 digits, NOT unique
+            'phone'    => ['required', 'digits:11'],
             'roles'    => ['required', 'array', 'min:1'],
             'roles.*'  => ['string'],
         ]);
@@ -89,7 +95,6 @@ class UserController extends Controller
             ->values()
             ->all();
 
-        // Safety fallback (shouldn't happen because of 'required', but just in case)
         if (empty($picked)) {
             $picked = ['admin'];
         }
@@ -99,12 +104,12 @@ class UserController extends Controller
             Role::firstOrCreate(['name' => $r, 'guard_name' => 'web']);
         }
 
-        $user = User::create([
-            'name'     => trim($data['name']),
-            'email'    => strtolower(trim($data['email'])),
-            'password' => Hash::make($data['password']),
-            'phone'    => $data['phone'] ?? null,
-        ]);
+        $user = new User();
+        $user->name     = trim($data['name']);
+        $user->email    = strtolower(trim($data['email']));
+        $user->password = Hash::make($data['password']);
+        $user->phone    = $data['phone']; // normalized digits
+        $user->save();
 
         $user->syncRoles($picked);
 
@@ -135,18 +140,23 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // Normalize phone to digits-only before validating
+        $phone = $this->sanitizePhone($request->input('phone'));
+        $request->merge(['phone' => $phone]);
+
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'email'    => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => ['nullable', 'confirmed', 'min:8'],
-            'phone'    => ['nullable', 'string', 'max:30'],
+            // phone required, exactly 11 digits, NOT unique
+            'phone'    => ['required', 'digits:11'],
             'roles'    => ['required', 'array', 'min:1'],
             'roles.*'  => ['string'],
         ]);
 
         $user->name  = trim($data['name']);
         $user->email = strtolower(trim($data['email']));
-        $user->phone = $data['phone'] ?? null;
+        $user->phone = $data['phone']; // normalized digits
 
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
@@ -160,7 +170,6 @@ class UserController extends Controller
             ->all();
 
         if (empty($picked)) {
-            // Keep at least one role – fall back to existing or admin
             $existing = $user->roles()->pluck('name')->map(fn ($r) => strtolower($r))->toArray();
             $picked   = !empty($existing) ? $existing : ['admin'];
         }
@@ -185,9 +194,7 @@ class UserController extends Controller
             return back()->with('success', 'You cannot delete your own account.');
         }
 
-        // Optional: invalidate remember token to be safe
         $this->invalidateRememberToken($user);
-        // Optional: kill their active sessions
         $this->killSessionsOf($user);
 
         $user->delete();
@@ -209,7 +216,6 @@ class UserController extends Controller
         $user->is_blocked = true;
         $user->save();
 
-        // Kill active sessions + remember token so they are out
         $this->killSessionsOf($user);
         $this->invalidateRememberToken($user);
 
@@ -231,6 +237,15 @@ class UserController extends Controller
      | Helpers
      |------------------------------------------------------------
      */
+
+    /**
+     * Keep digits only. Returns null if empty (controller requires phone so it won't be null after validate).
+     */
+    private function sanitizePhone(?string $value): ?string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $value);
+        return $digits !== '' ? $digits : null;
+    }
 
     /**
      * Kill all sessions for a user when using the database session driver.
